@@ -99,7 +99,7 @@ function briefChoose(key, target, label) {
   if (target[0] === "Q") {
     const i = +target.slice(1), ch = CHARTERS[key](castOf(key)), q = ch.q[i];
     S.charterQ = i;
-    B.queue.push({ w: SPONSOR[key], t: q[2], sp: q[3] }, { reveal: "Project manager's authority" }, { w: "sys", t: q[1] }, { coach: key === "kudi" ? "The charter formally authorises the project and gives the project manager authority. Knowing the limits of that authority (what you decide, what goes to the sponsor, what belongs to the product owner) comes before anything else." : "Success criteria and acceptance define when the project is finished and who decides. Clarify them before you sign, and track them in every report." }, { go: "ready" });
+    B.queue.push({ w: SPONSOR[key], t: q[2], sp: q[3] }, { reveal: "Project manager's authority" }, { w: "sys", t: q[1] }, { coach: key === "land" ? "In hybrid projects, governance is explicit: who decides at each stage gate, against which criteria. Knowing that before you start protects you from carrying decisions that belong to the business." : key === "kudi" ? "The charter formally authorises the project and gives the project manager authority. Knowing the limits of that authority (what you decide, what goes to the sponsor, what belongs to the product owner) comes before anything else." : "Success criteria and acceptance define when the project is finished and who decides. Clarify them before you sign, and track them in every report." }, { go: "ready" });
     save(); pumpBrief(key); return;
   }
   if (target === "SIGN") { signCharter(key); return; }
@@ -155,9 +155,9 @@ function refreshBrief(key, flash, typingWho) {
 function viewCharter(key) {
   const S = G[key], c = castOf(key), ch = CHARTERS[key](c), B = briefState(key);
   const sp = ch.sponsor;
-  const label = key === "kudi" ? "The Head of Digital Banking's office" : "The site office in Ikorodu";
-  const room = World3D.ok() ? World3D.brief(key, G.people, { sponsor: sp.id, label, player: { name: G.name } }) : Scene.room(G.people, [sp.id], { papers: true, id: key, label, sky: key === "kudi" ? "#8EC5E8" : "#9CCBE6", wall: key === "kudi" ? "#E9E4DA" : "#E7DCCB" });
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Agile · Kudi Microfinance Bank, Marina" : "P1 · Predictive · Ikorodu"}</p><h2>The charter briefing</h2></div><button class="btn ghost sm" data-go="office">Back to the office</button></div>
+  const label = key === "kudi" ? "The Head of Digital Banking's office" : key === "land" ? "The Permanent Secretary's office, Alausa" : "The site office in Ikorodu";
+  const room = World3D.ok() ? World3D.brief(key, G.people, { sponsor: sp.id, label, player: { name: G.name } }) : Scene.room(G.people, [sp.id], { papers: true, id: key, label, sky: key === "kudi" ? "#8EC5E8" : "#9CCBE6", wall: key === "kudi" ? "#E9E4DA" : key === "land" ? "#EDE6D6" : "#E7DCCB" });
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Agile · Kudi Microfinance Bank, Marina" : key === "land" ? "P3 · Hybrid · State Lands Bureau, Alausa" : "P1 · Predictive · Ikorodu"}</p><h2>The charter briefing</h2></div><button class="btn ghost sm" data-go="office">Back to the office</button></div>
   <div class="briefgrid">
     <div class="stack">
       <div class="stage small-stage">${room}</div>
@@ -185,6 +185,10 @@ const TIPS = {
   cevm: ["Earned value", "CPI = EV ÷ AC tells you cost efficiency; SPI = EV ÷ PV tells you schedule efficiency. Below 1.0 is bad. EAC = BAC ÷ CPI is the typical forecast if today's performance continues."],
   crain: ["Rain on site", "The rainy season was in your risk register. When a risk happens it becomes an issue: use the planned response, update the register and tell the people who need to know."],
   cclose: ["Closing the project", "Closure means formal acceptance, handing over documentation and knowledge, releasing resources, closing contracts and recording lessons learned. Don't skip it just because the building is finished."],
+  lplan: ["Tailoring", "Hybrid means choosing the right approach for each part of the work. A pilot lowers risk; monthly portal releases bring feedback early; champions win hearts before training wins minds; stage gates put go-live decisions with the right people."],
+  lrun: ["Three tracks at once", "Each month, scanning moves forward, the portal team releases, and staff move (or don't) along the change ladder. A district only goes live when its records are in, the core portal works and its people are ready."],
+  lchange: ["The change ladder", "Awareness, Desire, Knowledge, Ability, Reinforcement. Training builds knowledge, but if people don't know why or don't want the change, training won't stick. Watch the Change tab."],
+  lclose: ["Benefits after you leave", "A project delivers outputs; the organisation realises benefits. Before closing, make sure someone owns the benefits and will keep measuring them."],
   debrief: ["Reading a debrief", "After each decision, look at the exam lens and the task it maps to. The best answer usually assesses first, involves the right people and uses the agreed process before escalating."],
   exam: ["Exam Hall tips", "On the real exam, read the last sentence of the question first. Look for words like FIRST, NEXT and BEST. Strike out answers that skip assessment, ignore people or bypass the process."],
   mock: ["After your mock", "Review every wrong answer and ask which principle you missed. Two mocks in a row at Target or above in every domain is a good signal that you're ready to book."],
@@ -226,6 +230,8 @@ function coachTriggers() {
   const K = G.kudi, C = G.clinic;
   if (v === "kudi" && K) { if (K.phase === "planning") coach("kplan"); if (K.phase === "sprint") coach("ksprint"); if (K.phase === "review") coach("kreview"); if (K.phase === "retro") coach("kretro"); if (K.phase === "release") coach("krelease"); }
   if (v === "clinic" && C) { if (C.phase === "plan") coach("cplan"); if (C.phase === "run" && C.cycle >= 2) coach("ccpm"); if (C.phase === "run" && C.cycle >= 3) coach("cevm"); if (C.phase === "run" && Pred.rainLevel(C.week) >= 0.5) coach("crain"); if (C.phase === "closure") coach("cclose"); }
+  const L = G.land;
+  if (v === "land" && L) { if (L.phase === "plan") coach("lplan"); if (L.phase === "run") coach("lrun"); if (L.phase === "run" && L.month >= 3) coach("lchange"); if (L.phase === "closure") coach("lclose"); }
   if (v === "exam") coach("exam");
   if (G.exam.mocks.length) coach("mock");
   if (allSituations().length) coach("debrief");
@@ -233,13 +239,14 @@ function coachTriggers() {
 
 // ---------- badges ----------
 const BADGES = [
-  ["authorised", "Authorised", "Signed your first project charter", g => (g.kudi && g.kudi.signed) || (g.clinic && g.clinic.signed)],
+  ["authorised", "Authorised", "Signed your first project charter", g => (g.kudi && g.kudi.signed) || (g.clinic && g.clinic.signed) || (g.land && g.land.signed)],
   ["explorer", "Explorer", "Discovered 20 PMP concepts by exploring the worlds", g => Object.keys(g.insights || {}).length >= 20],
   ["increment", "First increment", "Finished your first sprint", g => g.kudi && g.kudi.velocity.length >= 1],
   ["mindset", "Exam mindset", "Handled five situations the exam way", () => allSituations().filter(l => l.grade === "best").length >= 5],
   ["servant", "Servant leader", "Three people-first decisions handled the exam way", () => allSituations().filter(l => ["servant", "people"].includes(l.principle) && l.grade === "best").length >= 3],
   ["shipped", "Shipped", "Closed the Kudi Savings project", g => g.kudi && g.kudi.phase === "done"],
   ["ribbon", "Ribbon cut", "Handed over Forte Clinic", g => g.clinic && g.clinic.phase === "done"],
+  ["registry", "Registry online", "Closed the Land Registry project", g => g.land && g.land.phase === "done"],
   ["fifty", "Fifty answers", "Answered 50 exam questions", g => g.exam.answers.length >= 50],
   ["rehearsal", "Dress rehearsal", "Completed a mock exam", g => g.exam.mocks.length >= 1],
   ["target", "On target", "Target or above in every domain in a mock", g => g.exam.mocks.some(m => DOMAINS.every(d => ["AT", "T"].includes(m.bands[d])))],

@@ -176,7 +176,7 @@ const World3D = (() => {
   }
   function getWorld(key) {
     if (worlds[key]) return worlds[key];
-    const b = key === "kudi" ? buildKudi : key === "clinic" ? buildClinic : key === "pmo" ? buildPMO : key.startsWith("brief") ? buildBrief : buildPMO;
+    const b = key === "kudi" ? buildKudi : key === "clinic" ? buildClinic : key === "land" ? buildLand : key === "pmo" ? buildPMO : key.startsWith("brief") ? buildBrief : buildPMO;
     return makeWorld(key, b);
   }
   // walls that fold down when they stand between the camera and the room
@@ -861,10 +861,11 @@ const World3D = (() => {
     wall(w, s, 6.3, -4.8, 6.3, 4.8, 3, WC, [{ at: 3, w: 2.6 }, { at: 6.6, w: 2.6 }]);
     wall(w, s, 6.3, 4.8, -6.3, 4.8, 3, WC, [{ at: 2, w: 1.2, y0: 0, y1: 2.3, glass: false }]);
     // project boards on the back wall: open the projects
-    w.dyn.boardK = canvasTex(512, 384); w.dyn.boardC = canvasTex(512, 384);
-    const bk = panel(back.inner, 2.0, 1.5, w.dyn.boardK, 1.8, 1.65, 0.11, 0); back.decor.push(bk); box(back.inner, 2.1, 1.6, 0.05, "#7D8793", 1.8, 0.85, 0.06);
-    const bc = panel(back.inner, 2.0, 1.5, w.dyn.boardC, 4.4, 1.65, 0.11, 0); back.decor.push(bc); box(back.inner, 2.1, 1.6, 0.05, "#7D8793", 4.4, 0.85, 0.06);
-    hotspot(w, "pmoKudi", bk, "Kudi Savings project board"); hotspot(w, "pmoClinic", bc, "Forte Clinic project board");
+    w.dyn.boardK = canvasTex(512, 384); w.dyn.boardC = canvasTex(512, 384); w.dyn.boardL = canvasTex(512, 384);
+    const bk = panel(back.inner, 1.8, 1.35, w.dyn.boardK, 1.5, 1.65, 0.11, 0); back.decor.push(bk); box(back.inner, 1.9, 1.45, 0.05, "#7D8793", 1.5, 0.92, 0.06);
+    const bc = panel(back.inner, 1.8, 1.35, w.dyn.boardC, 3.6, 1.65, 0.11, 0); back.decor.push(bc); box(back.inner, 1.9, 1.45, 0.05, "#7D8793", 3.6, 0.92, 0.06);
+    const bl = panel(back.inner, 1.8, 1.35, w.dyn.boardL, 5.7, 1.65, 0.11, 0); back.decor.push(bl); box(back.inner, 1.9, 1.45, 0.05, "#7D8793", 5.7, 0.92, 0.06);
+    hotspot(w, "pmoKudi", bk, "Kudi Savings project board"); hotspot(w, "pmoClinic", bc, "Forte Clinic project board"); hotspot(w, "pmoLand", bl, "Land Registry project board");
     const cert = poster(512, 380, "#FBFBF7", "", [], "#0E6E62"); { const c = cert.ctx; c.strokeStyle = "#B98A5A"; c.lineWidth = 22; c.strokeRect(11, 11, 490, 358); txt(c, "PMP®", 256, 150, 80, "#13243A", 900, "center"); txt(c, "Project Management Professional", 256, 214, 28, "#33465C", 600, "center"); txt(c, "People · Process · Business Environment", 256, 270, 24, "#58677A", 500, "center"); cert.tex.needsUpdate = true; }
     const ce = panel(left.inner, 1.2, 0.9, cert, 2.2, 1.75, 0.11, 0); left.decor.push(ce); hotspot(w, "cert", ce, "PMP certificate");
     // bookshelf
@@ -884,7 +885,7 @@ const World3D = (() => {
     w.way = [[-1.6, 0.2, 0], [-3.4, 3.1, Math.PI], [0.2, -3.6, Math.PI], [4.6, 1.2, Math.PI / 2]];
     w.player = [0.6, 0.0, -2.6];
     w.chat = () => WCONTENT.A.pmo;
-    w.update = d => { drawProj(w.dyn.boardK, "Kudi Savings", "P2 · Agile", d.kudi || {}, "#0E6E62"); drawProj(w.dyn.boardC, "Forte Clinic", "P1 · Predictive", d.clinic || {}, "#D49A1E"); };
+    w.update = d => { drawProj(w.dyn.boardK, "Kudi Savings", "P2 · Agile", d.kudi || {}, "#0E6E62"); drawProj(w.dyn.boardC, "Forte Clinic", "P1 · Predictive", d.clinic || {}, "#D49A1E"); drawProj(w.dyn.boardL, "Land Registry", "P3 · Hybrid", d.land || {}, "#5B4B8A"); };
     addAgent(w, { id: "pmo-staff", look: staffLook("pmo1"), spot: [4.4, 2.2, -0.6], mode: "stand", wander: true });
   }
   function drawProj(ct, title, tag, st, col) {
@@ -896,12 +897,129 @@ const World3D = (() => {
     ct.tex.needsUpdate = true;
   }
 
+  // ---------- State Lands Bureau records hall, Alausa ----------
+  const LR = { player: [3.2, 1.2, -2.6], shelves: [-7.6, -6.2, -4.8, -3.4, -2.0], counterZ: 3.0 };
+  function buildLand(w) {
+    const s = w.scene; w.view = { theta: 0.6, phi: 0.97, r: 25, tx: 0, ty: 0.6, tz: 0, rMin: 9, rMax: 36 };
+    s.fog = new T.Fog("#E3E8DA", 45, 110);
+    // the government secretariat grounds
+    const grass = new T.Mesh(new T.CircleGeometry(80, 48), mat("#86A26A")); grass.rotation.x = -Math.PI / 2; grass.position.y = -0.31; grass.receiveShadow = true; s.add(grass);
+    for (let i = 0; i < 8; i++) { const a = Math.PI + 0.35 + i * 0.42; palm(s, Math.cos(a) * 21, Math.sin(a) * 17, 5 + (i % 3), i + 40); } // behind the hall, out of the camera's way
+    for (let i = 0; i < 5; i++) { const a = i * 1.25 + 0.4; const b = box(s, 6, 4 + (i % 3) * 2, 5, ["#E7DFCC", "#D8D2C2", "#EDE6D6"][i % 3], Math.cos(a) * 30, -0.3, Math.sin(a) * 28); b.rotation.y = a; }
+    box(s, 18.6, 0.3, 12.6, "#B9B2A3", 0, -0.3, 0);
+    const fl = canvasTex(256, 256), fc = fl.ctx; for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { fc.fillStyle = (i + j) % 2 ? "#D7D2C6" : "#CFC9BC"; fc.fillRect(i * 32, j * 32, 32, 32); fc.fillStyle = "rgba(90,80,60,.08)"; for (let k = 0; k < 6; k++) fc.fillRect(i * 32 + ((k * 13 + j * 7) % 30), j * 32 + ((k * 17 + i * 5) % 30), 2, 2); } fl.tex.wrapS = fl.tex.wrapT = T.RepeatWrapping; fl.tex.repeat.set(5, 3.5); fl.tex.needsUpdate = true;
+    const floor = new T.Mesh(new T.PlaneGeometry(18, 12), new T.MeshLambertMaterial({ map: fl.tex })); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.002; floor.receiveShadow = true; s.add(floor);
+    const WC = "#EDE6D6";
+    const back = wall(w, s, -9, -6, 9, -6, 3.2, WC, [{ at: 11.4, w: 2.2 }, { at: 14.4, w: 2.2 }]);
+    const left = wall(w, s, -9, 6, -9, -6, 3.2, WC);
+    const right = wall(w, s, 9, -6, 9, 6, 3.2, WC, [{ at: 2.4, w: 1.6 }, { at: 9.8, w: 1.6, y0: 0, y1: 2.4, glass: false }]);
+    wall(w, s, 9, 6, -9, 6, 3.2, WC, [{ at: 4.5, w: 2.4 }, { at: 8.5, w: 2.4 }, { at: 13, w: 2.4 }]);
+    // the archive: one shelving unit per district; folders turn green as they are scanned
+    w.dyn.folders = [];
+    LR.shelves.forEach((x, di) => {
+      const g = grp(s, x, 0, -3.7);
+      // an open steel frame so the folders show from both aisles
+      for (const z of [-1.65, 1.65]) box(g, 0.6, 2.3, 0.06, "#6E7B88", 0, 0, z);
+      box(g, 0.04, 2.2, 3.3, "#7D8995", 0, 0, 0, { cast: false }); box(g, 0.62, 0.06, 3.36, "#55616D", 0, 2.3, 0);
+      const list = [];
+      for (let r2 = 0; r2 < 4; r2++) box(g, 0.6, 0.03, 3.3, "#8794A1", 0, 0.1 + r2 * 0.55 - 0.02, 0, { cast: false });
+      for (let r2 = 0; r2 < 4; r2++) for (let i = 0; i < 9; i++) for (const side of [-1, 1]) {
+        const f = box(g, 0.12, 0.34 + ((i + r2) % 3) * 0.04, 0.3, ["#D9B77A", "#C9A066", "#E2C58E", "#B98B55"][(i + r2 + di) % 4], side * 0.2, 0.1 + r2 * 0.55, -1.45 + i * 0.36, { cast: false });
+        list.push(f);
+      }
+      // order folders so they fill evenly as a district progresses
+      w.dyn.folders.push(list.sort((a, b) => H(String(a.id)) % 97 - H(String(b.id)) % 97));
+      const sg = canvasTex(256, 64); sg.ctx.fillStyle = "#13243A"; sg.ctx.fillRect(0, 0, 256, 64); txt(sg.ctx, Land.DISTRICTS[di][1].toUpperCase(), 128, 42, 26, "#FFFFFF", 800, "center"); sg.tex.needsUpdate = true;
+      const sp = panel(g, 1.0, 0.25, sg, 0.31, 2.62, 1.2, Math.PI / 2); sp.position.x = 0.3;
+      if (di === 2) hotspot(w, "archive", g, "The paper archive");
+    });
+    // scanning stations
+    w.dyn.scanBars = [];
+    [[-6.6, -0.9], [-4.6, -0.9], [-2.6, -0.9]].forEach(([x, z], i) => {
+      const d = deskUnit(s, x, z, Math.PI, "scan" + i, { top: "#B8BFC6" });
+      const sc = box(d, 0.62, 0.16, 0.44, "#3A4554", -0.25, 0.78, 0.05); const bar = box(d, 0.56, 0.02, 0.04, "#7CF2C4", -0.25, 0.95, 0.05, { cast: false, m: { basic: true } }); w.dyn.scanBars.push(bar);
+      if (i === 1) hotspot(w, "scanner", sc, "Scanning station");
+      addAgent(w, { id: "scan" + i, look: staffLook("scan" + i), spot: [x, z - 0.8, 0], mode: "type" });
+    });
+    // Bluegate's project pod and the portal screen
+    deskUnit(s, 1.6, -3.6, 0, "pod1"); deskUnit(s, 3.4, -3.6, 0, "pod2"); deskUnit(s, 5.2, -3.6, 0, "pod3");
+    w.dyn.portal = canvasTex(768, 432);
+    const tv = panel(back.inner, 2.4, 1.35, w.dyn.portal, 10.3, 1.9, 0.12, 0); back.decor.push(tv); box(back.inner, 2.5, 1.45, 0.06, "#1E2733", 10.3, 1.17, 0.07);
+    hotspot(w, "portal", tv, "Portal release board");
+    // server cabinet with blinking lights
+    const rack = grp(s, 0.0, 0, -5.4); box(rack, 0.8, 2.0, 0.7, "#1E2733", 0, 0, 0); w.dyn.leds = [];
+    for (let i = 0; i < 8; i++) w.dyn.leds.push(box(rack, 0.05, 0.05, 0.02, i % 3 ? "#3FD1B5" : "#E7AE4B", -0.25 + (i % 4) * 0.12, 0.4 + Math.floor(i / 4) * 0.9, 0.36, { cast: false, m: { basic: true } }));
+    hotspot(w, "rack", rack, "Records server");
+    // Registrar's glass office, back right
+    const glassM = GLASS();
+    box(s, 0.06, 2.7, 3.0, "#BFE3F2", 6.4, 0, -4.5, { material: glassM, cast: false }); box(s, 2.6, 2.7, 0.06, "#BFE3F2", 7.7, 0, -3.0, { material: glassM, cast: false });
+    rug(s, 7.7, -4.6, 2.2, 2.2, "#2F5D8A", "#D49A1E"); deskUnit(s, 7.7, -4.9, 0, "registrar", { top: "#6A4C30" });
+    const rs = canvasTex(256, 64); rs.ctx.fillStyle = "#13243A"; rs.ctx.fillRect(0, 0, 256, 64); txt(rs.ctx, "REGISTRAR OF TITLES", 128, 41, 20, "#FFFFFF", 700, "center"); rs.tex.needsUpdate = true;
+    const rp = panel(s, 1.3, 0.32, rs, 7.4, 2.35, -2.96, 0); hotspot(w, "registrarDoor", rp, "Registrar's office");
+    // the public counter
+    box(s, 6.2, 1.05, 0.6, "#8C6E52", 5.0, 0, LR.counterZ); box(s, 6.3, 0.06, 0.75, "#B98A5A", 5.0, 1.05, LR.counterZ);
+    for (const x of [2.6, 4.2, 5.8, 7.4]) box(s, 0.05, 0.9, 0.6, "#BFE3F2", x, 1.1, LR.counterZ, { material: glassM, cast: false });
+    const cs = canvasTex(512, 80); cs.ctx.fillStyle = "#0E6E62"; cs.ctx.fillRect(0, 0, 512, 80); txt(cs.ctx, "TITLE SEARCH · VERIFICATION · CONSENT", 256, 52, 26, "#FFFFFF", 800, "center"); cs.tex.needsUpdate = true;
+    const cp = panel(s, 4.2, 0.6, cs, 5.0, 2.65, LR.counterZ + 0.02, Math.PI); hotspot(w, "counter", cp, "Public service counter");
+    for (const x of [3.4, 5.0, 6.6]) { const st = grp(s, x, 0, LR.counterZ - 0.85); box(st, 0.46, 0.08, 0.44, "#2D3640", 0, 0.46, 0); }
+    // waiting benches
+    for (const x of [-1.2, 0.8]) { box(s, 1.8, 0.08, 0.5, "#2F5D8A", x, 0.45, 5.0); box(s, 1.8, 0.5, 0.08, "#2F5D8A", x, 0.5, 5.25); for (const sx of [-0.8, 0.8]) box(s, 0.06, 0.45, 0.45, "#5C6670", x + sx, 0, 5.0); }
+    // walls: district map, data protection notice, change ladder
+    w.dyn.map = canvasTex(768, 480);
+    const mp = panel(left.inner, 3.2, 2.0, w.dyn.map, 5.0, 1.75, 0.11, 0); left.decor.push(mp); box(left.inner, 3.3, 2.1, 0.05, "#7D8793", 5.0, 0.7, 0.06);
+    hotspot(w, "map", mp, "District rollout map");
+    const dpP = poster(512, 380, "#FBFBF7", "Your data, protected", ["Collected for land titles only", "Stored in the state data centre", "Access logged and audited", "Report concerns to the DPO"], "#2F5D8A");
+    const p1 = panel(left.inner, 1.2, 0.9, dpP, 8.6, 1.7, 0.11, 0); left.decor.push(p1); hotspot(w, "dpnotice", p1, "Data protection notice");
+    const ad = canvasTex(512, 380); { const c = ad.ctx; c.fillStyle = "#FFF7E8"; c.fillRect(0, 0, 512, 380); c.fillStyle = "#D49A1E"; c.fillRect(0, 0, 512, 14); txt(c, "Our change, step by step", 24, 58, 30, "#13243A", 800); Land.ADKAR.forEach((st, i) => { c.fillStyle = ["#F4D9A6", "#EBC680", "#E2B45C", "#C99A3C", "#0E6E62"][i]; rrect(c, 30 + i * 18, 290 - i * 52, 300, 44, 8); c.fill(); txt(c, (i + 1) + ". " + st, 46 + i * 18, 320 - i * 52, 22, i === 4 ? "#FFFFFF" : "#13243A", 700); }); ad.tex.needsUpdate = true; }
+    const p2 = panel(left.inner, 1.2, 0.9, ad, 1.4, 1.7, 0.11, 0); left.decor.push(p2); hotspot(w, "adkar", p2, "Change ladder poster");
+    const cm = canvasTex(256, 64); cm.ctx.fillStyle = "#5B4B8A"; cm.ctx.fillRect(0, 0, 256, 64); txt(cm.ctx, "COMMITTEE ROOM", 128, 42, 24, "#FFFFFF", 800, "center"); cm.tex.needsUpdate = true;
+    const cmp = panel(right.inner, 1.2, 0.3, cm, 9.8, 2.65, -0.12, Math.PI); right.decor.push(cmp); hotspot(w, "committee", cmp, "Steering committee room");
+    cyl(s, 0.22, 0.22, 0.95, "#DDE7EE", -0.6, 0, 5.6, 10); cyl(s, 0.18, 0.18, 0.35, "#5FA8D3", -0.6, 0.95, 5.6, 10);
+    plant(s, -8.4, 5.4, 1.3); plant(s, 8.4, 5.4, 1.2); plant(s, -8.4, -5.4, 1.1); plant(s, 2.5, 5.4, 1);
+    w.way = [[-0.4, 2.2, 0], [3.0, 1.4, Math.PI], [-4.6, -0.2, Math.PI], [-1.0, 4.2, 0], [4.5, -1.6, Math.PI]];
+    w.player = LR.player;
+    w.dyn.queue = [];
+    w.chat = () => WCONTENT.A["land:" + (w.desc && w.desc.phase)] || WCONTENT.A["land:run"];
+    w.update = d => {
+      drawPortal(w.dyn.portal, d.portal || []); drawMap(w.dyn.map, d.districts || []);
+      (d.districts || []).forEach((dd, i) => { const L = w.dyn.folders[i]; if (!L) return; const n = Math.round(L.length * dd.pct); L.forEach((f, k) => { f.material = k < n ? mat(dd.live ? "#3FA36B" : "#7FC59B") : mat(["#D9B77A", "#C9A066", "#E2C58E", "#B98B55"][k % 4]); }); });
+      // the queue at the counter shortens as searches move online
+      const want = Math.max(1, Math.min(7, Math.round((d.turn || 21) / 3)));
+      while (w.dyn.queue.length > want) removeAgent(w, w.dyn.queue.pop());
+      while (w.dyn.queue.length < want) { const i = w.dyn.queue.length, id = "q" + i; addAgent(w, { id, look: staffLook("q" + i + "x"), spot: [3.6 + (i % 3) * 1.6 - (i >= 3 ? 0.5 : 0), LR.counterZ + 0.9 + Math.floor(i / 3) * 0.75, Math.PI], mode: "stand" }); w.dyn.queue.push(id); }
+    };
+    w.tick = (dt, t) => {
+      w.dyn.scanBars.forEach((b, i) => { b.position.z = 0.05 + Math.sin(t * 2.2 + i * 1.7) * 0.17; });
+      w.dyn.leds.forEach((l, i) => { l.visible = Math.sin(t * (3 + i) + i * 2.1) > -0.3; });
+    };
+  }
+  function drawPortal(ct, feats) {
+    const c = ct.ctx, W2 = ct.w, H2 = ct.h; c.fillStyle = "#0F1A26"; c.fillRect(0, 0, W2, H2);
+    txt(c, "Land portal · releases", 24, 46, 30, "#E6EEF5", 800);
+    feats.slice(0, 8).forEach((f, i) => {
+      const y = 78 + i * 43, col = f.status === "live" ? "#3FD1B5" : f.status === "built" ? "#7FB2E6" : f.status === "dropped" ? "#5C6670" : f.pct > 0 ? "#E7AE4B" : "#3A4B5E";
+      c.fillStyle = "#1A2838"; rrect(c, 24, y, W2 - 48, 34, 8); c.fill();
+      c.fillStyle = col; rrect(c, 24, y, Math.max(16, (W2 - 48) * (f.status === "live" || f.status === "built" ? 1 : f.pct)), 34, 8); c.globalAlpha = 0.35; c.fill(); c.globalAlpha = 1;
+      txt(c, f.title, 40, y + 24, 20, "#E6EEF5", 600); txt(c, f.status === "live" ? "LIVE" : f.status === "built" ? "BUILT" : f.status === "dropped" ? "DROPPED" : Math.round(f.pct * 100) + "%", W2 - 40, y + 24, 18, col, 800, "right");
+    });
+    ct.tex.needsUpdate = true;
+  }
+  function drawMap(ct, ds) {
+    const c = ct.ctx, W2 = ct.w, H2 = ct.h; c.fillStyle = "#F3EFE4"; c.fillRect(0, 0, W2, H2);
+    c.fillStyle = "#9CC9E4"; c.beginPath(); c.moveTo(0, 360); c.bezierCurveTo(200, 330, 420, 400, 768, 350); c.lineTo(768, 480); c.lineTo(0, 480); c.fill(); // lagoon and sea
+    txt(c, "Digitisation by district", 24, 44, 28, "#13243A", 800);
+    const pos = [[300, 170, 120, 90], [420, 300, 110, 60], [560, 150, 130, 95], [110, 270, 130, 70], [640, 270, 100, 60]];
+    ds.forEach((d, i) => { const [x, y, rx, ry] = pos[i]; c.fillStyle = d.live ? "#3FA36B" : d.pct > 0 ? "#E7AE4B" : "#C9D3DD"; c.beginPath(); c.ellipse(x, y, rx, ry, 0.2 * i, 0, TAU); c.fill(); c.strokeStyle = "#FFFFFF"; c.lineWidth = 4; c.stroke(); txt(c, d.name, x, y - 4, 22, "#13243A", 800, "center"); txt(c, d.live ? "LIVE" : Math.round(d.pct * 100) + "%", x, y + 24, 20, "#13243A", 600, "center"); });
+    c.fillStyle = "#3FA36B"; c.fillRect(24, 440, 18, 18); txt(c, "Live", 50, 456, 18, "#13243A"); c.fillStyle = "#E7AE4B"; c.fillRect(110, 440, 18, 18); txt(c, "Scanning", 136, 456, 18, "#13243A"); c.fillStyle = "#C9D3DD"; c.fillRect(240, 440, 18, 18); txt(c, "Waiting", 266, 456, 18, "#13243A");
+    ct.tex.needsUpdate = true;
+  }
   // ---------- charter briefing rooms ----------
   function buildBrief(w) {
-    const s = w.scene, isK = w.key === "brief-kudi";
+    const s = w.scene, isK = w.key === "brief-kudi" || w.key === "brief-land", isL = w.key === "brief-land";
     w.view = { theta: 0.5, phi: 1.0, r: 11.5, tx: 0, ty: 1.0, tz: 0, rMin: 6, rMax: 20 };
     s.fog = new T.Fog(isK ? "#CFE7F3" : "#D8ECF6", 30, 80);
-    if (isK) { const water = new T.Mesh(new T.CircleGeometry(70, 40), mat("#4B8FB2")); water.rotation.x = -Math.PI / 2; water.position.y = -6; s.add(water); skyline(w, 24, 50, 20, -6, "brief", ["#9FB3C6", "#B8C6D4", "#8EA2B6"]); const tower = new T.Mesh(BOXG, mat("#2B4A5E")); tower.scale.set(9, 6, 7.5); tower.position.set(0, -3.15, 0); s.add(tower); }
+    if (isL) { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#86A26A")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 13, Math.sin(i) * 13, 5, i + 60); }
+    else if (isK) { const water = new T.Mesh(new T.CircleGeometry(70, 40), mat("#4B8FB2")); water.rotation.x = -Math.PI / 2; water.position.y = -6; s.add(water); skyline(w, 24, 50, 20, -6, "brief", ["#9FB3C6", "#B8C6D4", "#8EA2B6"]); const tower = new T.Mesh(BOXG, mat("#2B4A5E")); tower.scale.set(9, 6, 7.5); tower.position.set(0, -3.15, 0); s.add(tower); }
     else { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#B8693F")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 14, Math.sin(i) * 14, 5, i); for (let i = 0; i < 6; i++) house(s, Math.cos(i * 1.1 + 0.5) * 22, Math.sin(i * 1.1 + 0.5) * 22, 3.5, 3, "#D9CBB3", "#8E9AA6", -i); }
     box(s, 8.4, 0.25, 7, isK ? "#AEB6BF" : "#245A6E", 0, -0.25, 0);
     const fl = new T.Mesh(new T.PlaneGeometry(8, 6.6), mat(isK ? "#B9A58C" : "#8C7A66")); fl.rotation.x = -Math.PI / 2; fl.position.y = 0.002; fl.receiveShadow = true; s.add(fl);
@@ -917,7 +1035,8 @@ const World3D = (() => {
     hotspot(w, "charterdoc", dm, "The project charter");
     box(s, 0.3, 0.02, 0.4, "#FBFBF7", -0.7, 0.78, -0.1, { cast: false }); cyl(s, 0.05, 0.04, 0.1, "#E8E2D2", 0.8, 0.78, -0.3, 8);
     for (const [sx, sz, r2] of [[0, -1.5, 0], [-0.75, 1.3, Math.PI], [0.75, 1.3, Math.PI]]) { const g = grp(s, sx, 0, sz, r2); box(g, 0.48, 0.08, 0.46, isK ? "#2D3640" : "#5C6670", 0, 0.46, 0); box(g, 0.48, 0.52, 0.07, isK ? "#2D3640" : "#5C6670", 0, 0.5, -0.22); }
-    if (isK) { const lg = canvasTex(256, 128); lg.ctx.fillStyle = "#13243A"; lg.ctx.fillRect(0, 0, 256, 128); txt(lg.ctx, "KUDI", 128, 84, 64, "#3FD1B5", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.4, 0.7, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
+    if (isL) { const lg = canvasTex(256, 160); lg.ctx.fillStyle = "#1F5A3A"; lg.ctx.fillRect(0, 0, 256, 160); txt(lg.ctx, "STATE LANDS", 128, 64, 30, "#F2C230", 900, "center"); txt(lg.ctx, "BUREAU", 128, 104, 30, "#F2C230", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.2, 0.75, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
+    else if (isK) { const lg = canvasTex(256, 128); lg.ctx.fillStyle = "#13243A"; lg.ctx.fillRect(0, 0, 256, 128); txt(lg.ctx, "KUDI", 128, 84, 64, "#3FD1B5", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.4, 0.7, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
     else { const dw = poster(512, 360, "#FBFBF7", "Site layout", ["Clinic block", "Solar and borehole", "Laydown area", "Site office"], "#2B7A6F"); const lp = panel(left.inner, 1.4, 1.0, dw, 3.3, 1.7, 0.11, 0); left.decor.push(lp); }
     plant(s, 3.4, -2.8, 1.1); plant(s, -3.4, 2.8, 1);
     w.player = [0, 1.0, Math.PI];
@@ -1001,18 +1120,49 @@ const World3D = (() => {
     const focus = S.phase === "done" ? ["Project closed", "Read your report below. You can still walk the site and talk to people."] : S.phase === "plan" ? ["Plan the project", "Make the planning decisions and set the baseline."] : S.phase === "closure" ? ["Handover and closure", "Get formal acceptance, close contracts and record lessons learned."] : ["Run the build", "Watch the critical path, earned value and the weather."];
     return stage("clinic", { label: "The Forte Clinic construction site in Ikorodu. Drag to look around; select people and objects to talk and learn.", phase: S.phase, wet, prog: pr, people: list, workers, gantt, risks, sign: { contractor: S.contractorCo, finish: Pred.dateOf(Pred.DEADLINE) }, hud: { place: "Ikorodu site", time: S.phase === "plan" ? "Planning" : `Week ${w} · ${Pred.dateOf(w)}`, wet, mood, money, focusTitle: focus[0], focus: focus[1] }, hotNote: { gantt: "Pinned up in the site office", risk: "On a stand by the site office", sign: "At the site entrance", building: "Progress you can see is earned value", crates: "Delivered from Lagos port", safetyboard: "By the gate" } });
   }
+  const landFocus = { plan: ["Tailor the approach", "Choose how to roll out, build, govern and lead the change."], run: ["Run the programme", "Watch accuracy, adoption and the districts. Talk to people."], closure: ["Handover and closure", "Transfer the system and agree who owns the benefits."], done: ["Project closed", "Read your report below. You can still walk the hall."] };
+  function land(S, people, o = {}) {
+    const c = Land.cast(S, people), ph = S.phase, m = S.month || 0, pend = o.pending, react = o.react || {};
+    const list = [];
+    const add = (k, spot, extra = {}) => { const p = c.p(k); if (!p || list.some(e => e.id === p.id)) return; list.push(Object.assign({ id: p.id, p, role: k === "officer" ? "landofficer" : k, key: k, spot, pending: pend === p.id, react: react[p.id], mode: "stand" }, extra)); };
+    add("registrar", [7.7, -5.7, 0], { mode: "type", wander: true, front: [6.9, -3.6] });
+    add("ba", [1.6, -4.4, 0], { mode: "type", wander: true, front: [1.6, -2.6] });
+    add("devlead", [3.4, -4.4, 0], { mode: "type" });
+    add("datalead", [5.2, -4.4, 0], { mode: "type", wander: true, front: [5.2, -2.6] });
+    add("vendor", [-4.6, 0.5, Math.PI], { wander: true });
+    add("champion", [5.0, 2.15, 0]); add("officer", [6.6, 2.15, 0]);
+    add("agent", [4.2, 4.5, Math.PI]); add("union", [-1.4, 1.6, 2.4], { wander: true });
+    if (S.stake.dpo.aware || m <= 1) add("dpo", [0.9, -1.9, 0.6]);
+    const committee = ph === "plan" || ph === "closure" || ph === "done" || [1, 4, 6].includes(m);
+    if (committee) { add("permsec", [7.3, -1.6, -2.3]); add("ictdir", [8.1, -0.4, -2.0]); }
+    if (pend && !list.some(e => e.id === pend) && people[pend]) list.push({ id: pend, p: people[pend], role: people[pend].role, spot: [LR.player[0] + 1.3, LR.player[1] - 0.6, -1.2], pending: true, enterFrom: [8.2, 4.8] });
+    for (const e of list) if (e.pending) { e.spot = faceTo([LR.player[0] + 1.2, LR.player[1] + 0.55], LR.player); e.wander = false; e.mode = "stand"; }
+    const pe = list.find(e => e.pending);
+    list.push(playerEntry(o.player, pe ? faceTo(LR.player, pe.spot) : LR.player));
+    let mt = null; try { mt = Land.metrics(S); } catch (e) { }
+    const tp = Land.teamP(S, people), mood = tp.reduce((a, p) => a + p.morale, 0) / Math.max(1, tp.length);
+    const [ft, fd] = landFocus[ph] || ["", ""];
+    return stage("land", {
+      label: "The records hall at the State Lands Bureau, Alausa. Drag to look around; select people and objects to talk and learn.", phase: ph,
+      people: list, turn: mt ? mt.turn : 21,
+      districts: S.districts.map(d => ({ name: d.name, pct: d.dig / d.files, live: d.live != null })),
+      portal: S.features.map(f => ({ title: f.title, status: f.status, pct: 1 - f.rem / f.pts })),
+      hud: { place: "Lands Bureau, Alausa", time: ph === "plan" ? "Planning" : ph === "run" ? `Month ${m} · ${Land.dateOf(m - 1)}` : ph === "closure" ? "Closing" : "Closed", mood, money: `₦${Math.round(S.spent)}m of ₦1.9bn`, focusTitle: ft, focus: fd },
+      hotNote: { archive: "Five districts, one shelf each", scanner: "One of three stations", portal: "On the back wall by the project pod", rack: "Hums quietly in the corner", registrarDoor: "Glass office, back corner", counter: "Where the public queues", map: "Updated every month", dpnotice: "By the public entrance", adkar: "Put up by the change champions", committee: "Where the stage gates are decided" },
+    });
+  }
   function pmo(people, o) {
     const list = [];
     const m = people[o.mentor];
     if (m) list.push({ id: m.id, p: m, role: "mentor", key: "mentor", spot: [2.5, -3.2, 0], mode: "type", wander: true, front: [1.4, -3.3] });
     list.push(playerEntry(o.player, [0.6, 0.0, -2.6]));
-    return stage("pmo", { label: "The project management office at Bluegate Consulting, Victoria Island. Select the project boards to open a project.", people: list, kudi: o.kudi, clinic: o.clinic, actions: { pmoKudi: "open:kudi", pmoClinic: "open:clinic", examDoor: "go:exam" }, hud: { place: "Bluegate, Victoria Island", time: o.time || "", focusTitle: "Project office", focus: "Tap a project board to open it, or step into the Exam Hall." }, hotNote: { shelf: "Well-thumbed", cert: "Framed on the wall" } });
+    return stage("pmo", { label: "The project management office at Bluegate Consulting, Victoria Island. Select the project boards to open a project.", people: list, kudi: o.kudi, clinic: o.clinic, land: o.land, actions: { pmoKudi: "open:kudi", pmoClinic: "open:clinic", pmoLand: "open:land", examDoor: "go:exam" }, hud: { place: "Bluegate, Victoria Island", time: o.time || "", focusTitle: "Project office", focus: "Tap a project board to open it, or step into the Exam Hall." }, hotNote: { shelf: "Well-thumbed", cert: "Framed on the wall" } });
   }
   function brief(key, people, o) {
     const sp = people[o.sponsor], list = [];
-    if (sp) list.push({ id: sp.id, p: sp, role: sp.role === "donor" ? "donor" : "sponsor", key: sp.role === "donor" ? "donor" : "sponsor", spot: [0, -1.05, 0], mode: "stand" });
+    if (sp) { const rk = sp.role === "donor" ? "donor" : sp.role === "permsec" ? "permsec" : "sponsor"; list.push({ id: sp.id, p: sp, role: rk, key: rk, spot: [0, -1.05, 0], mode: "stand" }); }
     list.push(playerEntry(o.player, [0, 1.05, Math.PI]));
-    return stage("brief-" + key, { label: o.label, people: list, hud: { place: key === "kudi" ? "Kudi, Marina" : "Site office, Ikorodu", time: "Charter briefing", focusTitle: "Charter briefing", focus: "Ask the sponsor questions, then sign the charter to authorise the project." }, hotNote: { charterdoc: "On the table, waiting for your signature" } }, "small");
+    return stage("brief-" + key, { label: o.label, people: list, hud: { place: key === "kudi" ? "Kudi, Marina" : key === "land" ? "State Lands Bureau, Alausa" : "Site office, Ikorodu", time: "Charter briefing", focusTitle: "Charter briefing", focus: "Ask the sponsor questions, then sign the charter to authorise the project." }, hotNote: { charterdoc: "On the table, waiting for your signature" } }, "small");
   }
   function faceTo(a, b) { return [a[0], a[1], Math.atan2(b[0] - a[0], b[1] - a[1])]; }
   function playerEntry(pl, spot, o = {}) {
@@ -1029,5 +1179,5 @@ const World3D = (() => {
     for (const [k, h] of Object.entries(W.hot)) { const s = toScreen(h.m, 0); out.push({ kind: "hot", id: k, off: !!h.m.userData.off, x: r.left + s.x, y: r.top + s.y }); }
     return out;
   }
-  return { ok, kudi, clinic, pmo, brief, flush, bind, stage, probe };
+  return { ok, kudi, clinic, land, pmo, brief, flush, bind, stage, probe };
 })();

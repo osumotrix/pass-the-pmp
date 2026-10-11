@@ -2,11 +2,11 @@
 function openProject(key) {
   if (!G[key]) {
     People.newWorld(); People.reserve(Object.values(G.people));
-    G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : Pred.create(G.seed + 23, G.people);
+    G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : key === "land" ? Land.create(G.seed + 41, G.people) : Pred.create(G.seed + 23, G.people);
   }
   go(key);
 }
-const engine = key => key === "kudi" ? Agile : Pred;
+const engine = key => key === "kudi" ? Agile : key === "land" ? Land : Pred;
 const castOf = key => engine(key).cast(G[key], G.people);
 
 // ---------- charter ----------
@@ -277,11 +277,11 @@ function stageHTML(key) {
   sceneFx = { walk: false, prev: null };
   opts.player = { name: G.name };
   const w3 = World3D.ok();
-  const svg = key === "kudi" ? (w3 ? World3D.kudi(S, G.people, opts) : Scene.kudi(S, G.people, opts)) : (w3 ? World3D.clinic(S, G.people, opts) : Scene.clinic(S, G.people, opts));
+  const svg = key === "kudi" ? (w3 ? World3D.kudi(S, G.people, opts) : Scene.kudi(S, G.people, opts)) : key === "land" ? (w3 ? World3D.land(S, G.people, opts) : Scene.room(G.people, [S.cast.registrar, S.cast.champion, S.cast.ba].concat(p && p.who ? [p.who] : []), { id: "land", label: "The records hall at the State Lands Bureau, Alausa", sky: "#A8D3EA", wall: "#EDE6D6", papers: true })) : (w3 ? World3D.clinic(S, G.people, opts) : Scene.clinic(S, G.people, opts));
   const wet = key === "clinic" && Pred.rainLevel(S.week || 0) >= 0.5 && S.phase === "run";
   let banner = "";
   if (p) { const w = p.who && G.people[p.who]; banner = `<div class="stage-banner fade" role="status">${w ? av(w, 40) : ""}<span style="min-width:0"><b>${w ? esc(People.name(w)) + " wants a word" : "Something needs your attention"}</b><br><span class="tiny">${esc(p.prepared.sit.title)}</span></span><button class="btn sm" data-talk>${w ? "Talk to " + esc(People.short(w)) : "Look into it"}</button></div>`; }
-  else if (running) banner = `<div class="stage-banner quiet"><span class="pulse"></span><span class="small">${key === "kudi" ? "The team is working…" : "Work under way on site…"}</span></div>`;
+  else if (running) banner = `<div class="stage-banner quiet"><span class="pulse"></span><span class="small">${key === "kudi" ? "The team is working…" : key === "land" ? "Scanning under way…" : "Work under way on site…"}</span></div>`;
   return `<div class="stage${wet ? " wet" : ""}">${svg}${banner}</div>`;
 }
 function openPending() {
@@ -335,7 +335,7 @@ function drawSituation() {
       <div class="lens"><b>On the exam.</b> ${esc(Rz.lens)}<br><span class="tiny">Task: ${esc(ecoLabel(sit.eco[0], sit.eco[1]))}${sit.also ? ` · also ${esc(ecoLabel(sit.also[0], sit.also[1]))}` : ""} · Principle: ${esc(PRINCIPLES[sit.principle])}</span></div>
       <div class="spread"><span></span><button class="btn" data-sitdone>Back to work</button></div>`;
   }
-  const where = cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : `Week ${G.clinic.week}`;
+  const where = cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : cur.key === "land" ? (G.land.phase === "closure" ? "Closure" : `Month ${G.land.month}`) : `Week ${G.clinic.week}`;
   const fadeCls = cur._drawn ? "" : " fade"; if (!cur._drawn) { const pp = document.getElementById("coachpop"); if (pp) pp.hidden = true; } cur._drawn = true;
   overlayEl.innerHTML = `<div class="brief sitbrief${fadeCls}" role="dialog" aria-modal="true" aria-labelledby="sitT"><header><p class="eyebrow">Situation · ${where}</p><h3 id="sitT" style="font-size:24px;margin-top:4px">${esc(sit.title)}</h3></header><div class="body">${body}</div></div>`;
   overlayEl.hidden = false;
@@ -367,6 +367,8 @@ function finishSituation() {
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
     if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); }
+  } else if (key === "land") {
+    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); }
   } else {
     if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); }
   }
@@ -409,8 +411,9 @@ function viewResults(key) {
     ["Launch", { full: "Launched in full", phased: "Phased release", late: "Launched late", partial: "Launched with gaps", suspended: "Suspended after launch", none: "Not launched" }[r.launch]],
     ["Must-haves done", `${r.mustDone} of ${r.mustAll}`], ["Value delivered", `${r.valueDone} of ${r.valueTotal}`], ["Adoption index", r.adoption],
     ["Team morale", Math.round(r.morale)], ["Stakeholder support", Math.round(r.support)], ["Budget", r.budgetVar >= 0 ? `${m1(r.budgetVar)} under` : `${m1(-r.budgetVar)} over`]]
+    : key === "land" ? [["Records digitised", `${Math.round(r.digPct * 100)}% of ${Math.round(r.tot)}k files`], ["Districts live", `${r.live} of 5 (${r.byDeadline} by the deadline)`], ["Index accuracy", `${r.acc.toFixed(1)}%`], ["Staff adoption", r.stage], ["Title search time", `${Math.round(r.turn)} days (was 21)`], ["Benefits realised over the year", `${r.benefits}%`], ["Budget", r.budgetVar >= 0 ? `${m0(r.budgetVar)} under` : `${m0(-r.budgetVar)} over`], ["Compliance", r.breaches || r.audit ? `${r.audit} audit finding${r.audit === 1 ? "" : "s"}, ${r.breaches} breach${r.breaches === 1 ? "" : "es"}` : "Clean"], ["Tailoring", `${G.land.choices.rollout === "pilot" ? "Pilot" : "Big bang"} · ${G.land.choices.portal === "agile" ? "agile portal" : "one-release portal"} · ${G.land.choices.change === "champions" ? "champions" : "training only"} · ${G.land.choices.governance === "gates" ? "stage gates" : "monthly report"}`]]
     : [["Finished", `week ${r.actualFinish} (deadline ${r.deadline})`], ["Final cost", `${m0(r.finalCost)} of ${m0(r.funded)} funded`], ["CPI at close", r.CPI.toFixed(2)], ["Stakeholder support", Math.round(r.support)], ["Quality defects", r.defects], ["Audit findings", r.audit], ["Safety incidents", r.incidents]];
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : key === "land" ? "P3 · Land Registry" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
   ${stageHTML(key)}
   <div class="grid2"><div class="card"><p class="eyebrow">Overall score</p><div class="row" style="margin:6px 0"><b style="font-family:var(--f-display);font-size:64px;line-height:1">${r.score}</b><span class="muted">/ 100</span><span style="font-size:28px;color:var(--amber)">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span></div>
     <p class="small">You handled <b>${best} of ${L.length}</b> situations the way the exam expects (${pct(r.mindset)}).</p>

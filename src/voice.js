@@ -7,6 +7,8 @@ const Voice = (() => {
     be1: "our senior backend engineer", be2: "our backend engineer", mo1: "our mobile engineer", mo2: "our junior mobile engineer", qa: "our test engineer", ux: "our designer",
     donor: "the programme director", ministry: "the ministry's director", siteEng: "our site engineer", qs: "our quantity surveyor", safety: "our safety officer", contractor: "the contractor", foreman: "the foreman",
     supplier: "the equipment supplier", baale: "the Baale", cda: "the community association chair", matron: "the matron", bidder: "the other bidder", mentor: "your coach", loud: "one engineer", quiet: "another",
+    permsec: "the permanent secretary", registrar: "the registrar", dpo: "the data protection officer", ictdir: "the director of ICT", union: "the union branch chair", champion: "our change champion", officer: "the lands officer",
+    vendor: "the vendor's delivery manager", agent: "the estate agent", ba: "our business analyst", devlead: "our lead developer", datalead: "our data migration lead",
   };
   const TEAM = ["be1", "be2", "mo1", "mo2", "qa", "ux"];
   const ALIAS = ["clashA", "clashB", "commuter", "leaver"];

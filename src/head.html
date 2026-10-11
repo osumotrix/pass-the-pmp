@@ -452,5 +452,12 @@ body.w3lock{overflow:hidden}
   .mslot:focus-within:not(.show) .mpop{opacity:0;visibility:hidden}
 }
 @media (prefers-reduced-motion:reduce){.mflag{animation:none}.mtile,.mpop{transition:none}}
+.adkar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-items:end}
+.adkar .ak{border-radius:10px;padding:8px 6px;text-align:center;background:var(--surface-2);color:var(--muted);font-size:12.5px;line-height:1.2;display:flex;flex-direction:column;gap:4px}
+.adkar .ak b{font-family:var(--f-display);font-size:18px}
+.adkar .ak:nth-child(1){min-height:64px}.adkar .ak:nth-child(2){min-height:78px}.adkar .ak:nth-child(3){min-height:92px}.adkar .ak:nth-child(4){min-height:106px}.adkar .ak:nth-child(5){min-height:120px}
+.adkar .ak.done{background:#D8D1EF;color:#3A2F66}
+.adkar .ak.now{background:#7A6BB3;color:#fff;box-shadow:0 6px 16px -6px rgba(74,61,125,.6)}
+@media (max-width:640px){.adkar{gap:4px}.adkar .ak{font-size:9.5px;padding:6px 2px;overflow-wrap:anywhere;hyphens:auto}.adkar .ak b{font-size:15px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

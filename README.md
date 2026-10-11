@@ -1,6 +1,6 @@
 # Pass The PMP
 
-A PMP exam-prep simulation game set in Lagos. You lead two projects — Kudi (an agile fintech app) and Forte Clinic (a predictive construction build) — in walk-around 3D worlds, talk to stakeholders voiced in Nigerian English, discover 42 PMP concepts, and sit practice exams mapped to the PMI Examination Content Outline.
+A PMP exam-prep simulation game set in Lagos. You lead three projects — Kudi (an agile fintech app), Forte Clinic (a predictive construction build) and Land Registry (a hybrid digitisation and change programme) — in walk-around 3D worlds, talk to stakeholders voiced in Nigerian English, discover 51 PMP concepts, and sit practice exams mapped to the PMI Examination Content Outline.
 
 ## Layout
 

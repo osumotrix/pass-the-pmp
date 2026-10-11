@@ -44,7 +44,7 @@ document.addEventListener("click", e => {
   if (d.inbox !== undefined) return openInbox();
   // situations waiting in the scene take priority over moving time forward
   if (d.talk !== undefined) return openPending();
-  if (pend && (d.commit !== undefined || d.day !== undefined || d.run !== undefined || d.cycle !== undefined || d.retro !== undefined || d.retrogo !== undefined || d.resume !== undefined)) { toast("Someone needs you first."); return openPending(); }
+  if (pend && (d.commit !== undefined || d.day !== undefined || d.run !== undefined || d.cycle !== undefined || d.month !== undefined || d.retro !== undefined || d.retrogo !== undefined || d.resume !== undefined)) { toast("Someone needs you first."); return openPending(); }
   if (d.sitskip !== undefined) return skipSituation();
   if (d.skip) { briefFast = true; Voice.stop(); return; }
   if (d.brief) { const i = d.brief.indexOf("|"); return briefChoose(d.brief.slice(0, i), d.brief.slice(i + 1), d.label); }
@@ -84,6 +84,11 @@ document.addEventListener("click", e => {
   // predictive
   if (d.planok !== undefined) { const S = G.clinic; Pred.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
   if (d.cycle !== undefined) return runCycleAnimated();
+  // hybrid
+  if (d.landok !== undefined) { const S = G.land; Land.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
+  if (d.month !== undefined) return runMonthAnimated();
+  if (d.laction) { if (Land.ACTIONS[d.laction].needs) return landPicker(); const S = G.land; S._actMsg = Land.doAction(S, G.people, d.laction); save(); render(); return; }
+  if (d.lpick) { closeOverlay(); const S = G.land; S._actMsg = Land.doAction(S, G.people, "meetStake", d.lpick); save(); render(); return; }
   if (d.crash) { const r = Pred.crash(G.clinic, d.crash); if (r != null) toast(`Extra crew added. Cost about ${m0(r)} from contingency.`); save(); render(); return; }
   if (d.ft !== undefined) { Pred.fastTrack(G.clinic); save(); render(); return; }
 
@@ -148,6 +153,7 @@ document.addEventListener("change", e => {
   const t = e.target, d = t.dataset;
   if (d.pick) { const S = G.kudi; const s = new Set(S._sel || []); t.checked ? s.add(d.pick) : s.delete(d.pick); S._sel = [...s]; save(); render(); return; }
   if (d.plan) { const S = G.clinic; S._plan = Object.assign({}, S._plan, { [d.plan]: t.value }); save(); return; }
+  if (d.landplan) { const S = G.land; S._plan = Object.assign({}, S._plan, { [d.landplan]: t.value }); save(); render(); return; }
   if (d.xset) {
     const f = G.exam.setup; const k = d.xset;
     f[k] = k === "weak" ? t.checked : t.value;

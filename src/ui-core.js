@@ -11,7 +11,7 @@ let G = null;
 
 function fresh() {
   const seed = (Date.now() % 1000000) + Math.floor(Math.random() * 1000);
-  const g = { v: 1, created: Date.now(), savedAt: 0, name: "", seed, people: {}, mentor: null, kudi: null, clinic: null, exam: { answers: [], mocks: [], current: null }, view: "office", tab: {} };
+  const g = { v: 1, created: Date.now(), savedAt: 0, name: "", seed, people: {}, mentor: null, kudi: null, clinic: null, land: null, exam: { answers: [], mocks: [], current: null }, view: "office", tab: {} };
   People.newWorld();
   const r = R.rng(seed + 99);
   const m = People.make(r, "mentor", { org: "Bluegate Consulting", band: "exec" });
@@ -66,25 +66,26 @@ let toastT;
 function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => toastEl.hidden = true, 4200); }
 function go(view) { if (typeof Voice !== "undefined") Voice.stop(); G.view = view; save(); render(); window.scrollTo({ top: 0 }); }
 function nav() {
-  document.querySelectorAll(".nav button").forEach(b => { b.setAttribute("aria-current", (b.dataset.view === G.view || (b.dataset.view === "office" && ["kudi", "clinic"].includes(G.view))) ? "page" : "false"); b.hidden = !G.name && b.dataset.view !== "office"; });
+  document.querySelectorAll(".nav button").forEach(b => { b.setAttribute("aria-current", (b.dataset.view === G.view || (b.dataset.view === "office" && ["kudi", "clinic", "land"].includes(G.view))) ? "page" : "false"); b.hidden = !G.name && b.dataset.view !== "office"; });
 }
 function render() {
   nav();
   if (!G.name) { app.innerHTML = viewWelcome(); return; }
   const v = G.view;
-  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : viewOffice();
+  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "land" ? viewLand() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : viewOffice();
   app.innerHTML = html;
   after();
 }
 function after() {
   if (G.view === "exam" && G.exam.current && !G.exam.current.done) startTimer(); else stopTimer();
-  for (const k of ["kudi", "clinic"]) if (G.view === k && G[k] && G[k].phase === "charter") { const B = briefState(k); if (!B.node) briefEnter(k, "start"); else pumpBrief(k); }
+  for (const k of ["kudi", "clinic", "land"]) if (G.view === k && G[k] && G[k].phase === "charter") { const B = briefState(k); if (!B.node) briefEnter(k, "start"); else pumpBrief(k); }
   // music follows the setting
   const v = G.view, S = G[v];
   let mood = "office";
   if (cur) mood = "tension";
   else if (v === "kudi" && S && !["charter", "done"].includes(S.phase)) mood = "sprint";
   else if (v === "clinic" && S && !["charter", "done"].includes(S.phase)) mood = "site";
+  else if (v === "land" && S && !["charter", "done"].includes(S.phase)) mood = "sprint";
   else if (v === "exam") mood = "exam";
   Sound.setMood(mood);
   Sound.rain(v === "clinic" && S && S.phase === "run" ? Math.max(0, Pred.rainLevel(S.week) - 0.3) : 0);
@@ -131,24 +132,25 @@ function projStatus(key) {
   const S = G[key];
   if (!S) return { label: "Not started", pct: 0 };
   if (S.phase === "done") return { label: `Complete · score ${S.result.score}`, pct: 1 };
+  if (S.kind === "hybrid") return { label: S.phase === "charter" ? "Charter awaiting signature" : S.phase === "plan" ? "Tailoring the plan" : S.phase === "closure" ? "Closing" : `Month ${S.month} of ${Land.MONTHS}`, pct: S.phase === "run" ? (S.month - 1) / Land.MONTHS : S.phase === "closure" ? 0.97 : 0 };
   if (S.kind === "agile") return { label: S.phase === "charter" ? "Charter awaiting signature" : `Sprint ${S.sprint} of ${Agile.SPRINTS}`, pct: (S.sprint - 1 + (S.phase === "sprint" ? S.day / 10 : 0)) / Agile.SPRINTS };
   return { label: S.phase === "charter" ? "Charter awaiting signature" : S.phase === "plan" ? "Planning" : `Week ${S.week} · ${Pred.dateOf(S.week)}`, pct: Math.min(1, S.week / 60) };
 }
 function viewOffice() {
   const m = mentor();
-  const k = projStatus("kudi"), c = projStatus("clinic");
+  const k = projStatus("kudi"), c = projStatus("clinic"), l = projStatus("land");
   const rd = readiness();
   const sits = allSituations();
   const best = sits.filter(x => x.grade === "best").length;
   const greet = !G.kudi && !G.clinic ? `Welcome to Bluegate, ${esc(G.name.split(" ")[0])}. I run the project office. Your first assignment is the Kudi Savings app: about 60% of the exam is agile or hybrid, so it is the best place to start. Forte Clinic in Ikorodu will teach you predictive planning, critical paths and earned value.` : sits.length ? `You've handled ${sits.length} situation${sits.length > 1 ? "s" : ""} so far, ${best} of them the way the exam expects. Keep going, and use the Exam Hall between sprints.` : `Your projects are waiting. Remember: assess first, talk to people, and use the agreed process.`;
   return `<div class="spread" style="margin-bottom:18px"><div><p class="eyebrow">Bluegate Consulting · Victoria Island, Lagos</p><h2>Project office</h2></div></div>
   <div class="officehero">
-    <div class="stage small-stage">${World3D.ok() ? World3D.pmo(G.people, { mentor: m.id, kudi: k, clinic: c, player: { name: G.name } }) : Scene.room(G.people, [m.id], { id: "pmo", label: "The project management office at Bluegate Consulting, Victoria Island", frame: ["PMP", "Certified"], boards: [["Kudi Savings", k.pct], ["Forte Clinic", c.pct]], wall: "#E4E8EC" })}</div>
+    <div class="stage small-stage">${World3D.ok() ? World3D.pmo(G.people, { mentor: m.id, kudi: k, clinic: c, land: l, player: { name: G.name } }) : Scene.room(G.people, [m.id], { id: "pmo", label: "The project management office at Bluegate Consulting, Victoria Island", frame: ["PMP", "Certified"], boards: [["Kudi Savings", k.pct], ["Forte Clinic", c.pct]], wall: "#E4E8EC" })}</div>
     <div class="card" style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start">
       ${av(m, 56)}<div><b>${esc(People.name(m))}</b> <span class="muted small">· ${esc(m.title)}</span><p style="margin-top:6px">${greet}</p><button class="btn sm ghost" style="margin-top:10px" data-inbox>Messages from ${esc(People.short(m))}</button></div>
     </div>
   </div>
-  ${missionBoard(k, c, rd, sits, best)}`;
+  ${missionBoard(k, c, rd, sits, best, l)}`;
 }
 function projCard(key, tag, title, text, st, cls) {
   const S = G[key];
@@ -168,7 +170,7 @@ const ICONS = {
   lock: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>`,
   star: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg>`,
 };
-const MEDAL_ICONS = { authorised: "✍", explorer: "◎", increment: "▲", mindset: "◆", servant: "♥", shipped: "➤", ribbon: "✂", fifty: "50", rehearsal: "⏱", target: "✓" };
+const MEDAL_ICONS = { authorised: "✍", explorer: "◎", increment: "▲", mindset: "◆", servant: "♥", shipped: "➤", ribbon: "✂", fifty: "50", rehearsal: "⏱", target: "✓", registry: "⌂" };
 function tile(o) {
   // o: {id, name, sub, icon, hue, pct, locked, flag, done, act, pop}
   const deg = Math.round((o.pct || 0) * 360);
@@ -183,20 +185,20 @@ function tile(o) {
     <div class="mpop" id="pop-${o.id}" role="tooltip">${o.pop}</div>
   </div>`;
 }
-function missionBoard(k, c, rd, sits, best) {
+function missionBoard(k, c, rd, sits, best, l) {
   const projPop = (key, tag, title, text, st, cls) => {
     const S = G[key];
-    return `<div class="meta"><span class="pill ${cls ? "warn" : "acc"}">${tag}</span>${key === "kudi" && !S ? `<span class="pill good">Start here</span>` : ""}</div>
+    return `<div class="meta"><span class="pill ${cls === "hyb" ? "" : cls ? "warn" : "acc"}" ${cls === "hyb" ? 'style="background:#E6E1F4;color:#4A3D7D"' : ""}>${tag}</span>${key === "kudi" && !S ? `<span class="pill good">Start here</span>` : ""}</div>
       <h3>${title}</h3><p class="muted small">${text}</p>
-      <div class="meter ${cls ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%"></i></div>
-      <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div>`;
+      <div class="meter ${cls === "pred" ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%;${cls === "hyb" ? "background:#7A6BB3" : ""}"></i></div>
+      <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls === "pred" ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div>`;
   };
   const lockedPop = (tag, title, text) => `<div class="meta"><span class="pill">${tag}</span><span class="pill">In development</span></div><h3>${title}</h3><p class="muted small">${text}</p><p class="tiny muted">This mission unlocks in a future update.</p>`;
   const nb = Object.keys(G.badges || {}).length;
   const tiles = [
     tile({ id: "kudi", name: "Kudi Savings", sub: G.kudi ? k.label : "Agile · start here", icon: "kudi", hue: "teal", pct: k.pct, done: G.kudi && G.kudi.phase === "done", flag: !G.kudi ? "START" : "", act: 'data-open="kudi"', pop: projPop("kudi", "P2 · Agile", "Kudi Savings", "Kudi Microfinance Bank wants customers to run rotating savings groups (àjọ) inside its app. Six two-week sprints, a team of six, a regulator watching.", k, "") }),
     tile({ id: "clinic", name: "Forte Clinic", sub: G.clinic ? c.label : "Predictive", icon: "clinic", hue: "amber", pct: c.pct, done: G.clinic && G.clinic.phase === "done", act: 'data-open="clinic"', pop: projPop("clinic", "P1 · Predictive", "Forte Clinic", "Build and equip a 40-bed primary health clinic for a donor and the state ministry. Fourteen activities, a rainy season, an imported equipment order and ₦480m.", c, "pred") }),
-    tile({ id: "land", name: "Land Registry", sub: "Hybrid · locked", icon: "land", hue: "violet", locked: true, pop: lockedPop("P3 · Hybrid", "Land Registry", "Digitise a state land registry: governance, data protection and organisational change.") }),
+    tile({ id: "land", name: "Land Registry", sub: G.land ? l.label : "Hybrid", icon: "land", hue: "violet", pct: l.pct, done: G.land && G.land.phase === "done", act: 'data-open="land"', pop: projPop("land", "P3 · Hybrid", "Land Registry", "Digitise 1.2 million land titles across five districts, launch an online title search, and bring 200 registry staff with you. Governance, data protection and organisational change.", l, "hyb") }),
     tile({ id: "cold", name: "Cold-Chain Rescue", sub: "Hybrid · locked", icon: "cold", hue: "ice", locked: true, pop: lockedPop("P4 · Hybrid", "Cold-Chain Rescue", "Take over a late, over-budget cold-storage hub and decide its future.") }),
   ];
   const train = [
@@ -212,7 +214,7 @@ function missionBoard(k, c, rd, sits, best) {
     <div class="medals">${medals}</div>
   </section>`;
 }
-function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : [])].filter(l => l.grade); }
+function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : []), ...(G.land ? G.land.log : [])].filter(l => l.grade); }
 
 // ---------- people ----------
 function personCard(p) {

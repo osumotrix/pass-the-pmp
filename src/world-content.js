@@ -44,6 +44,15 @@ const WCONTENT = (() => {
     exam: ["The exam at a glance", null, "The PMP exam covers three domains: People (33%), Process (41%) and Business Environment (26%). About 60% of the questions reflect agile or hybrid approaches.", "Practise in the Exam Hall between projects. Two mocks at Target or above in every domain is a good sign you're ready."],
     examtips: ["Reading exam questions", null, "Read the last sentence of the question first. Look for words such as FIRST, NEXT and BEST, and eliminate answers that skip assessment or bypass the process.", "Several answers may be true. Pick the one that best fits PMI's approach at that moment."],
     eco: ["The exam content outline", null, "The outline lists 26 tasks across the three domains, from managing conflict to evaluating changes in the business environment. Every situation in this simulation is mapped to one of them.", "Open Progress to see which tasks you have practised and which still need work."],
+    tailoring: ["Tailoring and hybrid delivery", ["Process", 1], "A hybrid project mixes approaches. Here the records migration follows a predictive plan with stage gates, while the portal is built in agile iterations. Tailoring means choosing the approach that fits each part of the work.", "The exam expects you to tailor: pick predictive, agile or hybrid based on how stable the requirements are and how costly change is."],
+    stagegate: ["Stage gates and governance", ["Business Environment", 1], "At a stage gate, the governing body reviews evidence against criteria agreed in advance and decides: go, go with conditions, or stop. The project manager recommends; the governance body decides.", "If a question asks who approves a go/no-go, look for the governance body named in the charter, not the project manager acting alone."],
+    privacy: ["Data protection compliance", ["Business Environment", 2], "Processing personal data at scale needs a data protection impact assessment, safeguards built into the requirements, and contracts that hold suppliers to them. The organisation remains accountable.", "Compliance requirements are identified early and planned in. Answers that defer or waive legal duties are wrong."],
+    adkar: ["Leading organisational change", ["Business Environment", 7], "People move through change in steps: awareness of why, desire to take part, knowledge of how, ability to do it, and reinforcement so it sticks (the ADKAR model). Training alone skips the first two.", "For resistance to change, look for answers that explain the why, involve people and support them, rather than mandates or punishment."],
+    rollout: ["Pilots and phased rollout", ["Process", 1], "A pilot proves the solution and the process on a small scale before rolling out. Lessons from the pilot reduce risk everywhere else; a big-bang rollout repeats mistakes at scale.", "Phased delivery reduces risk and delivers value earlier. It is often the best answer when the organisation is new to the change."],
+    dataquality: ["Data migration quality", ["Process", 7], "Migrated records are only useful if they are accurate. Quality is defined by measurable standards, checked by sampling, and improved by fixing root causes, not by inspecting errors out at the end.", "Quality answers favour prevention, measurable criteria and root-cause correction over acceptance of poor work."],
+    cutover: ["Cut-over and parallel running", ["Business Environment", 7], "Running old and new systems side by side reduces risk for a short time, but it doubles the work. Agree objective cut-over criteria, test the fallback, then retire the old way formally.", "Transition questions reward agreed criteria and support for users, not abrupt switch-offs or endless parallel running."],
+    external: ["External environment changes", ["Business Environment", 8], "Policy announcements, laws, markets and elections change projects from outside. Evaluate the impact, develop options and decide through change control with the people who have authority.", "When the outside world changes, assess first and use change control. Don't simply absorb the change with pressure."],
+    integrity: ["Integrity and reporting", ["Business Environment", 2], "When you see possible fraud or misconduct, protect the evidence, record what you saw and report through the organisation's proper channel. Don't investigate or accuse on your own.", "PMI's Code of Ethics expects you to report, not just refuse. Quiet fixes are wrong answers."],
   };
   // role -> [text, concept id]
   const T = {
@@ -68,10 +77,22 @@ const WCONTENT = (() => {
     donor: [["The success criteria in the charter are how we judge this project: on time, within budget, and meeting ministry standards.", "success"]],
     ministry: [["We accept the building against agreed criteria, signed by people with the authority to sign. A ribbon-cutting is not acceptance.", "acceptance2"]],
     supplier: [["Imported equipment takes months. Order long-lead items early, because they often sit near the critical path.", "procurement"]],
+    permsec: [["The steering committee decides at each stage gate. Bring me evidence and a recommendation, not a decision already made.", "stagegate"], ["Benefits are what we promised the Governor: faster, honest land searches. Outputs alone won't count.", "benefits"]],
+    registrar: [["My officers know these records better than any scanner. Use their knowledge to set your quality checks.", "dataquality"], ["Paper has never crashed. Show me a tested fallback, and I'll retire the registers.", "cutover"]],
+    dpo: [["Every title file holds personal data. The impact assessment comes before large-scale processing, not after.", "privacy"]],
+    ictdir: [["The portal can change every month. The migration follows a fixed plan. That's what a hybrid project looks like.", "tailoring"], ["When the Governor moves a date, we assess the impact and decide through change control.", "external"]],
+    union: [["People resist what they don't understand. Tell us why this is happening before you train us on how.", "adkar"]],
+    champion: [["Ikeja made every mistake first so the other districts don't have to. That's the point of a pilot.", "rollout"], ["Officers trust colleagues more than consultants. That's why champions work.", "adkar"]],
+    landofficer: [["Every correction to a title now needs two signatures and leaves a trail in the system.", "integrity"]],
+    vendor: [["Our contract sets 98% index accuracy. We sample every batch against the paper originals.", "dataquality"]],
+    agent: [["My clients don't care about servers. They care that a title search takes three days, not three weeks.", "benefits"]],
+    ba: [["The registry decides what the portal does first. I make sure every feature has clear acceptance criteria.", "backlog"]],
+    devlead: [["We release the portal every month, so users can tell us early what isn't working.", "feedback"]],
+    datalead: [["A record that's scanned but wrongly indexed is worse than no record at all. Nobody can find it.", "dataquality"]],
     mentor: [["Assess first, talk to people, use the agreed process, and escalate only as a last resort.", "mindset"], ["About 60% of the exam is agile or hybrid. The Kudi project is your training ground for that.", "exam"], ["Read the question's last sentence first. Words like FIRST and NEXT matter.", "examtips"]],
   };
   // hotspot id -> concept id (or an action)
-  const H = { scrum: "radiator", burndown: "burndown", dod: "dod", agreement: "teamcharter", vision: "vision", gantt: "critical", risk: "risk", sign: "charter", building: "evm", crates: "procurement", safetyboard: "safety", rain: "riskresp", cert: "exam", shelf: "eco", charterdoc: "charter", sponsorDoor: "sponsor", callcentre: "transition" };
+  const H = { scrum: "radiator", burndown: "burndown", dod: "dod", agreement: "teamcharter", vision: "vision", gantt: "critical", risk: "risk", sign: "charter", building: "evm", crates: "procurement", safetyboard: "safety", rain: "riskresp", cert: "exam", shelf: "eco", charterdoc: "charter", sponsorDoor: "sponsor", callcentre: "transition", archive: "dataquality", scanner: "privacy", portal: "tailoring", rack: "cutover", registrarDoor: "stagegate", counter: "benefits", map: "rollout", dpnotice: "privacy", adkar: "adkar", committee: "stagegate" };
   // ambient chatter: world/phase -> lines
   const A = {
     "kudi:planning": ["How big is the group-invite story?", "Three points, maybe five.", "Can we split that one?", "What's the sprint goal?"],
@@ -84,6 +105,9 @@ const WCONTENT = (() => {
     "clinic:run": ["Mind the trench!", "Cement delivery at noon.", "Check the levels on that column.", "Hard hats on, please.", "Oya, bring more blocks!", "Scaffold inspection at two."],
     "clinic:wet": ["Cover the cement bags!", "Rain again… pump the trench.", "We'll lose a day to this."],
     "clinic:closure": ["Snag list is shrinking.", "Ribbon's ready for Saturday.", "Oxygen lines tested?"],
+    "land:plan": ["Which district goes first?", "The Ikeja files are the most complete.", "Who sits on the steering committee?"],
+    "land:run": ["Batch 214 is ready for checking.", "This file is from 1974!", "Mind the staples, they jam the feeder.", "Is the portal down or is it me?", "Next, please.", "Has Epe sent its jackets yet?", "Double-check that plot number."],
+    "land:closure": ["Who's taking the support calls next month?", "The handover pack is printed.", "The last shelf is empty!"],
     pmo: ["Printer's jammed again.", "Lunch at one?", "Have you seen the new mock exam?", "The Ikorodu site photos are in."],
     brief: ["Let me get the charter."],
   };

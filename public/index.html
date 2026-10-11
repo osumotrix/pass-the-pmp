@@ -2,16 +2,16 @@
 <html lang="en-GB">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
+<meta name="description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, run a hybrid land-registry programme, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
 <meta name="theme-color" content="#0B1320">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Pass The PMP">
-<meta property="og:description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
+<meta property="og:description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, run a hybrid land-registry programme, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
 <meta property="og:url" content="https://pass-the-pmp.pages.dev/">
 <meta property="og:image" content="https://pass-the-pmp.pages.dev/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pass The PMP">
-<meta name="twitter:description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
+<meta name="twitter:description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, run a hybrid land-registry programme, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
 <meta name="twitter:image" content="https://pass-the-pmp.pages.dev/og.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect x='3' y='2' width='20' height='24' rx='3' fill='%230E6E62'/%3E%3Cpath d='M8 9h10M8 13h10M8 17h6' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='21' r='5' fill='%23E7AE4B'/%3E%3C/svg%3E">
 <title>Pass The PMP</title>
@@ -468,6 +468,13 @@ body.w3lock{overflow:hidden}
   .mslot:focus-within:not(.show) .mpop{opacity:0;visibility:hidden}
 }
 @media (prefers-reduced-motion:reduce){.mflag{animation:none}.mtile,.mpop{transition:none}}
+.adkar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-items:end}
+.adkar .ak{border-radius:10px;padding:8px 6px;text-align:center;background:var(--surface-2);color:var(--muted);font-size:12.5px;line-height:1.2;display:flex;flex-direction:column;gap:4px}
+.adkar .ak b{font-family:var(--f-display);font-size:18px}
+.adkar .ak:nth-child(1){min-height:64px}.adkar .ak:nth-child(2){min-height:78px}.adkar .ak:nth-child(3){min-height:92px}.adkar .ak:nth-child(4){min-height:106px}.adkar .ak:nth-child(5){min-height:120px}
+.adkar .ak.done{background:#D8D1EF;color:#3A2F66}
+.adkar .ak.now{background:#7A6BB3;color:#fff;box-shadow:0 6px 16px -6px rgba(74,61,125,.6)}
+@media (max-width:640px){.adkar{gap:4px}.adkar .ak{font-size:9.5px;padding:6px 2px;overflow-wrap:anywhere;hyphens:auto}.adkar .ak b{font-size:15px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -581,6 +588,18 @@ const People = (() => {
     matron: ["Matron-designate of the clinic", ["senior"], ["Nursing"], { clinical: 5 }, ["Registered nurse and midwife"]],
     safety: ["Health and safety officer", ["mid"], ["Environmental Science", "Civil Engineering"], { safety: 4 }, ["NEBOSH International General Certificate"]],
     foreman: ["Site foreman", ["senior"], [], { construction: 4 }, []],
+    permsec: ["Permanent Secretary, State Lands Bureau", ["exec"], ["Law", "Estate Management", "Public Administration"], { governance: 5 }, []],
+    registrar: ["Registrar of Titles", ["exec"], ["Law", "Estate Management"], { domain: 5 }, []],
+    dpo: ["Data protection officer", ["senior"], ["Law", "Computer Science"], { privacy: 5 }, ["CIPP/E"]],
+    ictdir: ["Director of ICT, State Government", ["exec"], ["Computer Science", "Electrical and Electronic Engineering"], { tech: 4, governance: 3 }, []],
+    union: ["Branch chair, registry staff union", ["senior"], ["Public Administration", "Sociology"], { community: 4 }, []],
+    champion: ["Senior lands officer and change champion", ["mid", "senior"], ["Estate Management", "Geography", "Public Administration"], { domain: 4 }, []],
+    landofficer: ["Assistant chief lands officer", ["senior"], ["Estate Management", "Geography"], { domain: 4 }, []],
+    vendor: ["Delivery manager, digitisation contractor", ["senior"], ["Computer Science", "Business Administration"], { delivery: 4 }, []],
+    agent: ["Estate agent and frequent registry user", ["mid", "senior"], ["Estate Management", "Business Administration"], { sales: 3 }, []],
+    ba: ["Business analyst", ["mid", "senior"], ["Computer Science", "Economics", "Statistics"], { analysis: 4 }, ["CBAP"]],
+    devlead: ["Lead portal developer", ["senior"], ["Computer Science", "Software Engineering"], { backend: 4, frontend: 3 }, ["AWS Certified Developer"]],
+    datalead: ["Data migration lead", ["mid", "senior"], ["Computer Science", "Statistics", "Mathematics"], { data: 5 }, []],
   };
   const BANDS = { junior: [23, 28], mid: [27, 35], senior: [32, 46], exec: [40, 60] };
   const MOTIVES = ["career growth", "recognition", "learning new tools", "job security", "flexible hours", "better pay", "making an impact", "mentoring others", "work-life balance"];
@@ -663,7 +682,7 @@ const People = (() => {
     let life = null;
     if (!opts.noLife && age < 50) for (const [text, p, key] of r.shuffle(LIFE)) if (r.chance(p)) { life = { text, key }; break; }
     const seniorTitle = band === "senior" && ["backend", "mobile", "qa"].includes(role) ? "Senior " + def[0].toLowerCase() : band === "junior" && ["backend", "mobile", "qa"].includes(role) ? "Junior " + def[0].toLowerCase() : def[0];
-    const honor = role === "baale" ? "Chief " : role === "donor" || role === "ministry" ? "Dr " : role === "community" ? "Alhaja ".repeat(nm.muslim ? 1 : 0) || "Madam " : "";
+    const honor = role === "baale" ? "Chief " : role === "donor" || role === "ministry" ? "Dr " : role === "registrar" ? "Barr. " : role === "community" ? "Alhaja ".repeat(nm.muslim ? 1 : 0) || "Madam " : "";
     const looks = avatarGenes(r, gender, nm.muslim, age, role, gk);
     const p = {
       id: "p" + (++counter) + "_" + Math.floor(r() * 1e6).toString(36), role, title: opts.title || seniorTitle, band, gender, group: g.label, state: r.pick(g.states),
@@ -1886,6 +1905,453 @@ const Pred = (() => {
   return { create, setPlan, runCycle, crash, fastTrack, metrics, cpm, nextSituation, prepare, choose, finish, level, get, dateOf, rainLevel, PLAN, SIT, CYCLE, DEADLINE, cast };
 })();
 
+// ===== Pass The PMP: P3 Land Registry (hybrid simulation) =====
+// Three tracks run together: a predictive digitisation programme across five districts,
+// an agile portal built in monthly iterations, and the organisational change that makes
+// registry staff actually use it.
+const Land = (() => {
+  const START = new Date(Date.UTC(2027, 2, 1)); // Monday 1 March 2027
+  const MONTHS = 12, BUDGET = 1900, BURN = 128, TARGET_ACC = 98; // ₦ million, index accuracy %
+  const DISTRICTS = [
+    // id, name, paper title files (thousands)
+    ["ikeja", "Ikeja", 320], ["island", "Lagos Island", 260], ["ikorodu", "Ikorodu", 300], ["badagry", "Badagry", 180], ["epe", "Epe", 140],
+  ];
+  const FEATURES = [
+    // id, title, description, points, value, priority
+    ["F1", "Title search", "Search a title by plot number, owner or survey plan.", 8, 30, "must"],
+    ["F2", "Officer work queue", "Registry officers process applications on screen instead of paper jackets.", 8, 20, "must"],
+    ["F3", "Online fee payment", "Pay search and registration fees online with a receipt.", 5, 18, "must"],
+    ["F4", "Title verification certificate", "A certificate with a QR code that banks and buyers can check.", 5, 22, "must"],
+    ["F5", "Consent to transfer", "Apply online for the Governor's consent to a land transfer.", 8, 16, "should"],
+    ["F6", "Duplicate-title alerts", "Flag plots with more than one title before anything is issued.", 5, 14, "should"],
+    ["F8", "Survey plan upload", "Surveyors upload plans for checking.", 5, 8, "could"],
+  ];
+  const RESERVE = { F7: ["F7", "SMS status updates", "Applicants get an SMS when their file moves to the next desk.", 3, 12, "should"] };
+  const feat = a => ({ id: a[0], title: a[1], text: a[2], pts: a[3], value: a[4], pri: a[5], rem: a[3], status: "backlog", live: null });
+  const dateOf = m => new Date(Date.UTC(2027, 2 + m, 1)).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+
+  // tailoring choices made before work starts
+  const PLAN = {
+    rollout: { label: "Digitisation rollout", options: [
+      ["pilot", "Pilot Ikeja first, then the other four districts", "Learn on one district before scaling. Slower to start; lessons reach every district."],
+      ["bigbang", "All five districts at once", "Fastest in theory. Mistakes repeat everywhere, and staff everywhere change at once."],
+    ] },
+    portal: { label: "Building the public portal", options: [
+      ["agile", "Monthly iterations, released as features are ready", "Users see value early and feedback shapes the backlog."],
+      ["waterfall", "Specify everything up front, release once", "One approval and one launch. Feedback arrives late and changes cost more."],
+    ] },
+    change: { label: "Organisational change", options: [
+      ["champions", "Change champions in every district, plus training (₦70m)", "Staff learn from colleagues they trust, before and after go-live."],
+      ["training", "Classroom training at go-live only", "Cheaper. People learn the system, but not why it matters."],
+    ] },
+    governance: { label: "Governance", options: [
+      ["gates", "Steering committee with quarterly stage gates", "Decisions against agreed criteria, recorded and owned by the right people."],
+      ["report", "A monthly report to the Permanent Secretary", "Lighter, but decisions rest on one person and are not tested against criteria."],
+    ] },
+  };
+
+  const ACTIONS = {
+    townhall: { label: "District town hall", hint: "Explain the why, answer fears openly (awareness and desire)" },
+    champions: { label: "Coach the change champions", hint: "Build knowledge and ability in the districts" },
+    audit: { label: "Quality audit of indexed files", hint: "Sample-check records; improves accuracy, slows scanning a little" },
+    usertest: { label: "Test the portal with real users", hint: "Estate agents and citizens try the latest release" },
+    steer: { label: "Brief the steering committee", hint: "Keep governance informed and decisions moving" },
+    meetStake: { label: "Meet a stakeholder", hint: "Understand concerns and keep them engaged", needs: "stake" },
+  };
+
+  function create(seed, people) {
+    const r = R.rng(seed + 37);
+    const mk = (role, o) => { const p = People.make(r, role, Object.assign({ org: "State Lands Bureau" }, o || {})); people[p.id] = p; return p.id; };
+    const vendorCo = People.companyName(r);
+    const cast = {
+      permsec: mk("permsec"), registrar: mk("registrar"), dpo: mk("dpo"), ictdir: mk("ictdir", { org: "State Ministry of Science and Technology" }),
+      union: mk("union"), champion: mk("champion"), officer: mk("landofficer"), vendor: mk("vendor", { org: vendorCo }), agent: mk("agent", { org: "Estate agents' association" }),
+      ba: mk("ba", { org: "Bluegate Consulting" }), devlead: mk("devlead", { org: "Bluegate Consulting" }), datalead: mk("datalead", { org: "Bluegate Consulting" }),
+    };
+    const S = {
+      kind: "hybrid", key: "land", seed, phase: "charter", month: 0, cast, vendorCo, team: ["ba", "devlead", "datalead"],
+      districts: DISTRICTS.map(([id, name, files]) => ({ id, name, files, dig: 0, live: null, flagged: 0 })),
+      features: FEATURES.map(feat), acc: 96.6, adopt: 18, spent: 0, budget: BUDGET, contingency: 95, reserveUsed: 0,
+      dpia: "none", breaches: 0, audit: 0, gate: null, deadline: MONTHS, vendorPerf: 1, workToRule: 0, parallel: false,
+      choices: {}, mods: {}, actionsLeft: 2, actionsUsed: [], notes: [], log: [], fired: {}, valueMonths: 0, turnHist: [21], accHist: [96.6], adoptHist: [18], digHist: [0],
+      stake: {
+        permsec: { power: 5, interest: 4, support: 70, aware: true, desired: "Leading" },
+        registrar: { power: 5, interest: 5, support: 34, aware: true, desired: "Supportive" },
+        dpo: { power: 4, interest: 3, support: 50, aware: false, desired: "Supportive" },
+        ictdir: { power: 4, interest: 3, support: 58, aware: true, desired: "Supportive" },
+        union: { power: 4, interest: 5, support: 40, aware: true, desired: "Supportive" },
+        agent: { power: 2, interest: 5, support: 55, aware: true, desired: "Supportive" },
+      },
+      result: null, rng: seed * 17 + 11,
+    };
+    return S;
+  }
+  const roll = S => { S.rng = (S.rng * 1103515245 + 12345) % 2147483648; return S.rng / 2147483648; };
+  const cast = (S, people) => Cast(Object.fromEntries(Object.entries(S.cast).map(([k, id]) => [k, people[id]])));
+  const level = st => !st.aware ? "Unaware" : st.support < 35 ? "Resistant" : st.support < 55 ? "Neutral" : st.support < 80 ? "Supportive" : "Leading";
+  const teamP = (S, people) => S.team.map(k => people[S.cast[k]]).filter(Boolean);
+  const getF = (S, id) => S.features.find(f => f.id === id);
+  const adkar = a => a < 20 ? ["Awareness", 0] : a < 40 ? ["Desire", 1] : a < 60 ? ["Knowledge", 2] : a < 80 ? ["Ability", 3] : ["Reinforcement", 4];
+  const ADKAR = ["Awareness", "Desire", "Knowledge", "Ability", "Reinforcement"];
+
+  function setPlan(S, choices) {
+    S.choices = Object.assign({}, choices);
+    if (choices.change === "champions") { S.spent += 30; S.adopt += 6; S.stake.union.support += 6; }
+    if (choices.rollout === "bigbang") { S.acc -= 1.0; S.adopt -= 4; S.stake.union.support -= 6; }
+    if (choices.governance === "gates") { S.stake.permsec.support += 3; S.stake.ictdir.support += 6; }
+    if (choices.portal === "waterfall") for (const f of S.features) if (f.pri !== "could") f.status = "planned";
+    S.phase = "run"; S.month = 1; S.actionsLeft = 2; S.actionsUsed = [];
+  }
+
+  // ---------- measures ----------
+  function metrics(S) {
+    const tot = S.districts.reduce((a, d) => a + d.files, 0), dig = S.districts.reduce((a, d) => a + d.dig, 0);
+    const liveD = S.districts.filter(d => d.live != null);
+    const feats = S.features.filter(f => f.live != null);
+    // average days to complete a title search, weighted by files
+    const turn = S.districts.reduce((a, d) => a + d.files * (d.live != null ? (S.parallel ? 9 : S.adopt >= 60 ? 3 : 6) : 21), 0) / tot;
+    const st = Object.values(S.stake).filter(x => x.aware);
+    const support = st.reduce((a, x) => a + x.support * x.power, 0) / st.reduce((a, x) => a + x.power, 0);
+    return { tot, dig, digPct: dig / tot, live: liveD.length, featsLive: feats.length, featsAll: S.features.length, turn, support, stage: adkar(S.adopt)[0], stageIdx: adkar(S.adopt)[1] };
+  }
+
+  // ---------- one month of work ----------
+  function runMonth(S, people) {
+    const m = S.month, pilot = S.choices.rollout === "pilot";
+    // scanning and indexing
+    const pilotOnly = pilot && m <= 3;
+    const pilotHeld = pilot && m > 3 && S.gate === "hold" && m <= 5;
+    let active = S.districts.filter(d => d.dig < d.files && (pilotOnly ? d.id === "ikeja" : true));
+    if (pilotHeld) active = active.filter(d => d.id === "ikeja");
+    let cap = (pilotOnly ? (m === 1 ? 70 : 112) : pilotHeld ? 80 : 128) * S.vendorPerf * (0.9 + roll(S) * 0.2);
+    if (S.mods.audit) cap *= 0.94;
+    if (S.mods.crash) cap *= 1.22;
+    if (S.workToRule > 0) { cap *= 0.45; S.workToRule--; }
+    if (S.dpia === "underway" && !pilotOnly) cap *= 0.85; // high-risk processing waits for safeguards
+    // accuracy drifts towards what the process can sustain
+    const accTarget = 96.6 + (S.mods.vendorFixed ? 1.6 : 0) + Math.min(4, S.qa || 0) * 0.3 - (S.choices.rollout === "bigbang" ? 0.9 : 0) - (S.mods.crash ? 0.8 : 0) + (pilot && m > 3 ? 0.6 : 0);
+    S.acc = clampN(S.acc + (accTarget - S.acc) * 0.45 + (roll(S) - 0.5) * 0.3, 90, 99.6);
+    const rework = Math.max(0, TARGET_ACC - S.acc) / 100 * 4; // share of output that fails checks and is re-scanned
+    // a pilot district is finished before the rest share the scanners
+    const first = pilot ? active.find(d => d.id === "ikeja") : null;
+    let left = cap;
+    if (first) { const take = Math.min(left * 0.7, (first.files - first.dig) / (1 - rework)); first.dig = Math.min(first.files, first.dig + take * (1 - rework)); first.flagged += take * rework; left -= take; }
+    const rest = active.filter(d => d !== first), needR = rest.reduce((a, d) => a + (d.files - d.dig), 0) || 1;
+    for (const d of rest) { const share = (d.files - d.dig) / needR; const out = left * share * (1 - rework); d.dig = Math.min(d.files, d.dig + out); d.flagged += left * share * rework; }
+    // the portal: agile releases features as they finish; waterfall releases once, when the planned scope is built
+    const tp = teamP(S, people), morale = tp.reduce((a, p) => a + p.morale, 0) / Math.max(1, tp.length);
+    let vel = (S.choices.portal === "waterfall" ? 7.5 : 7) * (0.7 + 0.5 * morale / 100) * (m === 1 ? 0.5 : 1) * (S.mods.reprioritise ? 0.9 : 1);
+    const order = S.features.filter(f => f.rem > 0 && f.status !== "dropped").sort((a, b) => ({ must: 0, should: 1, could: 2 })[a.pri] - ({ must: 0, should: 1, could: 2 })[b.pri]);
+    for (const f of order) { if (vel <= 0) break; if (S.choices.portal === "waterfall" && f.status !== "planned") continue; const use = Math.min(vel, f.rem); f.rem -= use; vel -= use; if (f.rem <= 0.01) { f.rem = 0; f.status = "built"; } }
+    if (S.choices.portal === "agile") { for (const f of S.features) if (f.status === "built" && f.live == null) { f.live = m; f.status = "live"; S.notes.push(`Month ${m}: “${f.title}” went live on the portal.`); } }
+    else if (S.features.filter(f => f.status === "planned" || f.status === "built").every(f => f.status === "built") && S.features.some(f => f.status === "built")) {
+      for (const f of S.features) if (f.status === "built" && f.live == null) { f.live = m; f.status = "live"; }
+      S.notes.push(`Month ${m}: the portal launched with ${S.features.filter(f => f.live === m).length} features in one release.`);
+    }
+    S.valueMonths += S.features.filter(f => f.live != null).reduce((a, f) => a + f.value, 0);
+    // districts go live when their records are in, the core portal works, and the gate allows it
+    const core = getF(S, "F1").live != null && getF(S, "F2").live != null;
+    for (const d of S.districts) {
+      if (d.live != null || d.dig < d.files * 0.95 || !core) continue;
+      if (S.choices.governance === "gates" && d.id === "ikeja" && pilot && !["go", "conditional"].includes(S.gate) && m <= 5) continue;
+      if (S.adopt < 35) { if (!S._lowAdoptNote) { S.notes.push(`Month ${m}: ${d.name} has its records in, but staff are not ready to work without paper. Go-live waits.`); S._lowAdoptNote = 1; } continue; }
+      d.live = m; S.notes.push(`Month ${m}: ${d.name} district went live. Searches there are now done on screen.`);
+      for (const st of Object.values(S.stake)) if (st.aware) st.support = clampN(st.support + 1.5, 2, 98);
+    }
+    // people and change
+    const champ = S.choices.change === "champions";
+    S.adopt = clampN(S.adopt + (champ ? 3.6 : 1.4) + (S.stake.union.support - 50) / 30 + (S.districts.some(d => d.live != null) ? 1.5 : 0) - (S.workToRule > 0 ? 3 : 0), 0, 100);
+    for (const p of tp) p.morale = clampN(p.morale + (70 - p.morale) * 0.05 + (roll(S) - 0.5), 15, 96);
+    S.stake.registrar.support = clampN(S.stake.registrar.support + (S.adopt - 45) / 25, 2, 98);
+    const onTrack = metrics(S).digPct >= Math.min(1, m / 11) - 0.08;
+    S.stake.permsec.support = clampN(S.stake.permsec.support + (onTrack ? 1 : -2), 2, 98);
+    // money
+    S.spent += BURN + (champ ? 3.3 : 0) + (S.mods.crash ? 22 : 0) + (S.mods.audit ? 4 : 0) + (S.mods.extra || 0);
+    S.mods = Object.fromEntries(Object.entries(S.mods).filter(([k]) => ["vendorFixed", "crash"].includes(k)));
+    S.actionsLeft = 2; S.actionsUsed = []; S._actMsg = null;
+    const mt = metrics(S);
+    S.turnHist.push(+mt.turn.toFixed(1)); S.accHist.push(+S.acc.toFixed(2)); S.adoptHist.push(Math.round(S.adopt)); S.digHist.push(Math.round(mt.dig));
+    S.month++;
+    tickCompliance(S);
+    if (S.month > MONTHS) { S.month = MONTHS; S.phase = "closure"; }
+  }
+
+  function doAction(S, people, key, target) {
+    if (S.actionsLeft <= 0) return null;
+    S.actionsLeft--; S.actionsUsed.push(key);
+    const c = cast(S, people);
+    if (key === "townhall") { S.adopt = clampN(S.adopt + 4, 0, 100); S.stake.union.support = clampN(S.stake.union.support + 4, 2, 98); return `You held a town hall with registry staff. People asked hard questions about jobs and workload; you answered what you could and promised answers on the rest. Staff adoption rose.`; }
+    if (key === "champions") { S.adopt = clampN(S.adopt + (S.choices.change === "champions" ? 5 : 2.5), 0, 100); return S.choices.change === "champions" ? `You coached the district champions on handling objections and running short refresher sessions. They take the lessons back to their teams.` : `Without a champion network, you coached a few willing officers informally. It helps, a little.`; }
+    if (key === "audit") { S.mods.audit = true; S.qa = (S.qa || 0) + 1; return `${c.n("datalead")} sampled 2,000 indexed files against the paper originals. The findings go straight to ${c.n("vendor")}'s team. Accuracy will improve; scanning slows slightly this month.`; }
+    if (key === "usertest") { S.stake.agent.support = clampN(S.stake.agent.support + 6, 2, 98); S.userTested = (S.userTested || 0) + 1; return `Ten estate agents and citizens tried the latest portal build while ${c.n("ba")} watched. Two confusing screens were fixed before release.`; }
+    if (key === "steer") { S.stake.permsec.support = clampN(S.stake.permsec.support + 4, 2, 98); S.stake.ictdir.support = clampN(S.stake.ictdir.support + 3, 2, 98); return `You briefed the steering committee with the latest measures, risks and decisions needed. ${c.n("permsec")} thanked you for no surprises.`; }
+    if (key === "meetStake") { const st = S.stake[target]; const before = level(st); st.aware = true; st.support = clampN(st.support + 10, 0, 98); return `You met ${c.n(target)} (${c.t(target)}) to understand ${c.his(target)} priorities. Engagement: ${before} → ${level(st)}.`; }
+    return null;
+  }
+
+  // ---------- situations ----------
+  const SIT = [];
+  const def = o => SIT.push(o);
+
+  def({ id: "L1", at: { month: 1 }, title: "The Registrar's doubts", eco: ["People", 4], also: ["Business Environment", 7], principle: "people",
+    scene: c => [["registrar", `I'll be honest with you. This is the third computerisation project I've seen. The last one lost four hundred files and we spent two years rebuilding them by hand.`], ["registrar", `My officers know these records. Your scanners don't. I'll sign what the Permanent Secretary tells me to sign, but don't expect me to cheer.`]],
+    q: "What should you do first?",
+    options: [
+      { grade: "best", text: c => `Ask ${c.s("registrar")} what went wrong last time, involve ${c.him("registrar")} in setting the migration rules and quality checks, and make ${c.him("registrar")} the owner of how the records are handled.`, fx: { support: { registrar: 24 }, adopt: 4, acc: 0.3 }, out: c => `${c.s("registrar")} talks for an hour about missing chains of title and badly indexed files. ${c.He("registrar")} agrees to chair the records quality group, and ${c.his("registrar")} rules become the vendor's checklist.` },
+      { grade: "poor", text: c => `Ask ${c.s("permsec")} to instruct the Registrar to cooperate.`, fx: { support: { registrar: -12, permsec: -2 } }, out: c => `${c.s("registrar")} cooperates on paper. ${c.His("registrar")} officers hear that the project went over their head.` },
+      { grade: "ok", text: c => `Send ${c.s("registrar")} the project plan and invite questions by email.`, fx: { support: { registrar: 3 } }, out: c => `The plan is read and filed. Nothing changes in how ${c.s("registrar")} sees the project.` },
+      { grade: "poor", text: c => `Work around the Registrar; the vendor can index the files without the registry's help.`, fx: { support: { registrar: -18 }, acc: -0.6 }, out: c => `The vendor misreads old file numbering. Indexing errors climb, and the registry says, "We told you so."` },
+    ],
+    lesson: c => `Resistance from a powerful stakeholder usually comes from experience. Listen, learn what went wrong before, and give them real ownership of the part they know best. Their knowledge becomes your quality plan.`,
+    lens: `Stakeholder questions reward engaging directly and turning concerns into requirements. Escalating or bypassing a high-power stakeholder is rarely the first step.` });
+
+  def({ id: "L2", at: { month: 1 }, title: "Personal data on every file", eco: ["Business Environment", 2], also: ["Business Environment", 5], principle: "ethics",
+    scene: c => [["dpo", `Every title file holds names, addresses, signatures, passport photos, sometimes national identity numbers. Scanning a million of them is large-scale processing of personal data.`], ["dpo", `Under the Nigeria Data Protection Act, we need a data protection impact assessment before that starts. I haven't seen one.`], ["vendor", `Our cloud platform is very secure. We usually just start scanning and sort the paperwork out later.`]],
+    q: "What should you do?",
+    options: [
+      { grade: "poor", text: c => `Let scanning start; the impact assessment can be finished in parallel later.`, fx: { support: { dpo: -18 }, dpia: "skipped", audit: 1 }, out: c => `Scanning starts at full speed. ${c.s("dpo")} records a formal objection, and the risk sits on the register with no owner.` },
+      { grade: "best", text: c => `Agree with ${c.s("dpo")} to run the impact assessment now, limit processing to the pilot under agreed safeguards until it is approved, and add data protection requirements, including where data is stored, to the vendor's contract.`, fx: { aware: "dpo", support: { dpo: 20, ictdir: 4 }, dpia: "underway" }, out: c => `The assessment finds that the vendor's cloud stores data abroad. A contract change moves storage to the state's data centre. Scanning in the pilot continues under the safeguards.` },
+      { grade: "ok", text: c => `Stop all scanning until the assessment is complete.`, fx: { aware: "dpo", support: { dpo: 12, permsec: -6 }, dpia: "underway", delayScan: 1 }, out: c => `The assessment is done properly, but a month of scanning is lost, including low-risk work that could have continued safely.` },
+      { grade: "poor", text: c => `Ask the vendor to sign a letter confirming their platform is compliant.`, fx: { support: { dpo: -8 }, dpia: "skipped" }, out: c => `The letter shifts no legal responsibility. The State Lands Bureau remains the data controller.` },
+    ],
+    lesson: c => `Compliance requirements are identified and planned, not bolted on later. When personal data is processed at scale, an impact assessment comes first, its safeguards become requirements, and contracts carry them to suppliers. The organisation stays accountable, whoever does the work.`,
+    lens: `Compliance answers on the exam never defer or waive legal requirements. Look for the option that complies, assesses the impact and builds the requirement into plans and contracts.` });
+
+  def({ id: "L3", at: { month: 2 }, title: "Who decides at the gate?", eco: ["Business Environment", 1], principle: "process",
+    scene: c => [["permsec", `I'm travelling for most of next month. When the Ikeja pilot is ready, just switch it on. You're the project manager; I trust your judgement.`]],
+    q: "How should you respond?",
+    options: [
+      { grade: "best", text: c => `Thank ${c.s("permsec")}, and propose that go-live is decided at the planned stage gate against agreed criteria, with a delegate named to chair the steering committee in ${c.his("permsec")} absence.`, fx: { support: { permsec: 3, ictdir: 5 }, gov: 1 }, out: c => `${c.s("permsec")} names ${c.s("ictdir")} as delegate. The go-live criteria (accuracy, staff readiness, data protection) are written down before anyone is under pressure.` },
+      { grade: "poor", text: c => `Accept; it saves time and shows the sponsor's confidence in you.`, fx: { support: { ictdir: -6 }, gov: -1 }, out: c => `You now hold a decision that belongs to the business. If the pilot goes wrong, it will be your decision alone.` },
+      { grade: "ok", text: c => `Agree, but email ${c.s("permsec")} before switching on.`, fx: { gov: 0 }, out: c => `Better than nothing, but an email is not a governance decision against criteria.` },
+      { grade: "poor", text: c => `Postpone the pilot until ${c.s("permsec")} is back.`, fx: { support: { permsec: -4, registrar: -3 }, delayGate: 1 }, out: c => `The pilot team waits a month. Momentum, and some goodwill, are lost.` },
+    ],
+    lesson: c => `Governance defines who makes which decisions, using what criteria. The project manager prepares the evidence and recommends; go/no-go decisions at stage gates belong to the governance body. Delegation should be explicit.`,
+    lens: `Governance questions reward decisions made by the right body against agreed criteria, not by whoever happens to be available.` });
+
+  def({ id: "L4", at: { month: 4 }, title: "The pilot go/no-go", eco: ["Business Environment", 1], also: ["Process", 9], principle: "assess",
+    dyn: true, scene: c => [], q: "What should you recommend to the steering committee?", options: [],
+    lesson: c => `A stage gate tests the project against criteria agreed in advance. Present the evidence honestly and recommend: go, go with conditions, or hold, with what must change. Going live without meeting critical criteria transfers risk to the people who will use the system.`,
+    lens: `Phase gate questions reward evidence-based recommendations against agreed criteria. Hiding a shortfall to keep the schedule is always wrong.` });
+
+  def({ id: "L5", at: { month: 4 }, title: "Clerks fear for their jobs", eco: ["Business Environment", 7], also: ["People", 2], principle: "people",
+    scene: c => [["union", `People are saying this project will cut two hundred jobs once the files are digital. Nobody from the Bureau has told us otherwise.`], ["union", `If we don't get answers by Friday, the branch will vote to work to rule.`]],
+    q: "What should you do?",
+    options: [
+      { grade: "poor", text: c => `Tell ${c.s("union")} that staffing is not part of your project.`, fx: { support: { union: -20 }, workToRule: 2, adopt: -8 }, out: c => `The branch votes to work to rule. Scanning support from registry staff slows to a crawl for two months.` },
+      { grade: "best", text: c => `With ${c.s("permsec")}, agree an honest message about roles, then meet ${c.s("union")} and staff together: share the redeployment and retraining plan, and invite officers to help design the new roles.`, fx: { support: { union: 18, permsec: 2 }, adopt: 9 }, out: c => `${c.s("permsec")} confirms there will be no redundancies; officers move to verification, customer service and quality roles. The union asks for training dates, not strikes.` },
+      { grade: "ok", text: c => `Issue a written statement that no decisions have been made.`, fx: { support: { union: -2 }, adopt: -1 }, out: c => `The statement is accurate but empty. The rumours continue.` },
+      { grade: "poor", text: c => `Promise ${c.s("union")} that nobody will lose their job.`, fx: { support: { union: 10, permsec: -10 } }, out: c => `You had no authority to promise that. ${c.s("permsec")} has to clarify publicly, and trust in you drops on both sides.` },
+    ],
+    lesson: c => `Organisational change fails when people fear it and nobody tells them the truth. Communicate early and honestly with the sponsor's authority, involve people in designing their future roles, and plan retraining. Never promise what you cannot authorise.`,
+    lens: `Change-management answers build awareness and desire before training. Look for honest communication, involvement and support, not silence, force or false promises.` });
+
+  def({ id: "L6", at: { month: 5 }, title: "A record quietly changed", eco: ["Business Environment", 2], principle: "ethics",
+    scene: c => [["datalead", `Something odd. The paper file for a plot in Lekki was pulled from the scanning queue yesterday. When it came back, the owner's name had been altered and re-stamped.`], ["officer", `It's just a correction. The family asked me to fix it before it goes into the computer. These things happen all the time.`]],
+    q: "What should you do?",
+    options: [
+      { grade: "ok", text: c => `Ask ${c.s("officer")} to put the original name back.`, fx: { audit: 1 }, out: c => `The name is restored, but there is no record of what happened, and nobody checks the other files ${c.s("officer")} handled.` },
+      { grade: "best", text: c => `Secure the file and the scan log, record what you saw, and report it through the Bureau's whistleblowing channel to ${c.s("registrar")} and ${c.s("permsec")}. Make sure every correction goes through the formal rectification process.`, fx: { support: { registrar: 6, permsec: 6 }, acc: 0.3 }, out: c => `An investigation finds eleven altered files linked to a land-grabbing syndicate. Corrections now need two signatures and leave an audit trail in the new system.` },
+      { grade: "poor", text: c => `Let it go; correcting records is the registry's business, not the project's.`, fx: { audit: 2, support: { registrar: -4 } }, out: c => `Months later, two families claim the same plot. The court asks why the digitisation project accepted an altered record.` },
+      { grade: "poor", text: c => `Confront ${c.s("officer")} in front of the scanning team.`, fx: { adopt: -6, support: { union: -8 } }, out: c => `${c.s("officer")} denies everything. Staff close ranks, and the evidence goes missing.` },
+    ],
+    lesson: c => `Integrity is not negotiable. When you see possible fraud, protect the evidence, record the facts and report through the proper channel. Don't investigate or accuse on your own, and don't let it pass.`,
+    lens: `Ethics questions reward reporting through the right channel while protecting evidence. "Fix it quietly" and "ignore it" are wrong; so is public confrontation.` });
+
+  def({ id: "L7", at: { month: 6 }, title: "The deadline moves", eco: ["Business Environment", 8], also: ["Business Environment", 3], principle: "assess",
+    scene: c => [["permsec", `The Governor announced this morning that from next February, every land search in the state will be online. That's two months earlier than our plan.`], ["ictdir", `The announcement is public. We can't ask him to take it back.`]],
+    q: "What should you do first?",
+    options: [
+      { grade: "poor", text: c => `Tell the team the new date is fixed and everyone must work faster.`, fx: { team: -8, acc: -0.8, crash: true, deadline: 10 }, out: c => `The vendor adds night shifts without changing how it works. Volume goes up, and so do errors.` },
+      { grade: "best", text: c => `Assess the impact on each district, prepare options such as extra scanning shifts, prioritising the busiest districts and a phased online launch, and take them to the steering committee through change control.`, fx: { support: { permsec: 5, ictdir: 4 }, crash: true, budget: 60, deadline: 10, phased: true }, out: c => `The committee approves extra shifts funded from contingency and a phased launch: the three busiest districts by February, the rest by April. The Governor's office accepts the plan.` },
+      { grade: "ok", text: c => `Ask ${c.s("permsec")} to persuade the Governor to keep the original date.`, fx: { support: { permsec: -6 } }, out: c => `${c.s("permsec")} tries, and comes back with the same date and less patience.` },
+      { grade: "poor", text: c => `Quietly cut the portal's should-have features to make the date.`, fx: { drop: ["F5", "F6"], support: { agent: -8, registrar: -4 }, deadline: 10 }, out: c => `The features vanish without a decision. Banks were relying on duplicate-title alerts.` },
+    ],
+    lesson: c => `External changes, such as a policy announcement, are assessed for impact, turned into options and decided through change control by the people with authority. Don't simply absorb them with pressure, and don't cut scope without a decision.`,
+    lens: `For external changes, the exam favours: evaluate impact, develop options, use change control. Reacting immediately or silently re-scoping are traps.` });
+
+  def({ id: "L8", at: { month: 6 }, title: "The vendor's error rate", eco: ["Process", 5], also: ["Process", 7], principle: "process",
+    dyn: true, scene: c => [], q: "What should you do?", options: [],
+    lesson: c => `Supplier performance is managed through the contract: measure against the agreed standards, find the root cause together, and agree a corrective action plan with consequences. Termination is a last resort, and only on the contract's terms.`,
+    lens: `Procurement questions reward using the contract's terms and quality data before escalating or terminating.` });
+
+  def({ id: "L9", at: { month: 7 }, title: "What users actually want", eco: ["Process", 3], also: ["People", 4], principle: "value",
+    dyn: true, scene: c => [], q: "What should you do?", options: [],
+    lesson: c => `Value is defined by the people who use the product. Capture feedback in the backlog and let the product owner prioritise it against everything else. In a hybrid project, the portal can adapt monthly even when the records migration follows a fixed plan.`,
+    lens: `Value-delivery answers route new needs through the backlog and the product owner, and prioritise by value.` });
+
+  def({ id: "L10", at: { month: 8 }, title: "Paper that won't go away", eco: ["Business Environment", 7], also: ["Business Environment", 6], principle: "assess",
+    scene: c => [["champion", `In Ikeja, officers still write every search into the old paper register after doing it on screen. They're doing the work twice.`], ["registrar", `I haven't stopped them. What if the system goes down? Paper has never crashed.`]],
+    q: "What should you do first?",
+    options: [
+      { grade: "poor", text: c => `Order the paper registers removed from every desk.`, fx: { adopt: -8, support: { registrar: -10, union: -6 } }, out: c => `The registers move into drawers. Trust in the system doesn't move at all.` },
+      { grade: "best", text: c => `Find out why people keep the paper registers. Agree cut-over criteria with ${c.s("registrar")}, such as uptime, backups and a tested fallback procedure. Once those are met, retire the registers formally and recognise the teams who made the switch.`, fx: { adopt: 10, support: { registrar: 8 }, parallel: false }, out: c => `The real fear is outages. After a tested fallback drill and a month of 99.8% uptime, ${c.s("registrar")} retires the registers at a small ceremony.` },
+      { grade: "ok", text: c => `Let parallel running continue; it is harmless.`, fx: { parallel: true, adopt: -2 }, out: c => `Searches take twice as long in live districts, and the benefits stay on paper.` },
+      { grade: "poor", text: c => `Report the officers to ${c.s("permsec")} for non-compliance.`, fx: { support: { union: -12 }, adopt: -6 }, out: c => `The officers feel punished for being careful. Resistance spreads.` },
+    ],
+    lesson: c => `Reinforcement is the last step of change. Understand why old habits persist, remove the real cause, agree objective criteria for retiring the old way, and recognise people who adopt the new one. Forcing removal without trust drives resistance underground.`,
+    lens: `Organisational change questions favour understanding root causes and reinforcing adoption over mandates and punishment.` });
+
+  def({ id: "L11", at: { month: 9 }, title: "A laptop goes missing", eco: ["Business Environment", 4], also: ["Business Environment", 2], principle: "ethics",
+    scene: c => [["vendor", `One of our team leads had a laptop stolen from a car in Ojota last night. It held about 3,000 scanned files from Badagry, waiting to upload.`], ["vendor", `It was password-protected. We could just reload the files from the scans.`]],
+    q: "What should you do first?",
+    options: [
+      { grade: "poor", text: c => `Reload the files and say nothing; it was password-protected.`, fx: { breach: 2, support: { dpo: -20, permsec: -10 } }, out: c => `The theft surfaces two months later. Failing to report it becomes a bigger problem than the theft itself.` },
+      { grade: "best", text: c => `Activate the incident response plan: inform ${c.s("dpo")} immediately so the breach can be assessed and reported to the regulator within the legal deadline, find out whether the disk was encrypted, contain the risk, and log the issue.`, fx: { breach: 1, aware: "dpo", support: { dpo: 10, permsec: 2 } }, out: c => `${c.s("dpo")} notifies the Nigeria Data Protection Commission on time. The disk was encrypted, so the risk is low. The vendor now has to encrypt and log every device.` },
+      { grade: "ok", text: c => `Ask the vendor to write a full report by the end of the month.`, fx: { breach: 1, support: { dpo: -6 } }, out: c => `The report is thorough, but it arrives after the legal reporting window has closed.` },
+      { grade: "poor", text: c => `Terminate the vendor's contract immediately.`, fx: { breach: 1, vendorPerf: 0.6, support: { vendor: -20 } }, out: c => `You have no replacement. Scanning drops sharply while lawyers argue about the contract.` },
+    ],
+    lesson: c => `Issues are logged and handled through the planned response. A personal-data breach starts a legal clock: the data protection officer must know at once so the regulator can be notified on time. Containment comes before blame.`,
+    lens: `Issue questions reward following the response plan, involving the right authority and meeting legal duties. Hiding issues or reacting emotionally are wrong.` });
+
+  def({ id: "L12", at: { month: 10 }, title: "Lessons from the districts", eco: ["Business Environment", 6], also: ["People", 7], principle: "learn",
+    scene: c => [["champion", `Ikeja found a hundred small fixes: how to unstaple old files, which forms confuse people, how to run the queue at the counter. Epe is making the same mistakes now.`]],
+    q: "What should you do?",
+    options: [
+      { grade: "ok", text: c => `Ask ${c.s("champion")} to email Ikeja's notes to the other districts.`, fx: { acc: 0.2, adopt: 1 }, out: c => `The email is opened by a few people. Most lessons stay in Ikeja.` },
+      { grade: "best", text: c => `Run short lessons-learned sessions with each district team, record the lessons in a shared register, update the playbook and checklists, and have champions coach the next districts in person.`, fx: { acc: 0.6, adopt: 6 }, out: c => `Epe's error rate halves within a month. The playbook becomes the Bureau's standard for future records projects.` },
+      { grade: "poor", text: c => `Save lessons learned for the closure report.`, fx: { adopt: -2 }, out: c => `By the time the report is written, the last districts have already repeated Ikeja's mistakes.` },
+      { grade: "poor", text: c => `Tell Epe's team to copy Ikeja exactly.`, fx: { adopt: -3, support: { union: -4 } }, out: c => `Epe's files are older and in worse condition. Copying Ikeja exactly doesn't fit, and the team feels talked down to.` },
+    ],
+    lesson: c => `Lessons learned are captured throughout the project and fed forward, not saved for the end. A living register, updated processes and peer coaching turn one team's experience into everyone's improvement.`,
+    lens: `Continuous improvement on the exam is ongoing and team-owned: capture and apply lessons as you go.` });
+
+  def({ id: "L13", at: { phase: "closure" }, title: "Who owns the benefits?", eco: ["Process", 10], also: ["Business Environment", 7], principle: "value",
+    dyn: true, scene: c => [], q: "What should you make sure happens before Bluegate leaves?", options: [],
+    lesson: c => `A project hands over outputs; the organisation realises the benefits. Before closing, confirm acceptance, transfer knowledge to the people who will run the system, and agree who owns and measures the benefits after the project ends.`,
+    lens: `Closure answers include transition to operations and benefits ownership, not just a finished product.` });
+
+  // dynamic scenes depend on the state of the project
+  function dynamic(S, people, sit) {
+    const c = cast(S, people), mt = metrics(S);
+    if (sit.id === "L4") {
+      const ik = S.districts.find(d => d.id === "ikeja");
+      const dig = Math.round(ik.dig / ik.files * 100), acc = S.acc.toFixed(1), core = getF(S, "F1").live != null && getF(S, "F2").live != null;
+      const pilot = S.choices.rollout === "pilot";
+      const crit = [`Ikeja records digitised: ${dig}% (target 95% before go-live)`, `Index accuracy: ${acc}% (target ${TARGET_ACC}%)`, `Staff adoption: ${adkar(S.adopt)[0]} stage (target: Knowledge)`, `Data protection impact assessment: ${S.dpia === "approved" ? "approved" : S.dpia === "underway" ? "in progress" : "not done"}`, `Core portal features live: ${core ? "yes" : "not yet"}`];
+      const ready = S.acc >= TARGET_ACC - 0.4 && S.adopt >= 40 && S.dpia !== "skipped" && S.dpia !== "none";
+      const chair = S.choices.governance === "gates" ? (S.gov > 0 ? c.s("ictdir") + ", chairing as delegate" : c.s("permsec")) : c.s("permsec") + " (there is no steering committee)";
+      return { scene: [["narr", `${pilot ? "End of the Ikeja pilot." : "End of the first quarter."} The stage gate review is chaired by ${chair}. Your evidence pack shows: ${crit.join("; ")}.`], ["permsec", `The Commissioner has told journalists that Ikeja goes online this quarter. What do you recommend?`]], options: [
+        { grade: ready ? "best" : "poor", text: c => `Recommend going live in Ikeja now, as planned.`, fx: ready ? { gate: "go", support: { permsec: 5 } } : { gate: "go", acc: -0.6, adopt: -6, support: { registrar: -10 }, audit: 1 }, out: c => ready ? `The criteria are met. Ikeja goes live as soon as the remaining records are in, and the Commissioner gets the announcement.` : `Ikeja goes live short of the criteria. Officers can't find a third of the titles they search for, and they go back to paper.` },
+        { grade: ready ? "ok" : "best", text: c => `Present the evidence against each criterion and recommend a conditional go-live: fix the named gaps with owners and dates, then switch on when the committee confirms they're closed.`, fx: { gate: "conditional", support: { permsec: ready ? 1 : 4, registrar: 6 }, acc: 0.4 }, out: c => ready ? `A careful choice, but the criteria were already met. The extra checks cost a few weeks.` : `The committee approves a conditional go-live. The gaps close within six weeks, and Ikeja switches on cleanly.` },
+        { grade: "poor", text: c => `Show the committee only the measures that are on target, to keep the momentum.`, fx: { gate: "go", audit: 1, support: { permsec: -8, ictdir: -8 } }, out: c => `The missing measures surface at the first audit. The committee stops trusting your reports.` },
+        { grade: ready ? "poor" : "ok", text: c => `Recommend holding the whole programme until every district is ready.`, fx: { gate: "hold", support: { permsec: -8 } }, out: c => `Nothing goes live for months. The pilot's lessons wait, and so does the public.` },
+      ] };
+    }
+    if (sit.id === "L8") {
+      const bad = S.acc < TARGET_ACC;
+      return { scene: [["datalead", `The vendor's monthly sample came back at ${S.acc.toFixed(1)}% index accuracy. The contract says ${TARGET_ACC}%. ${bad ? `That's about ${Math.round((TARGET_ACC - S.acc) * 1200)} badly indexed files a month that someone has to find and fix.` : `They're meeting it, but only just, and the error rate rose this month.`}`], ["vendor", `Some of these files are fifty years old and water-damaged. Nobody could index them perfectly.`]], options: [
+        { grade: "best", text: c => `Review the results against the contract with ${c.s("vendor")}, separate damaged files from process errors, agree a root-cause fix and a corrective action plan with dates, and apply the contract's remedies if the plan isn't met.`, fx: { vendorFixed: true, support: { vendor: -2, registrar: 4 } }, out: c => `Two thirds of the errors come from one night shift skipping double-entry checks. The fix is in place within two weeks, and damaged files get a separate restoration route.` },
+        { grade: "poor", text: c => `Accept the explanation; old files are hard to index.`, fx: { acc: -0.5, support: { registrar: -6 } }, out: c => `The error rate keeps climbing. The registry's staff spend their days correcting the vendor's work.` },
+        { grade: "ok", text: c => `Withhold this month's payment until accuracy improves.`, fx: { vendorPerf: 0.9, support: { vendor: -12 } }, out: c => `Accuracy improves slightly, but the vendor slows down while disputing the payment.` },
+        { grade: "poor", text: c => `Hire a second vendor to redo the work.`, fx: { budget: 90, support: { permsec: -6 } }, out: c => `A new procurement takes three months and costs ₦90m. The original vendor is never held to its contract.` },
+      ] };
+    }
+    if (sit.id === "L9") {
+      const wf = S.choices.portal === "waterfall";
+      const scene = [["agent", `Nobody wants to download a PDF certificate. What my clients and the banks want is a text message when a file moves to the next desk, so they stop paying fixers to find out where it is.`], ["ba", wf ? `The portal design was signed off in month one. Changing it now means a formal change request.` : `We could size it for the next iteration. The registry decides what goes first.`]];
+      return { scene, options: [
+        { grade: "best", text: c => wf ? `Thank ${c.s("agent")}, assess the value and impact, and raise a change request so the steering committee can weigh SMS updates against the signed-off scope.` : `Thank ${c.s("agent")}, add SMS status updates to the backlog, and ask ${c.s("registrar")}, as product owner for the portal, to prioritise it against the other features.`, fx: { add: "F7", support: { agent: 10, registrar: 3 }, budget: wf ? 25 : 0 }, out: c => wf ? `The change is approved with ₦25m and a later release. The fixed design makes even a small change slow.` : `SMS updates go to the top of the backlog and ship next month. Calls to the registry asking "where is my file?" fall by half.` },
+        { grade: "poor", text: c => `Promise ${c.s("agent")} it will be in the next release.`, fx: { add: "F7", support: { agent: 6, registrar: -8 } }, out: c => `${c.s("registrar")} learns about the promise from an estate agent. Priorities were not yours to set.` },
+        { grade: "ok", text: c => `Note the request for a possible phase two after the project.`, fx: { support: { agent: -4 } }, out: c => `A valuable, cheap change waits a year.` },
+        { grade: "poor", text: c => `Ask ${c.s("devlead")} to build it this week without telling anyone.`, fx: { add: "F7", reprioritise: true, support: { registrar: -6 } }, out: c => `The feature appears, but other planned work slips and nobody knows why.` },
+      ] };
+    }
+    if (sit.id === "L13") {
+      return { scene: [["permsec", `The last districts are live. Bluegate's contract ends this month. Who keeps all of this running, and how will we know it was worth ₦1.9 billion?`]], q: "What should you make sure happens before Bluegate leaves?", options: [
+        { grade: "best", text: c => `Get formal acceptance against the success criteria, hand over runbooks, support and knowledge to the State ICT team and the registry, agree with ${c.s("permsec")} who will own and measure the benefits, and close the vendor contract and the project formally.`, fx: { support: { permsec: 6, ictdir: 6 } }, out: c => `${c.s("permsec")} names ${c.s("registrar")} as benefits owner, with turnaround and fraud measures reported quarterly. The State ICT team takes over with a three-month warranty from Bluegate.` },
+        { grade: "poor", text: c => `Hand the system over to the vendor to run; they know it best.`, fx: { support: { ictdir: -12 } }, out: c => `The Bureau now depends on one supplier for its land records, with no plan to take them back.` },
+        { grade: "ok", text: c => `Write a detailed closure report with all the measures to date.`, fx: {}, out: c => `The report is excellent. Nobody is named to keep measuring benefits once the project team has gone.` },
+        { grade: "poor", text: c => `Keep the Bluegate team on site until every benefit has been achieved.`, fx: { budget: 120, support: { permsec: -6 } }, out: c => `Benefits take years. The project can't stay open that long, and the budget can't either.` },
+      ] };
+    }
+    return { scene: sit.scene(c), options: sit.options };
+  }
+
+  function nextSituation(S) {
+    for (const s of SIT) {
+      if (S.fired[s.id]) continue;
+      const a = s.at;
+      if (a.phase && a.phase !== S.phase) continue;
+      if (!a.phase && (S.phase !== "run" || a.month !== S.month)) continue;
+      if (s.cond && !s.cond(S)) continue;
+      return s;
+    }
+    return null;
+  }
+  function prepare(S, people, sit) {
+    const c = cast(S, people); c.vendorCo = S.vendorCo;
+    const d = sit.dyn ? dynamic(S, people, sit) : { scene: sit.scene(c), options: sit.options };
+    const r = R.rng(S.seed + R.hash(sit.id));
+    const order = r.shuffle(d.options.map((_, i) => i));
+    return { sit, c, scene: d.scene, q: d.q || sit.q, options: order.map(i => Object.assign({ idx: i }, d.options[i])) };
+  }
+  function snapshot(S) { const m = metrics(S); return { dig: m.dig, acc: S.acc, adopt: S.adopt, support: m.support, spent: S.spent, audit: S.audit + S.breaches }; }
+  function choose(S, people, prepared, optIndex) {
+    const { sit, c } = prepared;
+    const o = prepared.options.find(x => x.idx === optIndex);
+    const before = snapshot(S);
+    applyFx(S, people, o.fx || {});
+    if (sit.apply) sit.apply(S, people, o.grade);
+    S.fired[sit.id] = o.grade;
+    S.log.push({ id: sit.id, title: sit.title, grade: o.grade, eco: sit.eco, also: sit.also || null, principle: sit.principle, month: S.month });
+    const after = snapshot(S), d = [];
+    if (Math.abs(after.acc - before.acc) >= 0.1) d.push(["Index accuracy (pts)", after.acc - before.acc]);
+    if (Math.abs(after.adopt - before.adopt) >= 0.5) d.push(["Staff adoption", after.adopt - before.adopt]);
+    if (Math.abs(after.support - before.support) >= 0.5) d.push(["Stakeholder support", after.support - before.support]);
+    if (Math.abs(after.spent - before.spent) >= 0.5) d.push(["Spend (₦m)", after.spent - before.spent, true]);
+    if (after.audit > before.audit) d.push(["Audit findings and breaches", after.audit - before.audit, true]);
+    const best = prepared.options.find(x => x.grade === "best");
+    return { grade: o.grade, outcome: o.out(c), best: best.text(c), lesson: sit.lesson(c), lens: sit.lens, deltas: d, options: prepared.options.map(x => ({ text: x.text(c), grade: x.grade, chosen: x.idx === optIndex })) };
+  }
+  function applyFx(S, people, fx) {
+    if (fx.support) for (const [k, v] of Object.entries(fx.support)) if (S.stake[k]) S.stake[k].support = clampN(S.stake[k].support + v, 2, 98);
+    if (fx.aware && S.stake[fx.aware]) S.stake[fx.aware].aware = true;
+    if (fx.team) for (const p of teamP(S, people)) p.morale = clampN(p.morale + fx.team, 10, 96);
+    if (fx.adopt) S.adopt = clampN(S.adopt + fx.adopt, 0, 100);
+    if (fx.acc) S.acc = clampN(S.acc + fx.acc, 90, 99.6);
+    if (fx.audit) S.audit += fx.audit;
+    if (fx.breach) S.breaches += fx.breach;
+    if (fx.budget) { const fromC = Math.min(fx.budget, S.contingency - S.reserveUsed); S.reserveUsed += Math.max(0, fromC); S.spent += fx.budget; }
+    if (fx.dpia) { S.dpia = fx.dpia; if (fx.dpia === "underway") S.dpiaAt = S.month; }
+    if (fx.delayScan) S.workToRule = Math.max(S.workToRule, 1);
+    if (fx.workToRule) S.workToRule = fx.workToRule;
+    if (fx.gov != null) S.gov = fx.gov;
+    if (fx.delayGate) S.gate = "hold";
+    if (fx.gate) S.gate = fx.gate;
+    if (fx.crash) S.mods.crash = true;
+    if (fx.deadline) S.deadline = fx.deadline;
+    if (fx.phased) S.phasedLaunch = true;
+    if (fx.drop) for (const id of fx.drop) { const f = getF(S, id); if (f && f.live == null) f.status = "dropped"; }
+    if (fx.add && !getF(S, fx.add)) { const f = feat(RESERVE[fx.add]); if (S.choices.portal === "waterfall") f.status = "planned"; S.features.splice(Math.max(0, S.features.findIndex(x => x.pri === "could")), 0, f); }
+    if (fx.vendorFixed) S.mods.vendorFixed = true;
+    if (fx.vendorPerf) S.vendorPerf *= fx.vendorPerf;
+    if (fx.parallel != null) S.parallel = fx.parallel;
+    if (fx.reprioritise) S.mods.reprioritise = true;
+  }
+  // the impact assessment is approved two months after it starts
+  function tickCompliance(S) { if (S.dpia === "underway" && S.month - (S.dpiaAt || 0) >= 2) { S.dpia = "approved"; S.notes.push(`Month ${S.month}: the data protection impact assessment was approved. Scanning can run at full speed in every district.`); } }
+
+  function finish(S, people) {
+    const m = metrics(S);
+    const graded = S.log.filter(l => l.grade);
+    const mindset = graded.length ? graded.filter(l => l.grade === "best").length / graded.length : 0;
+    const byDeadline = S.districts.filter(d => d.live != null && d.live <= S.deadline).length;
+    const budgetVar = S.budget - S.spent;
+    const portalValue = S.valueMonths / (MONTHS * S.features.filter(f => f.status !== "dropped").reduce((a, f) => a + f.value, 0)) * 100;
+    const compliance = clampN(100 - S.audit * 15 - S.breaches * 12 - (S.dpia === "skipped" ? 25 : 0), 0, 100);
+    // benefits realised across the year: how much faster title searches were, month by month
+    const meanTurn = S.turnHist.slice(1).reduce((a, x) => a + x, 0) / Math.max(1, S.turnHist.length - 1);
+    const benefits = clampN((21 - meanTurn) / 12 * 100, 0, 100);
+    const score = Math.round(clampN(0.3 * mindset * 100 + 0.1 * m.digPct * 100 + 0.08 * (m.live / 5 * 100) + 0.12 * benefits + 0.08 * S.adopt + 0.08 * Math.min(100, portalValue * 1.6) + 0.1 * m.support + 0.07 * (budgetVar >= 0 ? 100 : Math.max(0, 100 + budgetVar / 5)) + 0.07 * compliance, 0, 100));
+    S.result = { digPct: m.digPct, dig: m.dig, tot: m.tot, live: m.live, byDeadline, acc: S.acc, adopt: S.adopt, stage: m.stage, turn: m.turn, support: m.support, mindset, budgetVar, spent: S.spent, compliance, breaches: S.breaches, audit: S.audit, portalValue: Math.round(portalValue), featsLive: m.featsLive, meanTurn, benefits: Math.round(benefits), score };
+    S.phase = "done";
+    return S.result;
+  }
+
+  return { create, setPlan, runMonth, doAction, tickCompliance, metrics, nextSituation, prepare, choose, finish, level, cast, teamP, getF, adkar, dateOf, PLAN, ACTIONS, SIT, MONTHS, BUDGET, TARGET_ACC, DISTRICTS, ADKAR };
+})();
+
 // ===== Pass The PMP: original exam-style question bank (aligned to the July 2026 PMP ECO) =====
 // d: domain, t: ECO task, ap: P predictive · A agile · H hybrid, type: mc | mr | match | drop | hot | graph
 // All items are original and written for Pass The PMP.
@@ -2672,6 +3138,8 @@ const Voice = (() => {
     be1: "our senior backend engineer", be2: "our backend engineer", mo1: "our mobile engineer", mo2: "our junior mobile engineer", qa: "our test engineer", ux: "our designer",
     donor: "the programme director", ministry: "the ministry's director", siteEng: "our site engineer", qs: "our quantity surveyor", safety: "our safety officer", contractor: "the contractor", foreman: "the foreman",
     supplier: "the equipment supplier", baale: "the Baale", cda: "the community association chair", matron: "the matron", bidder: "the other bidder", mentor: "your coach", loud: "one engineer", quiet: "another",
+    permsec: "the permanent secretary", registrar: "the registrar", dpo: "the data protection officer", ictdir: "the director of ICT", union: "the union branch chair", champion: "our change champion", officer: "the lands officer",
+    vendor: "the vendor's delivery manager", agent: "the estate agent", ba: "our business analyst", devlead: "our lead developer", datalead: "our data migration lead",
   };
   const TEAM = ["be1", "be2", "mo1", "mo2", "qa", "ux"];
   const ALIAS = ["clashA", "clashB", "commuter", "leaver"];
@@ -3027,6 +3495,15 @@ const WCONTENT = (() => {
     exam: ["The exam at a glance", null, "The PMP exam covers three domains: People (33%), Process (41%) and Business Environment (26%). About 60% of the questions reflect agile or hybrid approaches.", "Practise in the Exam Hall between projects. Two mocks at Target or above in every domain is a good sign you're ready."],
     examtips: ["Reading exam questions", null, "Read the last sentence of the question first. Look for words such as FIRST, NEXT and BEST, and eliminate answers that skip assessment or bypass the process.", "Several answers may be true. Pick the one that best fits PMI's approach at that moment."],
     eco: ["The exam content outline", null, "The outline lists 26 tasks across the three domains, from managing conflict to evaluating changes in the business environment. Every situation in this simulation is mapped to one of them.", "Open Progress to see which tasks you have practised and which still need work."],
+    tailoring: ["Tailoring and hybrid delivery", ["Process", 1], "A hybrid project mixes approaches. Here the records migration follows a predictive plan with stage gates, while the portal is built in agile iterations. Tailoring means choosing the approach that fits each part of the work.", "The exam expects you to tailor: pick predictive, agile or hybrid based on how stable the requirements are and how costly change is."],
+    stagegate: ["Stage gates and governance", ["Business Environment", 1], "At a stage gate, the governing body reviews evidence against criteria agreed in advance and decides: go, go with conditions, or stop. The project manager recommends; the governance body decides.", "If a question asks who approves a go/no-go, look for the governance body named in the charter, not the project manager acting alone."],
+    privacy: ["Data protection compliance", ["Business Environment", 2], "Processing personal data at scale needs a data protection impact assessment, safeguards built into the requirements, and contracts that hold suppliers to them. The organisation remains accountable.", "Compliance requirements are identified early and planned in. Answers that defer or waive legal duties are wrong."],
+    adkar: ["Leading organisational change", ["Business Environment", 7], "People move through change in steps: awareness of why, desire to take part, knowledge of how, ability to do it, and reinforcement so it sticks (the ADKAR model). Training alone skips the first two.", "For resistance to change, look for answers that explain the why, involve people and support them, rather than mandates or punishment."],
+    rollout: ["Pilots and phased rollout", ["Process", 1], "A pilot proves the solution and the process on a small scale before rolling out. Lessons from the pilot reduce risk everywhere else; a big-bang rollout repeats mistakes at scale.", "Phased delivery reduces risk and delivers value earlier. It is often the best answer when the organisation is new to the change."],
+    dataquality: ["Data migration quality", ["Process", 7], "Migrated records are only useful if they are accurate. Quality is defined by measurable standards, checked by sampling, and improved by fixing root causes, not by inspecting errors out at the end.", "Quality answers favour prevention, measurable criteria and root-cause correction over acceptance of poor work."],
+    cutover: ["Cut-over and parallel running", ["Business Environment", 7], "Running old and new systems side by side reduces risk for a short time, but it doubles the work. Agree objective cut-over criteria, test the fallback, then retire the old way formally.", "Transition questions reward agreed criteria and support for users, not abrupt switch-offs or endless parallel running."],
+    external: ["External environment changes", ["Business Environment", 8], "Policy announcements, laws, markets and elections change projects from outside. Evaluate the impact, develop options and decide through change control with the people who have authority.", "When the outside world changes, assess first and use change control. Don't simply absorb the change with pressure."],
+    integrity: ["Integrity and reporting", ["Business Environment", 2], "When you see possible fraud or misconduct, protect the evidence, record what you saw and report through the organisation's proper channel. Don't investigate or accuse on your own.", "PMI's Code of Ethics expects you to report, not just refuse. Quiet fixes are wrong answers."],
   };
   // role -> [text, concept id]
   const T = {
@@ -3051,10 +3528,22 @@ const WCONTENT = (() => {
     donor: [["The success criteria in the charter are how we judge this project: on time, within budget, and meeting ministry standards.", "success"]],
     ministry: [["We accept the building against agreed criteria, signed by people with the authority to sign. A ribbon-cutting is not acceptance.", "acceptance2"]],
     supplier: [["Imported equipment takes months. Order long-lead items early, because they often sit near the critical path.", "procurement"]],
+    permsec: [["The steering committee decides at each stage gate. Bring me evidence and a recommendation, not a decision already made.", "stagegate"], ["Benefits are what we promised the Governor: faster, honest land searches. Outputs alone won't count.", "benefits"]],
+    registrar: [["My officers know these records better than any scanner. Use their knowledge to set your quality checks.", "dataquality"], ["Paper has never crashed. Show me a tested fallback, and I'll retire the registers.", "cutover"]],
+    dpo: [["Every title file holds personal data. The impact assessment comes before large-scale processing, not after.", "privacy"]],
+    ictdir: [["The portal can change every month. The migration follows a fixed plan. That's what a hybrid project looks like.", "tailoring"], ["When the Governor moves a date, we assess the impact and decide through change control.", "external"]],
+    union: [["People resist what they don't understand. Tell us why this is happening before you train us on how.", "adkar"]],
+    champion: [["Ikeja made every mistake first so the other districts don't have to. That's the point of a pilot.", "rollout"], ["Officers trust colleagues more than consultants. That's why champions work.", "adkar"]],
+    landofficer: [["Every correction to a title now needs two signatures and leaves a trail in the system.", "integrity"]],
+    vendor: [["Our contract sets 98% index accuracy. We sample every batch against the paper originals.", "dataquality"]],
+    agent: [["My clients don't care about servers. They care that a title search takes three days, not three weeks.", "benefits"]],
+    ba: [["The registry decides what the portal does first. I make sure every feature has clear acceptance criteria.", "backlog"]],
+    devlead: [["We release the portal every month, so users can tell us early what isn't working.", "feedback"]],
+    datalead: [["A record that's scanned but wrongly indexed is worse than no record at all. Nobody can find it.", "dataquality"]],
     mentor: [["Assess first, talk to people, use the agreed process, and escalate only as a last resort.", "mindset"], ["About 60% of the exam is agile or hybrid. The Kudi project is your training ground for that.", "exam"], ["Read the question's last sentence first. Words like FIRST and NEXT matter.", "examtips"]],
   };
   // hotspot id -> concept id (or an action)
-  const H = { scrum: "radiator", burndown: "burndown", dod: "dod", agreement: "teamcharter", vision: "vision", gantt: "critical", risk: "risk", sign: "charter", building: "evm", crates: "procurement", safetyboard: "safety", rain: "riskresp", cert: "exam", shelf: "eco", charterdoc: "charter", sponsorDoor: "sponsor", callcentre: "transition" };
+  const H = { scrum: "radiator", burndown: "burndown", dod: "dod", agreement: "teamcharter", vision: "vision", gantt: "critical", risk: "risk", sign: "charter", building: "evm", crates: "procurement", safetyboard: "safety", rain: "riskresp", cert: "exam", shelf: "eco", charterdoc: "charter", sponsorDoor: "sponsor", callcentre: "transition", archive: "dataquality", scanner: "privacy", portal: "tailoring", rack: "cutover", registrarDoor: "stagegate", counter: "benefits", map: "rollout", dpnotice: "privacy", adkar: "adkar", committee: "stagegate" };
   // ambient chatter: world/phase -> lines
   const A = {
     "kudi:planning": ["How big is the group-invite story?", "Three points, maybe five.", "Can we split that one?", "What's the sprint goal?"],
@@ -3067,6 +3556,9 @@ const WCONTENT = (() => {
     "clinic:run": ["Mind the trench!", "Cement delivery at noon.", "Check the levels on that column.", "Hard hats on, please.", "Oya, bring more blocks!", "Scaffold inspection at two."],
     "clinic:wet": ["Cover the cement bags!", "Rain again… pump the trench.", "We'll lose a day to this."],
     "clinic:closure": ["Snag list is shrinking.", "Ribbon's ready for Saturday.", "Oxygen lines tested?"],
+    "land:plan": ["Which district goes first?", "The Ikeja files are the most complete.", "Who sits on the steering committee?"],
+    "land:run": ["Batch 214 is ready for checking.", "This file is from 1974!", "Mind the staples, they jam the feeder.", "Is the portal down or is it me?", "Next, please.", "Has Epe sent its jackets yet?", "Double-check that plot number."],
+    "land:closure": ["Who's taking the support calls next month?", "The handover pack is printed.", "The last shelf is empty!"],
     pmo: ["Printer's jammed again.", "Lunch at one?", "Have you seen the new mock exam?", "The Ikorodu site photos are in."],
     brief: ["Let me get the charter."],
   };
@@ -3251,7 +3743,7 @@ const World3D = (() => {
   }
   function getWorld(key) {
     if (worlds[key]) return worlds[key];
-    const b = key === "kudi" ? buildKudi : key === "clinic" ? buildClinic : key === "pmo" ? buildPMO : key.startsWith("brief") ? buildBrief : buildPMO;
+    const b = key === "kudi" ? buildKudi : key === "clinic" ? buildClinic : key === "land" ? buildLand : key === "pmo" ? buildPMO : key.startsWith("brief") ? buildBrief : buildPMO;
     return makeWorld(key, b);
   }
   // walls that fold down when they stand between the camera and the room
@@ -3936,10 +4428,11 @@ const World3D = (() => {
     wall(w, s, 6.3, -4.8, 6.3, 4.8, 3, WC, [{ at: 3, w: 2.6 }, { at: 6.6, w: 2.6 }]);
     wall(w, s, 6.3, 4.8, -6.3, 4.8, 3, WC, [{ at: 2, w: 1.2, y0: 0, y1: 2.3, glass: false }]);
     // project boards on the back wall: open the projects
-    w.dyn.boardK = canvasTex(512, 384); w.dyn.boardC = canvasTex(512, 384);
-    const bk = panel(back.inner, 2.0, 1.5, w.dyn.boardK, 1.8, 1.65, 0.11, 0); back.decor.push(bk); box(back.inner, 2.1, 1.6, 0.05, "#7D8793", 1.8, 0.85, 0.06);
-    const bc = panel(back.inner, 2.0, 1.5, w.dyn.boardC, 4.4, 1.65, 0.11, 0); back.decor.push(bc); box(back.inner, 2.1, 1.6, 0.05, "#7D8793", 4.4, 0.85, 0.06);
-    hotspot(w, "pmoKudi", bk, "Kudi Savings project board"); hotspot(w, "pmoClinic", bc, "Forte Clinic project board");
+    w.dyn.boardK = canvasTex(512, 384); w.dyn.boardC = canvasTex(512, 384); w.dyn.boardL = canvasTex(512, 384);
+    const bk = panel(back.inner, 1.8, 1.35, w.dyn.boardK, 1.5, 1.65, 0.11, 0); back.decor.push(bk); box(back.inner, 1.9, 1.45, 0.05, "#7D8793", 1.5, 0.92, 0.06);
+    const bc = panel(back.inner, 1.8, 1.35, w.dyn.boardC, 3.6, 1.65, 0.11, 0); back.decor.push(bc); box(back.inner, 1.9, 1.45, 0.05, "#7D8793", 3.6, 0.92, 0.06);
+    const bl = panel(back.inner, 1.8, 1.35, w.dyn.boardL, 5.7, 1.65, 0.11, 0); back.decor.push(bl); box(back.inner, 1.9, 1.45, 0.05, "#7D8793", 5.7, 0.92, 0.06);
+    hotspot(w, "pmoKudi", bk, "Kudi Savings project board"); hotspot(w, "pmoClinic", bc, "Forte Clinic project board"); hotspot(w, "pmoLand", bl, "Land Registry project board");
     const cert = poster(512, 380, "#FBFBF7", "", [], "#0E6E62"); { const c = cert.ctx; c.strokeStyle = "#B98A5A"; c.lineWidth = 22; c.strokeRect(11, 11, 490, 358); txt(c, "PMP®", 256, 150, 80, "#13243A", 900, "center"); txt(c, "Project Management Professional", 256, 214, 28, "#33465C", 600, "center"); txt(c, "People · Process · Business Environment", 256, 270, 24, "#58677A", 500, "center"); cert.tex.needsUpdate = true; }
     const ce = panel(left.inner, 1.2, 0.9, cert, 2.2, 1.75, 0.11, 0); left.decor.push(ce); hotspot(w, "cert", ce, "PMP certificate");
     // bookshelf
@@ -3959,7 +4452,7 @@ const World3D = (() => {
     w.way = [[-1.6, 0.2, 0], [-3.4, 3.1, Math.PI], [0.2, -3.6, Math.PI], [4.6, 1.2, Math.PI / 2]];
     w.player = [0.6, 0.0, -2.6];
     w.chat = () => WCONTENT.A.pmo;
-    w.update = d => { drawProj(w.dyn.boardK, "Kudi Savings", "P2 · Agile", d.kudi || {}, "#0E6E62"); drawProj(w.dyn.boardC, "Forte Clinic", "P1 · Predictive", d.clinic || {}, "#D49A1E"); };
+    w.update = d => { drawProj(w.dyn.boardK, "Kudi Savings", "P2 · Agile", d.kudi || {}, "#0E6E62"); drawProj(w.dyn.boardC, "Forte Clinic", "P1 · Predictive", d.clinic || {}, "#D49A1E"); drawProj(w.dyn.boardL, "Land Registry", "P3 · Hybrid", d.land || {}, "#5B4B8A"); };
     addAgent(w, { id: "pmo-staff", look: staffLook("pmo1"), spot: [4.4, 2.2, -0.6], mode: "stand", wander: true });
   }
   function drawProj(ct, title, tag, st, col) {
@@ -3971,12 +4464,129 @@ const World3D = (() => {
     ct.tex.needsUpdate = true;
   }
 
+  // ---------- State Lands Bureau records hall, Alausa ----------
+  const LR = { player: [3.2, 1.2, -2.6], shelves: [-7.6, -6.2, -4.8, -3.4, -2.0], counterZ: 3.0 };
+  function buildLand(w) {
+    const s = w.scene; w.view = { theta: 0.6, phi: 0.97, r: 25, tx: 0, ty: 0.6, tz: 0, rMin: 9, rMax: 36 };
+    s.fog = new T.Fog("#E3E8DA", 45, 110);
+    // the government secretariat grounds
+    const grass = new T.Mesh(new T.CircleGeometry(80, 48), mat("#86A26A")); grass.rotation.x = -Math.PI / 2; grass.position.y = -0.31; grass.receiveShadow = true; s.add(grass);
+    for (let i = 0; i < 8; i++) { const a = Math.PI + 0.35 + i * 0.42; palm(s, Math.cos(a) * 21, Math.sin(a) * 17, 5 + (i % 3), i + 40); } // behind the hall, out of the camera's way
+    for (let i = 0; i < 5; i++) { const a = i * 1.25 + 0.4; const b = box(s, 6, 4 + (i % 3) * 2, 5, ["#E7DFCC", "#D8D2C2", "#EDE6D6"][i % 3], Math.cos(a) * 30, -0.3, Math.sin(a) * 28); b.rotation.y = a; }
+    box(s, 18.6, 0.3, 12.6, "#B9B2A3", 0, -0.3, 0);
+    const fl = canvasTex(256, 256), fc = fl.ctx; for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { fc.fillStyle = (i + j) % 2 ? "#D7D2C6" : "#CFC9BC"; fc.fillRect(i * 32, j * 32, 32, 32); fc.fillStyle = "rgba(90,80,60,.08)"; for (let k = 0; k < 6; k++) fc.fillRect(i * 32 + ((k * 13 + j * 7) % 30), j * 32 + ((k * 17 + i * 5) % 30), 2, 2); } fl.tex.wrapS = fl.tex.wrapT = T.RepeatWrapping; fl.tex.repeat.set(5, 3.5); fl.tex.needsUpdate = true;
+    const floor = new T.Mesh(new T.PlaneGeometry(18, 12), new T.MeshLambertMaterial({ map: fl.tex })); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.002; floor.receiveShadow = true; s.add(floor);
+    const WC = "#EDE6D6";
+    const back = wall(w, s, -9, -6, 9, -6, 3.2, WC, [{ at: 11.4, w: 2.2 }, { at: 14.4, w: 2.2 }]);
+    const left = wall(w, s, -9, 6, -9, -6, 3.2, WC);
+    const right = wall(w, s, 9, -6, 9, 6, 3.2, WC, [{ at: 2.4, w: 1.6 }, { at: 9.8, w: 1.6, y0: 0, y1: 2.4, glass: false }]);
+    wall(w, s, 9, 6, -9, 6, 3.2, WC, [{ at: 4.5, w: 2.4 }, { at: 8.5, w: 2.4 }, { at: 13, w: 2.4 }]);
+    // the archive: one shelving unit per district; folders turn green as they are scanned
+    w.dyn.folders = [];
+    LR.shelves.forEach((x, di) => {
+      const g = grp(s, x, 0, -3.7);
+      // an open steel frame so the folders show from both aisles
+      for (const z of [-1.65, 1.65]) box(g, 0.6, 2.3, 0.06, "#6E7B88", 0, 0, z);
+      box(g, 0.04, 2.2, 3.3, "#7D8995", 0, 0, 0, { cast: false }); box(g, 0.62, 0.06, 3.36, "#55616D", 0, 2.3, 0);
+      const list = [];
+      for (let r2 = 0; r2 < 4; r2++) box(g, 0.6, 0.03, 3.3, "#8794A1", 0, 0.1 + r2 * 0.55 - 0.02, 0, { cast: false });
+      for (let r2 = 0; r2 < 4; r2++) for (let i = 0; i < 9; i++) for (const side of [-1, 1]) {
+        const f = box(g, 0.12, 0.34 + ((i + r2) % 3) * 0.04, 0.3, ["#D9B77A", "#C9A066", "#E2C58E", "#B98B55"][(i + r2 + di) % 4], side * 0.2, 0.1 + r2 * 0.55, -1.45 + i * 0.36, { cast: false });
+        list.push(f);
+      }
+      // order folders so they fill evenly as a district progresses
+      w.dyn.folders.push(list.sort((a, b) => H(String(a.id)) % 97 - H(String(b.id)) % 97));
+      const sg = canvasTex(256, 64); sg.ctx.fillStyle = "#13243A"; sg.ctx.fillRect(0, 0, 256, 64); txt(sg.ctx, Land.DISTRICTS[di][1].toUpperCase(), 128, 42, 26, "#FFFFFF", 800, "center"); sg.tex.needsUpdate = true;
+      const sp = panel(g, 1.0, 0.25, sg, 0.31, 2.62, 1.2, Math.PI / 2); sp.position.x = 0.3;
+      if (di === 2) hotspot(w, "archive", g, "The paper archive");
+    });
+    // scanning stations
+    w.dyn.scanBars = [];
+    [[-6.6, -0.9], [-4.6, -0.9], [-2.6, -0.9]].forEach(([x, z], i) => {
+      const d = deskUnit(s, x, z, Math.PI, "scan" + i, { top: "#B8BFC6" });
+      const sc = box(d, 0.62, 0.16, 0.44, "#3A4554", -0.25, 0.78, 0.05); const bar = box(d, 0.56, 0.02, 0.04, "#7CF2C4", -0.25, 0.95, 0.05, { cast: false, m: { basic: true } }); w.dyn.scanBars.push(bar);
+      if (i === 1) hotspot(w, "scanner", sc, "Scanning station");
+      addAgent(w, { id: "scan" + i, look: staffLook("scan" + i), spot: [x, z - 0.8, 0], mode: "type" });
+    });
+    // Bluegate's project pod and the portal screen
+    deskUnit(s, 1.6, -3.6, 0, "pod1"); deskUnit(s, 3.4, -3.6, 0, "pod2"); deskUnit(s, 5.2, -3.6, 0, "pod3");
+    w.dyn.portal = canvasTex(768, 432);
+    const tv = panel(back.inner, 2.4, 1.35, w.dyn.portal, 10.3, 1.9, 0.12, 0); back.decor.push(tv); box(back.inner, 2.5, 1.45, 0.06, "#1E2733", 10.3, 1.17, 0.07);
+    hotspot(w, "portal", tv, "Portal release board");
+    // server cabinet with blinking lights
+    const rack = grp(s, 0.0, 0, -5.4); box(rack, 0.8, 2.0, 0.7, "#1E2733", 0, 0, 0); w.dyn.leds = [];
+    for (let i = 0; i < 8; i++) w.dyn.leds.push(box(rack, 0.05, 0.05, 0.02, i % 3 ? "#3FD1B5" : "#E7AE4B", -0.25 + (i % 4) * 0.12, 0.4 + Math.floor(i / 4) * 0.9, 0.36, { cast: false, m: { basic: true } }));
+    hotspot(w, "rack", rack, "Records server");
+    // Registrar's glass office, back right
+    const glassM = GLASS();
+    box(s, 0.06, 2.7, 3.0, "#BFE3F2", 6.4, 0, -4.5, { material: glassM, cast: false }); box(s, 2.6, 2.7, 0.06, "#BFE3F2", 7.7, 0, -3.0, { material: glassM, cast: false });
+    rug(s, 7.7, -4.6, 2.2, 2.2, "#2F5D8A", "#D49A1E"); deskUnit(s, 7.7, -4.9, 0, "registrar", { top: "#6A4C30" });
+    const rs = canvasTex(256, 64); rs.ctx.fillStyle = "#13243A"; rs.ctx.fillRect(0, 0, 256, 64); txt(rs.ctx, "REGISTRAR OF TITLES", 128, 41, 20, "#FFFFFF", 700, "center"); rs.tex.needsUpdate = true;
+    const rp = panel(s, 1.3, 0.32, rs, 7.4, 2.35, -2.96, 0); hotspot(w, "registrarDoor", rp, "Registrar's office");
+    // the public counter
+    box(s, 6.2, 1.05, 0.6, "#8C6E52", 5.0, 0, LR.counterZ); box(s, 6.3, 0.06, 0.75, "#B98A5A", 5.0, 1.05, LR.counterZ);
+    for (const x of [2.6, 4.2, 5.8, 7.4]) box(s, 0.05, 0.9, 0.6, "#BFE3F2", x, 1.1, LR.counterZ, { material: glassM, cast: false });
+    const cs = canvasTex(512, 80); cs.ctx.fillStyle = "#0E6E62"; cs.ctx.fillRect(0, 0, 512, 80); txt(cs.ctx, "TITLE SEARCH · VERIFICATION · CONSENT", 256, 52, 26, "#FFFFFF", 800, "center"); cs.tex.needsUpdate = true;
+    const cp = panel(s, 4.2, 0.6, cs, 5.0, 2.65, LR.counterZ + 0.02, Math.PI); hotspot(w, "counter", cp, "Public service counter");
+    for (const x of [3.4, 5.0, 6.6]) { const st = grp(s, x, 0, LR.counterZ - 0.85); box(st, 0.46, 0.08, 0.44, "#2D3640", 0, 0.46, 0); }
+    // waiting benches
+    for (const x of [-1.2, 0.8]) { box(s, 1.8, 0.08, 0.5, "#2F5D8A", x, 0.45, 5.0); box(s, 1.8, 0.5, 0.08, "#2F5D8A", x, 0.5, 5.25); for (const sx of [-0.8, 0.8]) box(s, 0.06, 0.45, 0.45, "#5C6670", x + sx, 0, 5.0); }
+    // walls: district map, data protection notice, change ladder
+    w.dyn.map = canvasTex(768, 480);
+    const mp = panel(left.inner, 3.2, 2.0, w.dyn.map, 5.0, 1.75, 0.11, 0); left.decor.push(mp); box(left.inner, 3.3, 2.1, 0.05, "#7D8793", 5.0, 0.7, 0.06);
+    hotspot(w, "map", mp, "District rollout map");
+    const dpP = poster(512, 380, "#FBFBF7", "Your data, protected", ["Collected for land titles only", "Stored in the state data centre", "Access logged and audited", "Report concerns to the DPO"], "#2F5D8A");
+    const p1 = panel(left.inner, 1.2, 0.9, dpP, 8.6, 1.7, 0.11, 0); left.decor.push(p1); hotspot(w, "dpnotice", p1, "Data protection notice");
+    const ad = canvasTex(512, 380); { const c = ad.ctx; c.fillStyle = "#FFF7E8"; c.fillRect(0, 0, 512, 380); c.fillStyle = "#D49A1E"; c.fillRect(0, 0, 512, 14); txt(c, "Our change, step by step", 24, 58, 30, "#13243A", 800); Land.ADKAR.forEach((st, i) => { c.fillStyle = ["#F4D9A6", "#EBC680", "#E2B45C", "#C99A3C", "#0E6E62"][i]; rrect(c, 30 + i * 18, 290 - i * 52, 300, 44, 8); c.fill(); txt(c, (i + 1) + ". " + st, 46 + i * 18, 320 - i * 52, 22, i === 4 ? "#FFFFFF" : "#13243A", 700); }); ad.tex.needsUpdate = true; }
+    const p2 = panel(left.inner, 1.2, 0.9, ad, 1.4, 1.7, 0.11, 0); left.decor.push(p2); hotspot(w, "adkar", p2, "Change ladder poster");
+    const cm = canvasTex(256, 64); cm.ctx.fillStyle = "#5B4B8A"; cm.ctx.fillRect(0, 0, 256, 64); txt(cm.ctx, "COMMITTEE ROOM", 128, 42, 24, "#FFFFFF", 800, "center"); cm.tex.needsUpdate = true;
+    const cmp = panel(right.inner, 1.2, 0.3, cm, 9.8, 2.65, -0.12, Math.PI); right.decor.push(cmp); hotspot(w, "committee", cmp, "Steering committee room");
+    cyl(s, 0.22, 0.22, 0.95, "#DDE7EE", -0.6, 0, 5.6, 10); cyl(s, 0.18, 0.18, 0.35, "#5FA8D3", -0.6, 0.95, 5.6, 10);
+    plant(s, -8.4, 5.4, 1.3); plant(s, 8.4, 5.4, 1.2); plant(s, -8.4, -5.4, 1.1); plant(s, 2.5, 5.4, 1);
+    w.way = [[-0.4, 2.2, 0], [3.0, 1.4, Math.PI], [-4.6, -0.2, Math.PI], [-1.0, 4.2, 0], [4.5, -1.6, Math.PI]];
+    w.player = LR.player;
+    w.dyn.queue = [];
+    w.chat = () => WCONTENT.A["land:" + (w.desc && w.desc.phase)] || WCONTENT.A["land:run"];
+    w.update = d => {
+      drawPortal(w.dyn.portal, d.portal || []); drawMap(w.dyn.map, d.districts || []);
+      (d.districts || []).forEach((dd, i) => { const L = w.dyn.folders[i]; if (!L) return; const n = Math.round(L.length * dd.pct); L.forEach((f, k) => { f.material = k < n ? mat(dd.live ? "#3FA36B" : "#7FC59B") : mat(["#D9B77A", "#C9A066", "#E2C58E", "#B98B55"][k % 4]); }); });
+      // the queue at the counter shortens as searches move online
+      const want = Math.max(1, Math.min(7, Math.round((d.turn || 21) / 3)));
+      while (w.dyn.queue.length > want) removeAgent(w, w.dyn.queue.pop());
+      while (w.dyn.queue.length < want) { const i = w.dyn.queue.length, id = "q" + i; addAgent(w, { id, look: staffLook("q" + i + "x"), spot: [3.6 + (i % 3) * 1.6 - (i >= 3 ? 0.5 : 0), LR.counterZ + 0.9 + Math.floor(i / 3) * 0.75, Math.PI], mode: "stand" }); w.dyn.queue.push(id); }
+    };
+    w.tick = (dt, t) => {
+      w.dyn.scanBars.forEach((b, i) => { b.position.z = 0.05 + Math.sin(t * 2.2 + i * 1.7) * 0.17; });
+      w.dyn.leds.forEach((l, i) => { l.visible = Math.sin(t * (3 + i) + i * 2.1) > -0.3; });
+    };
+  }
+  function drawPortal(ct, feats) {
+    const c = ct.ctx, W2 = ct.w, H2 = ct.h; c.fillStyle = "#0F1A26"; c.fillRect(0, 0, W2, H2);
+    txt(c, "Land portal · releases", 24, 46, 30, "#E6EEF5", 800);
+    feats.slice(0, 8).forEach((f, i) => {
+      const y = 78 + i * 43, col = f.status === "live" ? "#3FD1B5" : f.status === "built" ? "#7FB2E6" : f.status === "dropped" ? "#5C6670" : f.pct > 0 ? "#E7AE4B" : "#3A4B5E";
+      c.fillStyle = "#1A2838"; rrect(c, 24, y, W2 - 48, 34, 8); c.fill();
+      c.fillStyle = col; rrect(c, 24, y, Math.max(16, (W2 - 48) * (f.status === "live" || f.status === "built" ? 1 : f.pct)), 34, 8); c.globalAlpha = 0.35; c.fill(); c.globalAlpha = 1;
+      txt(c, f.title, 40, y + 24, 20, "#E6EEF5", 600); txt(c, f.status === "live" ? "LIVE" : f.status === "built" ? "BUILT" : f.status === "dropped" ? "DROPPED" : Math.round(f.pct * 100) + "%", W2 - 40, y + 24, 18, col, 800, "right");
+    });
+    ct.tex.needsUpdate = true;
+  }
+  function drawMap(ct, ds) {
+    const c = ct.ctx, W2 = ct.w, H2 = ct.h; c.fillStyle = "#F3EFE4"; c.fillRect(0, 0, W2, H2);
+    c.fillStyle = "#9CC9E4"; c.beginPath(); c.moveTo(0, 360); c.bezierCurveTo(200, 330, 420, 400, 768, 350); c.lineTo(768, 480); c.lineTo(0, 480); c.fill(); // lagoon and sea
+    txt(c, "Digitisation by district", 24, 44, 28, "#13243A", 800);
+    const pos = [[300, 170, 120, 90], [420, 300, 110, 60], [560, 150, 130, 95], [110, 270, 130, 70], [640, 270, 100, 60]];
+    ds.forEach((d, i) => { const [x, y, rx, ry] = pos[i]; c.fillStyle = d.live ? "#3FA36B" : d.pct > 0 ? "#E7AE4B" : "#C9D3DD"; c.beginPath(); c.ellipse(x, y, rx, ry, 0.2 * i, 0, TAU); c.fill(); c.strokeStyle = "#FFFFFF"; c.lineWidth = 4; c.stroke(); txt(c, d.name, x, y - 4, 22, "#13243A", 800, "center"); txt(c, d.live ? "LIVE" : Math.round(d.pct * 100) + "%", x, y + 24, 20, "#13243A", 600, "center"); });
+    c.fillStyle = "#3FA36B"; c.fillRect(24, 440, 18, 18); txt(c, "Live", 50, 456, 18, "#13243A"); c.fillStyle = "#E7AE4B"; c.fillRect(110, 440, 18, 18); txt(c, "Scanning", 136, 456, 18, "#13243A"); c.fillStyle = "#C9D3DD"; c.fillRect(240, 440, 18, 18); txt(c, "Waiting", 266, 456, 18, "#13243A");
+    ct.tex.needsUpdate = true;
+  }
   // ---------- charter briefing rooms ----------
   function buildBrief(w) {
-    const s = w.scene, isK = w.key === "brief-kudi";
+    const s = w.scene, isK = w.key === "brief-kudi" || w.key === "brief-land", isL = w.key === "brief-land";
     w.view = { theta: 0.5, phi: 1.0, r: 11.5, tx: 0, ty: 1.0, tz: 0, rMin: 6, rMax: 20 };
     s.fog = new T.Fog(isK ? "#CFE7F3" : "#D8ECF6", 30, 80);
-    if (isK) { const water = new T.Mesh(new T.CircleGeometry(70, 40), mat("#4B8FB2")); water.rotation.x = -Math.PI / 2; water.position.y = -6; s.add(water); skyline(w, 24, 50, 20, -6, "brief", ["#9FB3C6", "#B8C6D4", "#8EA2B6"]); const tower = new T.Mesh(BOXG, mat("#2B4A5E")); tower.scale.set(9, 6, 7.5); tower.position.set(0, -3.15, 0); s.add(tower); }
+    if (isL) { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#86A26A")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 13, Math.sin(i) * 13, 5, i + 60); }
+    else if (isK) { const water = new T.Mesh(new T.CircleGeometry(70, 40), mat("#4B8FB2")); water.rotation.x = -Math.PI / 2; water.position.y = -6; s.add(water); skyline(w, 24, 50, 20, -6, "brief", ["#9FB3C6", "#B8C6D4", "#8EA2B6"]); const tower = new T.Mesh(BOXG, mat("#2B4A5E")); tower.scale.set(9, 6, 7.5); tower.position.set(0, -3.15, 0); s.add(tower); }
     else { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#B8693F")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 14, Math.sin(i) * 14, 5, i); for (let i = 0; i < 6; i++) house(s, Math.cos(i * 1.1 + 0.5) * 22, Math.sin(i * 1.1 + 0.5) * 22, 3.5, 3, "#D9CBB3", "#8E9AA6", -i); }
     box(s, 8.4, 0.25, 7, isK ? "#AEB6BF" : "#245A6E", 0, -0.25, 0);
     const fl = new T.Mesh(new T.PlaneGeometry(8, 6.6), mat(isK ? "#B9A58C" : "#8C7A66")); fl.rotation.x = -Math.PI / 2; fl.position.y = 0.002; fl.receiveShadow = true; s.add(fl);
@@ -3992,7 +4602,8 @@ const World3D = (() => {
     hotspot(w, "charterdoc", dm, "The project charter");
     box(s, 0.3, 0.02, 0.4, "#FBFBF7", -0.7, 0.78, -0.1, { cast: false }); cyl(s, 0.05, 0.04, 0.1, "#E8E2D2", 0.8, 0.78, -0.3, 8);
     for (const [sx, sz, r2] of [[0, -1.5, 0], [-0.75, 1.3, Math.PI], [0.75, 1.3, Math.PI]]) { const g = grp(s, sx, 0, sz, r2); box(g, 0.48, 0.08, 0.46, isK ? "#2D3640" : "#5C6670", 0, 0.46, 0); box(g, 0.48, 0.52, 0.07, isK ? "#2D3640" : "#5C6670", 0, 0.5, -0.22); }
-    if (isK) { const lg = canvasTex(256, 128); lg.ctx.fillStyle = "#13243A"; lg.ctx.fillRect(0, 0, 256, 128); txt(lg.ctx, "KUDI", 128, 84, 64, "#3FD1B5", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.4, 0.7, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
+    if (isL) { const lg = canvasTex(256, 160); lg.ctx.fillStyle = "#1F5A3A"; lg.ctx.fillRect(0, 0, 256, 160); txt(lg.ctx, "STATE LANDS", 128, 64, 30, "#F2C230", 900, "center"); txt(lg.ctx, "BUREAU", 128, 104, 30, "#F2C230", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.2, 0.75, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
+    else if (isK) { const lg = canvasTex(256, 128); lg.ctx.fillStyle = "#13243A"; lg.ctx.fillRect(0, 0, 256, 128); txt(lg.ctx, "KUDI", 128, 84, 64, "#3FD1B5", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.4, 0.7, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
     else { const dw = poster(512, 360, "#FBFBF7", "Site layout", ["Clinic block", "Solar and borehole", "Laydown area", "Site office"], "#2B7A6F"); const lp = panel(left.inner, 1.4, 1.0, dw, 3.3, 1.7, 0.11, 0); left.decor.push(lp); }
     plant(s, 3.4, -2.8, 1.1); plant(s, -3.4, 2.8, 1);
     w.player = [0, 1.0, Math.PI];
@@ -4076,18 +4687,49 @@ const World3D = (() => {
     const focus = S.phase === "done" ? ["Project closed", "Read your report below. You can still walk the site and talk to people."] : S.phase === "plan" ? ["Plan the project", "Make the planning decisions and set the baseline."] : S.phase === "closure" ? ["Handover and closure", "Get formal acceptance, close contracts and record lessons learned."] : ["Run the build", "Watch the critical path, earned value and the weather."];
     return stage("clinic", { label: "The Forte Clinic construction site in Ikorodu. Drag to look around; select people and objects to talk and learn.", phase: S.phase, wet, prog: pr, people: list, workers, gantt, risks, sign: { contractor: S.contractorCo, finish: Pred.dateOf(Pred.DEADLINE) }, hud: { place: "Ikorodu site", time: S.phase === "plan" ? "Planning" : `Week ${w} · ${Pred.dateOf(w)}`, wet, mood, money, focusTitle: focus[0], focus: focus[1] }, hotNote: { gantt: "Pinned up in the site office", risk: "On a stand by the site office", sign: "At the site entrance", building: "Progress you can see is earned value", crates: "Delivered from Lagos port", safetyboard: "By the gate" } });
   }
+  const landFocus = { plan: ["Tailor the approach", "Choose how to roll out, build, govern and lead the change."], run: ["Run the programme", "Watch accuracy, adoption and the districts. Talk to people."], closure: ["Handover and closure", "Transfer the system and agree who owns the benefits."], done: ["Project closed", "Read your report below. You can still walk the hall."] };
+  function land(S, people, o = {}) {
+    const c = Land.cast(S, people), ph = S.phase, m = S.month || 0, pend = o.pending, react = o.react || {};
+    const list = [];
+    const add = (k, spot, extra = {}) => { const p = c.p(k); if (!p || list.some(e => e.id === p.id)) return; list.push(Object.assign({ id: p.id, p, role: k === "officer" ? "landofficer" : k, key: k, spot, pending: pend === p.id, react: react[p.id], mode: "stand" }, extra)); };
+    add("registrar", [7.7, -5.7, 0], { mode: "type", wander: true, front: [6.9, -3.6] });
+    add("ba", [1.6, -4.4, 0], { mode: "type", wander: true, front: [1.6, -2.6] });
+    add("devlead", [3.4, -4.4, 0], { mode: "type" });
+    add("datalead", [5.2, -4.4, 0], { mode: "type", wander: true, front: [5.2, -2.6] });
+    add("vendor", [-4.6, 0.5, Math.PI], { wander: true });
+    add("champion", [5.0, 2.15, 0]); add("officer", [6.6, 2.15, 0]);
+    add("agent", [4.2, 4.5, Math.PI]); add("union", [-1.4, 1.6, 2.4], { wander: true });
+    if (S.stake.dpo.aware || m <= 1) add("dpo", [0.9, -1.9, 0.6]);
+    const committee = ph === "plan" || ph === "closure" || ph === "done" || [1, 4, 6].includes(m);
+    if (committee) { add("permsec", [7.3, -1.6, -2.3]); add("ictdir", [8.1, -0.4, -2.0]); }
+    if (pend && !list.some(e => e.id === pend) && people[pend]) list.push({ id: pend, p: people[pend], role: people[pend].role, spot: [LR.player[0] + 1.3, LR.player[1] - 0.6, -1.2], pending: true, enterFrom: [8.2, 4.8] });
+    for (const e of list) if (e.pending) { e.spot = faceTo([LR.player[0] + 1.2, LR.player[1] + 0.55], LR.player); e.wander = false; e.mode = "stand"; }
+    const pe = list.find(e => e.pending);
+    list.push(playerEntry(o.player, pe ? faceTo(LR.player, pe.spot) : LR.player));
+    let mt = null; try { mt = Land.metrics(S); } catch (e) { }
+    const tp = Land.teamP(S, people), mood = tp.reduce((a, p) => a + p.morale, 0) / Math.max(1, tp.length);
+    const [ft, fd] = landFocus[ph] || ["", ""];
+    return stage("land", {
+      label: "The records hall at the State Lands Bureau, Alausa. Drag to look around; select people and objects to talk and learn.", phase: ph,
+      people: list, turn: mt ? mt.turn : 21,
+      districts: S.districts.map(d => ({ name: d.name, pct: d.dig / d.files, live: d.live != null })),
+      portal: S.features.map(f => ({ title: f.title, status: f.status, pct: 1 - f.rem / f.pts })),
+      hud: { place: "Lands Bureau, Alausa", time: ph === "plan" ? "Planning" : ph === "run" ? `Month ${m} · ${Land.dateOf(m - 1)}` : ph === "closure" ? "Closing" : "Closed", mood, money: `₦${Math.round(S.spent)}m of ₦1.9bn`, focusTitle: ft, focus: fd },
+      hotNote: { archive: "Five districts, one shelf each", scanner: "One of three stations", portal: "On the back wall by the project pod", rack: "Hums quietly in the corner", registrarDoor: "Glass office, back corner", counter: "Where the public queues", map: "Updated every month", dpnotice: "By the public entrance", adkar: "Put up by the change champions", committee: "Where the stage gates are decided" },
+    });
+  }
   function pmo(people, o) {
     const list = [];
     const m = people[o.mentor];
     if (m) list.push({ id: m.id, p: m, role: "mentor", key: "mentor", spot: [2.5, -3.2, 0], mode: "type", wander: true, front: [1.4, -3.3] });
     list.push(playerEntry(o.player, [0.6, 0.0, -2.6]));
-    return stage("pmo", { label: "The project management office at Bluegate Consulting, Victoria Island. Select the project boards to open a project.", people: list, kudi: o.kudi, clinic: o.clinic, actions: { pmoKudi: "open:kudi", pmoClinic: "open:clinic", examDoor: "go:exam" }, hud: { place: "Bluegate, Victoria Island", time: o.time || "", focusTitle: "Project office", focus: "Tap a project board to open it, or step into the Exam Hall." }, hotNote: { shelf: "Well-thumbed", cert: "Framed on the wall" } });
+    return stage("pmo", { label: "The project management office at Bluegate Consulting, Victoria Island. Select the project boards to open a project.", people: list, kudi: o.kudi, clinic: o.clinic, land: o.land, actions: { pmoKudi: "open:kudi", pmoClinic: "open:clinic", pmoLand: "open:land", examDoor: "go:exam" }, hud: { place: "Bluegate, Victoria Island", time: o.time || "", focusTitle: "Project office", focus: "Tap a project board to open it, or step into the Exam Hall." }, hotNote: { shelf: "Well-thumbed", cert: "Framed on the wall" } });
   }
   function brief(key, people, o) {
     const sp = people[o.sponsor], list = [];
-    if (sp) list.push({ id: sp.id, p: sp, role: sp.role === "donor" ? "donor" : "sponsor", key: sp.role === "donor" ? "donor" : "sponsor", spot: [0, -1.05, 0], mode: "stand" });
+    if (sp) { const rk = sp.role === "donor" ? "donor" : sp.role === "permsec" ? "permsec" : "sponsor"; list.push({ id: sp.id, p: sp, role: rk, key: rk, spot: [0, -1.05, 0], mode: "stand" }); }
     list.push(playerEntry(o.player, [0, 1.05, Math.PI]));
-    return stage("brief-" + key, { label: o.label, people: list, hud: { place: key === "kudi" ? "Kudi, Marina" : "Site office, Ikorodu", time: "Charter briefing", focusTitle: "Charter briefing", focus: "Ask the sponsor questions, then sign the charter to authorise the project." }, hotNote: { charterdoc: "On the table, waiting for your signature" } }, "small");
+    return stage("brief-" + key, { label: o.label, people: list, hud: { place: key === "kudi" ? "Kudi, Marina" : key === "land" ? "State Lands Bureau, Alausa" : "Site office, Ikorodu", time: "Charter briefing", focusTitle: "Charter briefing", focus: "Ask the sponsor questions, then sign the charter to authorise the project." }, hotNote: { charterdoc: "On the table, waiting for your signature" } }, "small");
   }
   function faceTo(a, b) { return [a[0], a[1], Math.atan2(b[0] - a[0], b[1] - a[1])]; }
   function playerEntry(pl, spot, o = {}) {
@@ -4104,7 +4746,7 @@ const World3D = (() => {
     for (const [k, h] of Object.entries(W.hot)) { const s = toScreen(h.m, 0); out.push({ kind: "hot", id: k, off: !!h.m.userData.off, x: r.left + s.x, y: r.top + s.y }); }
     return out;
   }
-  return { ok, kudi, clinic, pmo, brief, flush, bind, stage, probe };
+  return { ok, kudi, clinic, land, pmo, brief, flush, bind, stage, probe };
 })();
 
 (() => {
@@ -4121,7 +4763,7 @@ let G = null;
 
 function fresh() {
   const seed = (Date.now() % 1000000) + Math.floor(Math.random() * 1000);
-  const g = { v: 1, created: Date.now(), savedAt: 0, name: "", seed, people: {}, mentor: null, kudi: null, clinic: null, exam: { answers: [], mocks: [], current: null }, view: "office", tab: {} };
+  const g = { v: 1, created: Date.now(), savedAt: 0, name: "", seed, people: {}, mentor: null, kudi: null, clinic: null, land: null, exam: { answers: [], mocks: [], current: null }, view: "office", tab: {} };
   People.newWorld();
   const r = R.rng(seed + 99);
   const m = People.make(r, "mentor", { org: "Bluegate Consulting", band: "exec" });
@@ -4176,25 +4818,26 @@ let toastT;
 function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => toastEl.hidden = true, 4200); }
 function go(view) { if (typeof Voice !== "undefined") Voice.stop(); G.view = view; save(); render(); window.scrollTo({ top: 0 }); }
 function nav() {
-  document.querySelectorAll(".nav button").forEach(b => { b.setAttribute("aria-current", (b.dataset.view === G.view || (b.dataset.view === "office" && ["kudi", "clinic"].includes(G.view))) ? "page" : "false"); b.hidden = !G.name && b.dataset.view !== "office"; });
+  document.querySelectorAll(".nav button").forEach(b => { b.setAttribute("aria-current", (b.dataset.view === G.view || (b.dataset.view === "office" && ["kudi", "clinic", "land"].includes(G.view))) ? "page" : "false"); b.hidden = !G.name && b.dataset.view !== "office"; });
 }
 function render() {
   nav();
   if (!G.name) { app.innerHTML = viewWelcome(); return; }
   const v = G.view;
-  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : viewOffice();
+  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "land" ? viewLand() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : viewOffice();
   app.innerHTML = html;
   after();
 }
 function after() {
   if (G.view === "exam" && G.exam.current && !G.exam.current.done) startTimer(); else stopTimer();
-  for (const k of ["kudi", "clinic"]) if (G.view === k && G[k] && G[k].phase === "charter") { const B = briefState(k); if (!B.node) briefEnter(k, "start"); else pumpBrief(k); }
+  for (const k of ["kudi", "clinic", "land"]) if (G.view === k && G[k] && G[k].phase === "charter") { const B = briefState(k); if (!B.node) briefEnter(k, "start"); else pumpBrief(k); }
   // music follows the setting
   const v = G.view, S = G[v];
   let mood = "office";
   if (cur) mood = "tension";
   else if (v === "kudi" && S && !["charter", "done"].includes(S.phase)) mood = "sprint";
   else if (v === "clinic" && S && !["charter", "done"].includes(S.phase)) mood = "site";
+  else if (v === "land" && S && !["charter", "done"].includes(S.phase)) mood = "sprint";
   else if (v === "exam") mood = "exam";
   Sound.setMood(mood);
   Sound.rain(v === "clinic" && S && S.phase === "run" ? Math.max(0, Pred.rainLevel(S.week) - 0.3) : 0);
@@ -4241,24 +4884,25 @@ function projStatus(key) {
   const S = G[key];
   if (!S) return { label: "Not started", pct: 0 };
   if (S.phase === "done") return { label: `Complete · score ${S.result.score}`, pct: 1 };
+  if (S.kind === "hybrid") return { label: S.phase === "charter" ? "Charter awaiting signature" : S.phase === "plan" ? "Tailoring the plan" : S.phase === "closure" ? "Closing" : `Month ${S.month} of ${Land.MONTHS}`, pct: S.phase === "run" ? (S.month - 1) / Land.MONTHS : S.phase === "closure" ? 0.97 : 0 };
   if (S.kind === "agile") return { label: S.phase === "charter" ? "Charter awaiting signature" : `Sprint ${S.sprint} of ${Agile.SPRINTS}`, pct: (S.sprint - 1 + (S.phase === "sprint" ? S.day / 10 : 0)) / Agile.SPRINTS };
   return { label: S.phase === "charter" ? "Charter awaiting signature" : S.phase === "plan" ? "Planning" : `Week ${S.week} · ${Pred.dateOf(S.week)}`, pct: Math.min(1, S.week / 60) };
 }
 function viewOffice() {
   const m = mentor();
-  const k = projStatus("kudi"), c = projStatus("clinic");
+  const k = projStatus("kudi"), c = projStatus("clinic"), l = projStatus("land");
   const rd = readiness();
   const sits = allSituations();
   const best = sits.filter(x => x.grade === "best").length;
   const greet = !G.kudi && !G.clinic ? `Welcome to Bluegate, ${esc(G.name.split(" ")[0])}. I run the project office. Your first assignment is the Kudi Savings app: about 60% of the exam is agile or hybrid, so it is the best place to start. Forte Clinic in Ikorodu will teach you predictive planning, critical paths and earned value.` : sits.length ? `You've handled ${sits.length} situation${sits.length > 1 ? "s" : ""} so far, ${best} of them the way the exam expects. Keep going, and use the Exam Hall between sprints.` : `Your projects are waiting. Remember: assess first, talk to people, and use the agreed process.`;
   return `<div class="spread" style="margin-bottom:18px"><div><p class="eyebrow">Bluegate Consulting · Victoria Island, Lagos</p><h2>Project office</h2></div></div>
   <div class="officehero">
-    <div class="stage small-stage">${World3D.ok() ? World3D.pmo(G.people, { mentor: m.id, kudi: k, clinic: c, player: { name: G.name } }) : Scene.room(G.people, [m.id], { id: "pmo", label: "The project management office at Bluegate Consulting, Victoria Island", frame: ["PMP", "Certified"], boards: [["Kudi Savings", k.pct], ["Forte Clinic", c.pct]], wall: "#E4E8EC" })}</div>
+    <div class="stage small-stage">${World3D.ok() ? World3D.pmo(G.people, { mentor: m.id, kudi: k, clinic: c, land: l, player: { name: G.name } }) : Scene.room(G.people, [m.id], { id: "pmo", label: "The project management office at Bluegate Consulting, Victoria Island", frame: ["PMP", "Certified"], boards: [["Kudi Savings", k.pct], ["Forte Clinic", c.pct]], wall: "#E4E8EC" })}</div>
     <div class="card" style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start">
       ${av(m, 56)}<div><b>${esc(People.name(m))}</b> <span class="muted small">· ${esc(m.title)}</span><p style="margin-top:6px">${greet}</p><button class="btn sm ghost" style="margin-top:10px" data-inbox>Messages from ${esc(People.short(m))}</button></div>
     </div>
   </div>
-  ${missionBoard(k, c, rd, sits, best)}`;
+  ${missionBoard(k, c, rd, sits, best, l)}`;
 }
 function projCard(key, tag, title, text, st, cls) {
   const S = G[key];
@@ -4278,7 +4922,7 @@ const ICONS = {
   lock: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>`,
   star: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg>`,
 };
-const MEDAL_ICONS = { authorised: "✍", explorer: "◎", increment: "▲", mindset: "◆", servant: "♥", shipped: "➤", ribbon: "✂", fifty: "50", rehearsal: "⏱", target: "✓" };
+const MEDAL_ICONS = { authorised: "✍", explorer: "◎", increment: "▲", mindset: "◆", servant: "♥", shipped: "➤", ribbon: "✂", fifty: "50", rehearsal: "⏱", target: "✓", registry: "⌂" };
 function tile(o) {
   // o: {id, name, sub, icon, hue, pct, locked, flag, done, act, pop}
   const deg = Math.round((o.pct || 0) * 360);
@@ -4293,20 +4937,20 @@ function tile(o) {
     <div class="mpop" id="pop-${o.id}" role="tooltip">${o.pop}</div>
   </div>`;
 }
-function missionBoard(k, c, rd, sits, best) {
+function missionBoard(k, c, rd, sits, best, l) {
   const projPop = (key, tag, title, text, st, cls) => {
     const S = G[key];
-    return `<div class="meta"><span class="pill ${cls ? "warn" : "acc"}">${tag}</span>${key === "kudi" && !S ? `<span class="pill good">Start here</span>` : ""}</div>
+    return `<div class="meta"><span class="pill ${cls === "hyb" ? "" : cls ? "warn" : "acc"}" ${cls === "hyb" ? 'style="background:#E6E1F4;color:#4A3D7D"' : ""}>${tag}</span>${key === "kudi" && !S ? `<span class="pill good">Start here</span>` : ""}</div>
       <h3>${title}</h3><p class="muted small">${text}</p>
-      <div class="meter ${cls ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%"></i></div>
-      <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div>`;
+      <div class="meter ${cls === "pred" ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%;${cls === "hyb" ? "background:#7A6BB3" : ""}"></i></div>
+      <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls === "pred" ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div>`;
   };
   const lockedPop = (tag, title, text) => `<div class="meta"><span class="pill">${tag}</span><span class="pill">In development</span></div><h3>${title}</h3><p class="muted small">${text}</p><p class="tiny muted">This mission unlocks in a future update.</p>`;
   const nb = Object.keys(G.badges || {}).length;
   const tiles = [
     tile({ id: "kudi", name: "Kudi Savings", sub: G.kudi ? k.label : "Agile · start here", icon: "kudi", hue: "teal", pct: k.pct, done: G.kudi && G.kudi.phase === "done", flag: !G.kudi ? "START" : "", act: 'data-open="kudi"', pop: projPop("kudi", "P2 · Agile", "Kudi Savings", "Kudi Microfinance Bank wants customers to run rotating savings groups (àjọ) inside its app. Six two-week sprints, a team of six, a regulator watching.", k, "") }),
     tile({ id: "clinic", name: "Forte Clinic", sub: G.clinic ? c.label : "Predictive", icon: "clinic", hue: "amber", pct: c.pct, done: G.clinic && G.clinic.phase === "done", act: 'data-open="clinic"', pop: projPop("clinic", "P1 · Predictive", "Forte Clinic", "Build and equip a 40-bed primary health clinic for a donor and the state ministry. Fourteen activities, a rainy season, an imported equipment order and ₦480m.", c, "pred") }),
-    tile({ id: "land", name: "Land Registry", sub: "Hybrid · locked", icon: "land", hue: "violet", locked: true, pop: lockedPop("P3 · Hybrid", "Land Registry", "Digitise a state land registry: governance, data protection and organisational change.") }),
+    tile({ id: "land", name: "Land Registry", sub: G.land ? l.label : "Hybrid", icon: "land", hue: "violet", pct: l.pct, done: G.land && G.land.phase === "done", act: 'data-open="land"', pop: projPop("land", "P3 · Hybrid", "Land Registry", "Digitise 1.2 million land titles across five districts, launch an online title search, and bring 200 registry staff with you. Governance, data protection and organisational change.", l, "hyb") }),
     tile({ id: "cold", name: "Cold-Chain Rescue", sub: "Hybrid · locked", icon: "cold", hue: "ice", locked: true, pop: lockedPop("P4 · Hybrid", "Cold-Chain Rescue", "Take over a late, over-budget cold-storage hub and decide its future.") }),
   ];
   const train = [
@@ -4322,7 +4966,7 @@ function missionBoard(k, c, rd, sits, best) {
     <div class="medals">${medals}</div>
   </section>`;
 }
-function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : [])].filter(l => l.grade); }
+function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : []), ...(G.land ? G.land.log : [])].filter(l => l.grade); }
 
 // ---------- people ----------
 function personCard(p) {
@@ -4354,11 +4998,11 @@ function profile(id) {
 function openProject(key) {
   if (!G[key]) {
     People.newWorld(); People.reserve(Object.values(G.people));
-    G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : Pred.create(G.seed + 23, G.people);
+    G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : key === "land" ? Land.create(G.seed + 41, G.people) : Pred.create(G.seed + 23, G.people);
   }
   go(key);
 }
-const engine = key => key === "kudi" ? Agile : Pred;
+const engine = key => key === "kudi" ? Agile : key === "land" ? Land : Pred;
 const castOf = key => engine(key).cast(G[key], G.people);
 
 // ---------- charter ----------
@@ -4629,11 +5273,11 @@ function stageHTML(key) {
   sceneFx = { walk: false, prev: null };
   opts.player = { name: G.name };
   const w3 = World3D.ok();
-  const svg = key === "kudi" ? (w3 ? World3D.kudi(S, G.people, opts) : Scene.kudi(S, G.people, opts)) : (w3 ? World3D.clinic(S, G.people, opts) : Scene.clinic(S, G.people, opts));
+  const svg = key === "kudi" ? (w3 ? World3D.kudi(S, G.people, opts) : Scene.kudi(S, G.people, opts)) : key === "land" ? (w3 ? World3D.land(S, G.people, opts) : Scene.room(G.people, [S.cast.registrar, S.cast.champion, S.cast.ba].concat(p && p.who ? [p.who] : []), { id: "land", label: "The records hall at the State Lands Bureau, Alausa", sky: "#A8D3EA", wall: "#EDE6D6", papers: true })) : (w3 ? World3D.clinic(S, G.people, opts) : Scene.clinic(S, G.people, opts));
   const wet = key === "clinic" && Pred.rainLevel(S.week || 0) >= 0.5 && S.phase === "run";
   let banner = "";
   if (p) { const w = p.who && G.people[p.who]; banner = `<div class="stage-banner fade" role="status">${w ? av(w, 40) : ""}<span style="min-width:0"><b>${w ? esc(People.name(w)) + " wants a word" : "Something needs your attention"}</b><br><span class="tiny">${esc(p.prepared.sit.title)}</span></span><button class="btn sm" data-talk>${w ? "Talk to " + esc(People.short(w)) : "Look into it"}</button></div>`; }
-  else if (running) banner = `<div class="stage-banner quiet"><span class="pulse"></span><span class="small">${key === "kudi" ? "The team is working…" : "Work under way on site…"}</span></div>`;
+  else if (running) banner = `<div class="stage-banner quiet"><span class="pulse"></span><span class="small">${key === "kudi" ? "The team is working…" : key === "land" ? "Scanning under way…" : "Work under way on site…"}</span></div>`;
   return `<div class="stage${wet ? " wet" : ""}">${svg}${banner}</div>`;
 }
 function openPending() {
@@ -4687,7 +5331,7 @@ function drawSituation() {
       <div class="lens"><b>On the exam.</b> ${esc(Rz.lens)}<br><span class="tiny">Task: ${esc(ecoLabel(sit.eco[0], sit.eco[1]))}${sit.also ? ` · also ${esc(ecoLabel(sit.also[0], sit.also[1]))}` : ""} · Principle: ${esc(PRINCIPLES[sit.principle])}</span></div>
       <div class="spread"><span></span><button class="btn" data-sitdone>Back to work</button></div>`;
   }
-  const where = cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : `Week ${G.clinic.week}`;
+  const where = cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : cur.key === "land" ? (G.land.phase === "closure" ? "Closure" : `Month ${G.land.month}`) : `Week ${G.clinic.week}`;
   const fadeCls = cur._drawn ? "" : " fade"; if (!cur._drawn) { const pp = document.getElementById("coachpop"); if (pp) pp.hidden = true; } cur._drawn = true;
   overlayEl.innerHTML = `<div class="brief sitbrief${fadeCls}" role="dialog" aria-modal="true" aria-labelledby="sitT"><header><p class="eyebrow">Situation · ${where}</p><h3 id="sitT" style="font-size:24px;margin-top:4px">${esc(sit.title)}</h3></header><div class="body">${body}</div></div>`;
   overlayEl.hidden = false;
@@ -4719,6 +5363,8 @@ function finishSituation() {
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
     if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); }
+  } else if (key === "land") {
+    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); }
   } else {
     if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); }
   }
@@ -4761,8 +5407,9 @@ function viewResults(key) {
     ["Launch", { full: "Launched in full", phased: "Phased release", late: "Launched late", partial: "Launched with gaps", suspended: "Suspended after launch", none: "Not launched" }[r.launch]],
     ["Must-haves done", `${r.mustDone} of ${r.mustAll}`], ["Value delivered", `${r.valueDone} of ${r.valueTotal}`], ["Adoption index", r.adoption],
     ["Team morale", Math.round(r.morale)], ["Stakeholder support", Math.round(r.support)], ["Budget", r.budgetVar >= 0 ? `${m1(r.budgetVar)} under` : `${m1(-r.budgetVar)} over`]]
+    : key === "land" ? [["Records digitised", `${Math.round(r.digPct * 100)}% of ${Math.round(r.tot)}k files`], ["Districts live", `${r.live} of 5 (${r.byDeadline} by the deadline)`], ["Index accuracy", `${r.acc.toFixed(1)}%`], ["Staff adoption", r.stage], ["Title search time", `${Math.round(r.turn)} days (was 21)`], ["Benefits realised over the year", `${r.benefits}%`], ["Budget", r.budgetVar >= 0 ? `${m0(r.budgetVar)} under` : `${m0(-r.budgetVar)} over`], ["Compliance", r.breaches || r.audit ? `${r.audit} audit finding${r.audit === 1 ? "" : "s"}, ${r.breaches} breach${r.breaches === 1 ? "" : "es"}` : "Clean"], ["Tailoring", `${G.land.choices.rollout === "pilot" ? "Pilot" : "Big bang"} · ${G.land.choices.portal === "agile" ? "agile portal" : "one-release portal"} · ${G.land.choices.change === "champions" ? "champions" : "training only"} · ${G.land.choices.governance === "gates" ? "stage gates" : "monthly report"}`]]
     : [["Finished", `week ${r.actualFinish} (deadline ${r.deadline})`], ["Final cost", `${m0(r.finalCost)} of ${m0(r.funded)} funded`], ["CPI at close", r.CPI.toFixed(2)], ["Stakeholder support", Math.round(r.support)], ["Quality defects", r.defects], ["Audit findings", r.audit], ["Safety incidents", r.incidents]];
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : key === "land" ? "P3 · Land Registry" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
   ${stageHTML(key)}
   <div class="grid2"><div class="card"><p class="eyebrow">Overall score</p><div class="row" style="margin:6px 0"><b style="font-family:var(--f-display);font-size:64px;line-height:1">${r.score}</b><span class="muted">/ 100</span><span style="font-size:28px;color:var(--amber)">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span></div>
     <p class="small">You handled <b>${best} of ${L.length}</b> situations the way the exam expects (${pct(r.mindset)}).</p>
@@ -4872,7 +5519,7 @@ function briefChoose(key, target, label) {
   if (target[0] === "Q") {
     const i = +target.slice(1), ch = CHARTERS[key](castOf(key)), q = ch.q[i];
     S.charterQ = i;
-    B.queue.push({ w: SPONSOR[key], t: q[2], sp: q[3] }, { reveal: "Project manager's authority" }, { w: "sys", t: q[1] }, { coach: key === "kudi" ? "The charter formally authorises the project and gives the project manager authority. Knowing the limits of that authority (what you decide, what goes to the sponsor, what belongs to the product owner) comes before anything else." : "Success criteria and acceptance define when the project is finished and who decides. Clarify them before you sign, and track them in every report." }, { go: "ready" });
+    B.queue.push({ w: SPONSOR[key], t: q[2], sp: q[3] }, { reveal: "Project manager's authority" }, { w: "sys", t: q[1] }, { coach: key === "land" ? "In hybrid projects, governance is explicit: who decides at each stage gate, against which criteria. Knowing that before you start protects you from carrying decisions that belong to the business." : key === "kudi" ? "The charter formally authorises the project and gives the project manager authority. Knowing the limits of that authority (what you decide, what goes to the sponsor, what belongs to the product owner) comes before anything else." : "Success criteria and acceptance define when the project is finished and who decides. Clarify them before you sign, and track them in every report." }, { go: "ready" });
     save(); pumpBrief(key); return;
   }
   if (target === "SIGN") { signCharter(key); return; }
@@ -4928,9 +5575,9 @@ function refreshBrief(key, flash, typingWho) {
 function viewCharter(key) {
   const S = G[key], c = castOf(key), ch = CHARTERS[key](c), B = briefState(key);
   const sp = ch.sponsor;
-  const label = key === "kudi" ? "The Head of Digital Banking's office" : "The site office in Ikorodu";
-  const room = World3D.ok() ? World3D.brief(key, G.people, { sponsor: sp.id, label, player: { name: G.name } }) : Scene.room(G.people, [sp.id], { papers: true, id: key, label, sky: key === "kudi" ? "#8EC5E8" : "#9CCBE6", wall: key === "kudi" ? "#E9E4DA" : "#E7DCCB" });
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Agile · Kudi Microfinance Bank, Marina" : "P1 · Predictive · Ikorodu"}</p><h2>The charter briefing</h2></div><button class="btn ghost sm" data-go="office">Back to the office</button></div>
+  const label = key === "kudi" ? "The Head of Digital Banking's office" : key === "land" ? "The Permanent Secretary's office, Alausa" : "The site office in Ikorodu";
+  const room = World3D.ok() ? World3D.brief(key, G.people, { sponsor: sp.id, label, player: { name: G.name } }) : Scene.room(G.people, [sp.id], { papers: true, id: key, label, sky: key === "kudi" ? "#8EC5E8" : "#9CCBE6", wall: key === "kudi" ? "#E9E4DA" : key === "land" ? "#EDE6D6" : "#E7DCCB" });
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Agile · Kudi Microfinance Bank, Marina" : key === "land" ? "P3 · Hybrid · State Lands Bureau, Alausa" : "P1 · Predictive · Ikorodu"}</p><h2>The charter briefing</h2></div><button class="btn ghost sm" data-go="office">Back to the office</button></div>
   <div class="briefgrid">
     <div class="stack">
       <div class="stage small-stage">${room}</div>
@@ -4958,6 +5605,10 @@ const TIPS = {
   cevm: ["Earned value", "CPI = EV ÷ AC tells you cost efficiency; SPI = EV ÷ PV tells you schedule efficiency. Below 1.0 is bad. EAC = BAC ÷ CPI is the typical forecast if today's performance continues."],
   crain: ["Rain on site", "The rainy season was in your risk register. When a risk happens it becomes an issue: use the planned response, update the register and tell the people who need to know."],
   cclose: ["Closing the project", "Closure means formal acceptance, handing over documentation and knowledge, releasing resources, closing contracts and recording lessons learned. Don't skip it just because the building is finished."],
+  lplan: ["Tailoring", "Hybrid means choosing the right approach for each part of the work. A pilot lowers risk; monthly portal releases bring feedback early; champions win hearts before training wins minds; stage gates put go-live decisions with the right people."],
+  lrun: ["Three tracks at once", "Each month, scanning moves forward, the portal team releases, and staff move (or don't) along the change ladder. A district only goes live when its records are in, the core portal works and its people are ready."],
+  lchange: ["The change ladder", "Awareness, Desire, Knowledge, Ability, Reinforcement. Training builds knowledge, but if people don't know why or don't want the change, training won't stick. Watch the Change tab."],
+  lclose: ["Benefits after you leave", "A project delivers outputs; the organisation realises benefits. Before closing, make sure someone owns the benefits and will keep measuring them."],
   debrief: ["Reading a debrief", "After each decision, look at the exam lens and the task it maps to. The best answer usually assesses first, involves the right people and uses the agreed process before escalating."],
   exam: ["Exam Hall tips", "On the real exam, read the last sentence of the question first. Look for words like FIRST, NEXT and BEST. Strike out answers that skip assessment, ignore people or bypass the process."],
   mock: ["After your mock", "Review every wrong answer and ask which principle you missed. Two mocks in a row at Target or above in every domain is a good signal that you're ready to book."],
@@ -4999,6 +5650,8 @@ function coachTriggers() {
   const K = G.kudi, C = G.clinic;
   if (v === "kudi" && K) { if (K.phase === "planning") coach("kplan"); if (K.phase === "sprint") coach("ksprint"); if (K.phase === "review") coach("kreview"); if (K.phase === "retro") coach("kretro"); if (K.phase === "release") coach("krelease"); }
   if (v === "clinic" && C) { if (C.phase === "plan") coach("cplan"); if (C.phase === "run" && C.cycle >= 2) coach("ccpm"); if (C.phase === "run" && C.cycle >= 3) coach("cevm"); if (C.phase === "run" && Pred.rainLevel(C.week) >= 0.5) coach("crain"); if (C.phase === "closure") coach("cclose"); }
+  const L = G.land;
+  if (v === "land" && L) { if (L.phase === "plan") coach("lplan"); if (L.phase === "run") coach("lrun"); if (L.phase === "run" && L.month >= 3) coach("lchange"); if (L.phase === "closure") coach("lclose"); }
   if (v === "exam") coach("exam");
   if (G.exam.mocks.length) coach("mock");
   if (allSituations().length) coach("debrief");
@@ -5006,13 +5659,14 @@ function coachTriggers() {
 
 // ---------- badges ----------
 const BADGES = [
-  ["authorised", "Authorised", "Signed your first project charter", g => (g.kudi && g.kudi.signed) || (g.clinic && g.clinic.signed)],
+  ["authorised", "Authorised", "Signed your first project charter", g => (g.kudi && g.kudi.signed) || (g.clinic && g.clinic.signed) || (g.land && g.land.signed)],
   ["explorer", "Explorer", "Discovered 20 PMP concepts by exploring the worlds", g => Object.keys(g.insights || {}).length >= 20],
   ["increment", "First increment", "Finished your first sprint", g => g.kudi && g.kudi.velocity.length >= 1],
   ["mindset", "Exam mindset", "Handled five situations the exam way", () => allSituations().filter(l => l.grade === "best").length >= 5],
   ["servant", "Servant leader", "Three people-first decisions handled the exam way", () => allSituations().filter(l => ["servant", "people"].includes(l.principle) && l.grade === "best").length >= 3],
   ["shipped", "Shipped", "Closed the Kudi Savings project", g => g.kudi && g.kudi.phase === "done"],
   ["ribbon", "Ribbon cut", "Handed over Forte Clinic", g => g.clinic && g.clinic.phase === "done"],
+  ["registry", "Registry online", "Closed the Land Registry project", g => g.land && g.land.phase === "done"],
   ["fifty", "Fifty answers", "Answered 50 exam questions", g => g.exam.answers.length >= 50],
   ["rehearsal", "Dress rehearsal", "Completed a mock exam", g => g.exam.mocks.length >= 1],
   ["target", "On target", "Target or above in every domain in a mock", g => g.exam.mocks.some(m => DOMAINS.every(d => ["AT", "T"].includes(m.bands[d])))],
@@ -5024,6 +5678,150 @@ function checkBadges() {
 function badgesHTML() {
   G.badges = G.badges || {};
   return `<div class="badges">${BADGES.map(([id, t, d]) => `<div class="badge ${G.badges[id] ? "on" : ""}" title="${esc(d)}"><span class="medal">${G.badges[id] ? "★" : "☆"}</span><span><b>${t}</b><br><span class="tiny muted">${esc(d)}</span></span></div>`).join("")}</div>`;
+}
+
+// ===== UI: P3 Land Registry (hybrid) =====
+CHARTERS.land = c => ({
+  title: "Land Registry Online", sub: "Digitising the state's land titles and putting title searches online", client: "State Lands Bureau", sponsor: c.p("permsec"),
+  rows: [["Purpose", "Make land titles easy to search, verify and trust: end months-long waits, cut out fixers and reduce fraud from duplicate or altered titles."],
+    ["Objectives", "Digitise about 1.2 million title files across five districts at 98% index accuracy, launch an online title search and verification portal, and move registry staff to on-screen working within twelve months and ₦1.9bn."],
+    ["Approach", "Hybrid. The records migration follows a predictive plan with stage gates; the public portal is built in monthly agile iterations; organisational change runs alongside both."],
+    ["High-level requirements", "Scanned and indexed title files, title search, officer work queue, online payment, verification certificates, and a protected records server in the state data centre."],
+    ["Key stakeholders", `${c.n("registrar")} (Registrar of Titles), ${c.n("dpo")} (data protection), ${c.n("ictdir")} (State ICT), ${c.n("union")} (staff union), ${c.n("agent")} (registry users).`],
+    ["Known risks", "Staff resistance, fragile old files, personal data protection, vendor quality, political deadlines, fraud in the paper records."],
+    ["Success criteria", "Districts live with staff working on screen, title searches in days rather than weeks, accuracy at or above 98%, no unreported data breaches, within budget."],
+    ["Project manager's authority", "Manages the delivery team, the vendor contract and the contingency reserve. Go-live at each stage gate, scope changes and staffing decisions belong to the steering committee chaired by the Permanent Secretary."]],
+  q: [["Who decides when a district goes live?", "best", `${c.s("permsec")} nods slowly. "The steering committee, at the stage gate, against criteria we agree now. You bring the evidence and a recommendation."`, "The steering committee, at the stage gate, against criteria we agree now. You bring the evidence and a recommendation."],
+    ["Can I move registry staff into new roles if the project needs it?", "ok", `"Staffing is mine and the Civil Service Commission's," says ${c.s("permsec")}. "Raise it with me early. Good question, though authority over go-live matters more right now."`, "Staffing belongs to me and the Civil Service Commission. Raise it with me early. Good question, though authority over go-live matters more right now."],
+    ["Can we skip the data protection paperwork to start scanning sooner?", "poor", `${c.s("permsec")} frowns. "No. These are citizens' records. The law applies to us like everyone else."`, "No. These are citizens' records. The law applies to us like everyone else."]],
+});
+BRIEF.land = (c, me) => ({
+  start: { say: [["permsec", `Welcome to Alausa, ${me}. I'm ${c.n("permsec")}, Permanent Secretary of the State Lands Bureau.`, "Welcome to Alausa. I'm the Permanent Secretary of the State Lands Bureau."], ["permsec", `Walk with me. Before you sign the charter, I want you to see what we're dealing with: forty years of land titles on paper, and a public that has stopped trusting us.`]],
+    chips: [["Why digitise now?", "purpose"], ["Who owns this charter?", "why"]] },
+  why: { say: [["permsec", `I do, on behalf of the Commissioner. The charter authorises the project and your role. Decisions about going live sit with a steering committee I chair.`], { coach: `Exam tip: the sponsor issues the charter and owns the business case. In hybrid projects, governance often uses stage gates for the predictive parts while agile teams decide day to day how to build.` }], next: "purpose" },
+  purpose: { say: [["permsec", `A title search here takes three weeks. Fixers charge people to find files that should take minutes. And twice this year, two families have held titles to the same plot.`], { reveal: "Purpose" }],
+    chips: [["What does success look like?", "objectives"]] },
+  objectives: { say: [["permsec", `About 1.2 million title files across five districts, scanned and indexed to 98% accuracy. An online portal for searches and verification. Staff working on screen. Twelve months and ₦1.9 billion.`], { reveal: "Objectives" }, { reveal: "Success criteria" }, { reveal: "High-level requirements" }],
+    chips: [["Why a hybrid approach?", "approach"]] },
+  approach: { say: [["permsec", `The migration has to be planned like a building: district by district, with checks before anything goes live. But nobody knows exactly what the public wants from a portal until they use it.`], ["permsec", `So the migration follows a plan with stage gates, and the portal team releases something every month. And none of it matters if my staff don't change how they work.`], { reveal: "Approach" },
+    { coach: `Hybrid in one line: plan-driven where change is costly and requirements are stable, iterative where learning matters. You'll tailor the approach before work starts, and the choices will show up in the results.` }],
+    chips: [["Who should I keep close?", "stake"]] },
+  stake: { say: [["permsec", `${c.n("registrar")}, our Registrar of Titles: nothing moves in the registry without ${c.him("registrar")}, and ${c.he("registrar")} has seen projects fail before. ${c.n("dpo")} for data protection. ${c.n("ictdir")} for the state's ICT standards. ${c.n("union")}, who speaks for my staff. And the people who queue at our counter every day.`, "Our Registrar of Titles: nothing moves in the registry without them, and they have seen projects fail before. Our data protection officer. The state's director of ICT. The union branch chair, who speaks for my staff. And the people who queue at our counter every day."], { reveal: "Key stakeholders" },
+    ["permsec", `What keeps me awake: staff who fear for their jobs, old files falling apart, citizens' personal data, the vendor's quality, and politicians who like announcing dates.`], { reveal: "Known risks" }],
+    chips: [["One question before I sign.", "authority"]] },
+  authority: { say: [["permsec", `Ask.`]], chips: "Q" },
+  ready: { say: [["permsec", `Good. Sign, and then show me how you'll tailor the plan.`]], chips: [["Sign the charter", "SIGN"]] },
+  signed: { say: [["permsec", `Welcome to the Bureau. Next, the plan: how you'll roll out, build, govern and bring my people with you.`]], chips: [["Tailor the plan", "GO"]] },
+});
+SPONSOR.land = "permsec";
+
+function viewLand() {
+  const S = G.land;
+  if (S.phase === "charter") return viewCharter("land");
+  if (S.phase === "done") return viewResults("land");
+  if (S.phase === "plan") return landPlan(S);
+  const c = castOf("land"), mt = Land.metrics(S);
+  const tab = G.tab.land || "work";
+  const [stage] = Land.adkar(S.adopt);
+  return `<div class="spread"><div><p class="eyebrow">P3 · Land Registry · Hybrid</p><h2>${S.phase === "closure" ? "Handover and closure" : `Month ${S.month} · ${Land.dateOf(S.month - 1)}`}</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+  ${stageHTML("land")}
+  <div class="kpis">
+    <div><span>Records digitised</span><b>${Math.round(mt.digPct * 100)}%</b></div>
+    <div><span>Index accuracy</span><b class="${S.acc < Land.TARGET_ACC ? "bad" : "good"}">${S.acc.toFixed(1)}%</b></div>
+    <div><span>Districts live</span><b>${mt.live} of 5</b></div>
+    <div><span>Portal live</span><b>${mt.featsLive} of ${S.features.filter(f => f.status !== "dropped").length}</b></div>
+    <div><span>Staff adoption</span><b style="color:${moodColor(S.adopt + 20)}">${stage}</b></div>
+    <div><span>Title search time</span><b class="${mt.turn > 14 ? "bad" : mt.turn < 6 ? "good" : ""}">${mt.turn.toFixed(0)} days</b></div>
+    <div><span>Spent of ₦1.9bn</span><b class="${S.spent > S.budget * (S.month / 12) + 60 ? "bad" : ""}">${m0(S.spent)}</b></div>
+  </div>
+  <div class="tabs" role="tablist">${[["work", "Delivery"], ["change", "Change"], ["measures", "Measures"], ["stake", "Stakeholders"], ["team", "People"], ["log", "Decisions"]].map(([k, l]) => `<button role="tab" aria-selected="${tab === k}" data-tab="land:${k}">${l}</button>`).join("")}</div>
+  ${tab === "work" ? landWork(S, c, mt) : tab === "change" ? landChange(S, c) : tab === "measures" ? landMeasures(S) : tab === "stake" ? stakeTab(S, c, "land") : tab === "team" ? teamTab(Object.values(S.cast).map(id => G.people[id])) : logTab(S)}`;
+}
+function landPlan(S) {
+  const sel = S._plan || { rollout: "pilot", portal: "agile", change: "champions", governance: "gates" };
+  S._plan = sel;
+  const tracks = `<svg viewBox="0 0 520 210" class="chart" style="max-width:820px;display:block;margin:8px auto 0" role="img" aria-label="Three tracks of a hybrid project over twelve months">
+    <text x="10" y="16" class="lab">Month</text>${Array.from({ length: 12 }, (_, i) => `<text x="${118 + i * 33}" y="16" text-anchor="middle">${i + 1}</text>`).join("")}
+    <text x="10" y="56">Migration</text><rect x="104" y="40" width="${sel.rollout === "pilot" ? 96 : 0}" height="22" rx="5" fill="var(--amber)"/>${sel.rollout === "pilot" ? `<text x="152" y="56" text-anchor="middle" fill="#13243A" style="font-weight:700">Pilot</text><line x1="202" x2="202" y1="34" y2="68" stroke="var(--ink)" stroke-width="2"/><text x="206" y="32" style="font-size:11px">gate</text>` : ""}<rect x="${sel.rollout === "pilot" ? 206 : 104}" y="40" width="${sel.rollout === "pilot" ? 290 : 392}" height="22" rx="5" fill="var(--amber)" opacity=".55"/><text x="${sel.rollout === "pilot" ? 350 : 300}" y="56" text-anchor="middle">${sel.rollout === "pilot" ? "Other four districts" : "All five districts"}</text>
+    <text x="10" y="106">Portal</text>${sel.portal === "agile" ? Array.from({ length: 12 }, (_, i) => `<rect x="${105 + i * 33}" y="90" width="29" height="22" rx="5" fill="var(--accent)" opacity="${0.45 + i * 0.045}"/>`).join("") : `<rect x="104" y="90" width="230" height="22" rx="5" fill="var(--accent)" opacity=".4"/><text x="219" y="106" text-anchor="middle">Specify and build</text><rect x="338" y="90" width="30" height="22" rx="5" fill="var(--accent)"/><text x="400" y="106">one release</text>`}
+    <text x="10" y="156">Change</text><rect x="104" y="140" width="392" height="22" rx="5" fill="#7A6BB3" opacity="${sel.change === "champions" ? 0.85 : 0.25}"/><text x="300" y="156" text-anchor="middle" fill="${sel.change === "champions" ? "#fff" : "var(--ink)"}">${sel.change === "champions" ? "Champions and training throughout" : "Training at go-live only"}</text>
+    <text x="10" y="196">Governance</text>${sel.governance === "gates" ? [4, 7, 10, 12].map(mn => `<path d="M${104 + (mn - 1) * 33 + 16} 182 l8 8 -8 8 -8 -8z" fill="var(--ink)"/>`).join("") + `<text x="${104 + 12 * 33 + 6}" y="195" style="font-size:11px"></text>` : `<text x="104" y="196" class="muted">Monthly report to the Permanent Secretary</text>`}
+  </svg>`;
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">P3 · Land Registry · Hybrid</p><h2>Tailor the approach</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+  ${stageHTML("land")}
+  <div class="card" style="margin-bottom:16px"><div class="spread"><h3>Your programme at a glance</h3><span class="tiny muted">Updates as you choose · diamonds are stage gates</span></div>${tracks}</div>
+  <div class="card"><h3>Tailoring decisions</h3><p class="small muted" style="margin:6px 0 14px">A hybrid project mixes approaches. Decide how each part of the work will be delivered and governed. There is no free option; each choice changes risk, cost, speed and how people respond.</p>
+    <div class="stack">${Object.entries(Land.PLAN).map(([k, p]) => `<fieldset style="border:0;padding:0;margin:0 0 6px"><legend class="small" style="font-weight:700;margin-bottom:6px">${p.label}</legend><div class="grid2">${p.options.map(([v, l, d]) => `<label class="choice"><input type="radio" name="lplan-${k}" value="${v}" ${sel[k] === v ? "checked" : ""} data-landplan="${k}"><span><b>${l}</b><br><span class="small muted">${d}</span></span></label>`).join("")}</div></fieldset>`).join("")}</div>
+    <button class="btn" style="margin-top:14px" data-landok>Approve the approach and start month 1</button></div>`;
+}
+function landWork(S, c, mt) {
+  const status = d => d.live != null ? `<span class="pill good">Live since month ${d.live}</span>` : d.dig >= d.files * 0.95 ? `<span class="pill warn">Records in · awaiting go-live</span>` : d.dig > 0 ? `<span class="pill">Scanning</span>` : `<span class="pill">Waiting</span>`;
+  const fstat = f => f.status === "live" ? `<span class="pill good">Live</span>` : f.status === "built" ? `<span class="pill acc">Built · awaiting release</span>` : f.status === "dropped" ? `<span class="pill bad">Dropped</span>` : f.rem < f.pts ? `<span class="pill warn">In progress</span>` : `<span class="pill">${f.status === "planned" ? "Planned" : "Backlog"}</span>`;
+  const gateTxt = S.choices.governance === "gates" ? (S.gate ? { go: "Pilot approved at the stage gate", conditional: "Conditional go-live approved", hold: "Programme on hold at the gate" }[S.gate] : "First stage gate at the start of month 4") : "No steering committee; the Permanent Secretary decides";
+  return `<div class="split"><div class="stack">
+    <div class="card"><div class="spread"><h3>Records migration</h3><span class="small muted">Predictive · ${S.choices.rollout === "pilot" ? "pilot, then phased rollout" : "all districts at once"}</span></div>
+      <div class="stack" style="margin-top:10px">${S.districts.map(d => `<div><div class="spread small"><span><b>${esc(d.name)}</b> <span class="muted">· ${d.files}k files</span></span>${status(d)}</div><div class="meter" style="margin-top:5px"><i style="width:${(d.dig / d.files * 100).toFixed(0)}%;${d.live != null ? "background:var(--good)" : ""}"></i></div></div>`).join("")}</div>
+      <p class="tiny muted" style="margin-top:10px">Index accuracy ${S.acc.toFixed(1)}% against a ${Land.TARGET_ACC}% standard. Below standard, a share of each month's scanning fails checks and is redone.</p></div>
+    <div class="card"><div class="spread"><h3>Public portal</h3><span class="small muted">${S.choices.portal === "agile" ? "Agile · monthly releases, ordered by the Registrar" : "Specified up front · one release when all is built"}</span></div>
+      <div class="stack" style="margin-top:10px">${S.features.map(f => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span><b>${esc(f.title)}</b> <span class="pill ${f.pri}">${f.pri}</span><br><span class="tiny muted">${esc(f.text)}</span>${f.status !== "live" && f.status !== "dropped" && f.rem < f.pts ? `<span class="meter" style="display:block;width:140px;margin-top:4px"><i style="width:${((1 - f.rem / f.pts) * 100).toFixed(0)}%"></i></span>` : ""}</span>${fstat(f)}</div>`).join("")}</div></div>
+  </div>
+  <div class="stack">
+    <div class="card"><h3>${S.phase === "closure" ? "Closing the project" : `Month ${S.month}`}</h3><p class="small muted" style="margin:6px 0 12px">${S.phase === "closure" ? "Twelve months are done. Handover is next." : "Scanning, building and changing happen together. People will come to you with problems."}</p>
+      ${S.phase === "closure" ? `<button class="btn" data-resume style="width:100%">Continue to handover</button>` : `<button class="btn" data-month style="width:100%">${S.month >= Land.MONTHS ? "Finish month 12" : `Advance to month ${S.month + 1}`}</button>`}</div>
+    ${S.phase === "run" ? `<div class="card"><div class="spread"><h3>Your time this month</h3><span class="pill">${S.actionsLeft} left</span></div>
+      <p class="small muted" style="margin:6px 0 10px">Choose up to two leadership actions.</p>
+      <div class="stack">${Object.entries(Land.ACTIONS).map(([k, a]) => `<button class="btn ghost sm" style="justify-content:flex-start;text-align:left" data-laction="${k}" ${S.actionsLeft <= 0 || (S.actionsUsed.includes(k) && k !== "meetStake") ? "disabled" : ""}><span><b>${a.label}</b><br><span class="tiny muted">${a.hint}</span></span></button>`).join("")}</div>
+      ${S._actMsg ? `<div class="narr small fade" style="margin-top:10px">${esc(S._actMsg)}</div>` : ""}</div>` : ""}
+    <div class="card"><h3>Governance and compliance</h3><div class="stack small" style="margin-top:8px">
+      <div class="spread"><span>Stage gates</span><b>${esc(gateTxt)}</b></div>
+      <div class="spread"><span>Data protection assessment</span><b class="${S.dpia === "approved" ? "good" : S.dpia === "skipped" ? "bad" : ""}">${{ none: "Not started", underway: "In progress", approved: "Approved", skipped: "Skipped" }[S.dpia]}</b></div>
+      <div class="spread"><span>Statewide online deadline</span><b>Month ${S.deadline}</b></div>
+      <div class="spread"><span>Audit findings · breaches</span><b class="${S.audit + S.breaches ? "bad" : ""}">${S.audit} · ${S.breaches}</b></div>
+      <div class="spread"><span>Contingency used</span><b>${m0(S.reserveUsed)} of ${m0(S.contingency)}</b></div></div></div>
+    ${S.notes.length ? `<div class="card"><h3>Programme notes</h3><div class="feed" style="margin-top:8px">${S.notes.slice(-5).reverse().map(n => `<div>${esc(n)}</div>`).join("")}</div></div>` : ""}
+  </div></div>`;
+}
+function landChange(S, c) {
+  const [stage, idx] = Land.adkar(S.adopt);
+  const tips = ["Staff need to understand why the change is happening. Town halls and honest answers build awareness.", "People need to want to take part. Involve them in designing new roles and answer the fear about jobs.", "Now people need to know how. Training and champions build knowledge.", "Practice turns knowledge into ability. Support people at go-live, on the job.", "Make it stick: retire the old way, recognise people who switch, and measure the benefits."];
+  return `<div class="grid2"><div class="card"><h3>Staff adoption</h3><p class="small muted" style="margin:6px 0 14px">About 200 registry staff move from paper to screen. People pass through each step in order; skipping steps causes resistance.</p>
+    <div class="adkar">${Land.ADKAR.map((st, i) => `<div class="ak ${i < idx ? "done" : i === idx ? "now" : ""}"><b>${i + 1}</b><span>${st}</span></div>`).join("")}</div>
+    <div class="meter" style="margin-top:14px"><i style="width:${S.adopt.toFixed(0)}%;background:#7A6BB3"></i></div>
+    <p class="small" style="margin-top:10px"><b>${stage}.</b> ${tips[idx]}</p>
+    ${S.parallel ? `<p class="small bad" style="margin-top:8px">Officers in live districts still keep paper registers, doubling the work.</p>` : ""}</div>
+    <div class="card"><h3>The people side</h3><div class="stack small" style="margin-top:8px">
+      <div class="spread"><span>Approach</span><b>${S.choices.change === "champions" ? "Champions and training" : "Training at go-live"}</b></div>
+      <div class="spread"><span>${esc(c.n("registrar"))} (Registrar)</span><b>${Land.level(S.stake.registrar)}</b></div>
+      <div class="spread"><span>${esc(c.n("union"))} (union)</span><b>${Land.level(S.stake.union)}</b></div>
+      <div class="spread"><span>Work to rule</span><b class="${S.workToRule ? "bad" : ""}">${S.workToRule ? `${S.workToRule} more month${S.workToRule > 1 ? "s" : ""}` : "No"}</b></div></div>
+      <p class="tiny muted" style="margin-top:10px">Union support feeds adoption every month. Districts can't go live while staff are at the Awareness or Desire steps.</p></div></div>`;
+}
+function landMeasures(S) {
+  const line = (vals, lo, hi, col, label, unit, target) => {
+    const W = 420, H = 170, L = 36, B = 24, T = 12, iw = W - L - 10, ih = H - T - B, n = Land.MONTHS;
+    const x = i => L + i / n * iw, y = v => T + ih - (v - lo) / (hi - lo) * ih;
+    let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} by month">`;
+    for (let g = 0; g <= 4; g++) { const v = lo + (hi - lo) * g / 4; s += `<line class="grid" x1="${L}" x2="${W - 10}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${Math.round(v)}</text>`; }
+    if (target != null) s += `<line x1="${L}" x2="${W - 10}" y1="${y(target)}" y2="${y(target)}" stroke="var(--bad)" stroke-dasharray="5 4"/><text x="${W - 12}" y="${y(target) - 4}" text-anchor="end" fill="var(--bad)">target ${target}${unit}</text>`;
+    s += `<polyline points="${vals.map((v, i) => `${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="${col}" stroke-width="3" stroke-linejoin="round"/>`;
+    for (let i = 0; i <= n; i += 2) s += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${i}</text>`;
+    return s + `</svg>`;
+  };
+  return `<div class="grid2">
+    <div class="card"><h3>Title search time (days)</h3>${line(S.turnHist, 0, 24, "var(--accent)", "Title search time", " days", 5)}<p class="tiny muted">The benefit the public feels. It only falls when a district is live and staff work on screen.</p></div>
+    <div class="card"><h3>Index accuracy (%)</h3>${line(S.accHist, 94, 100, "var(--amber)", "Index accuracy", "%", Land.TARGET_ACC)}<p class="tiny muted">Sampled each month against the paper originals.</p></div>
+    <div class="card"><h3>Staff adoption</h3>${line(S.adoptHist, 0, 100, "#7A6BB3", "Staff adoption", "", null)}<p class="tiny muted">20 Desire · 40 Knowledge · 60 Ability · 80 Reinforcement.</p></div>
+    <div class="card"><h3>Records digitised (thousands)</h3>${line(S.digHist, 0, 1200, "var(--good)", "Records digitised", "k", null)}<p class="tiny muted">Of about 1,200,000 title files.</p></div></div>`;
+}
+function landPicker() {
+  const S = G.land, c = castOf("land");
+  overlayEl.innerHTML = `<div class="brief fade" role="dialog" aria-modal="true" style="max-width:560px"><header class="spread"><h3>Which stakeholder will you meet?</h3><button class="btn sm ghost" data-close>Cancel</button></header><div class="body"><div class="stack">${Object.entries(S.stake).map(([k, st]) => `<button class="person" data-lpick="${k}">${av(c.p(k), 42)}<span><span class="nm">${esc(c.n(k))}</span><br><span class="tt">${esc(c.t(k))} · ${Land.level(st)}</span></span></button>`).join("")}</div></div></div>`;
+  overlayEl.hidden = false;
+}
+function runMonthAnimated() {
+  const S = G.land; if (running || S.phase !== "run") return;
+  Land.runMonth(S, G.people);
+  Sound.sfx("whoosh"); save(); render(); focusStage();
 }
 
 // ===== UI: Exam Hall, figures, readiness, progress =====
@@ -5223,7 +6021,7 @@ function startPractice(f) {
 function practiceWeak(key) {
   const S = G[key]; const tasks = new Set();
   for (const l of S.log.filter(l => l.grade && l.grade !== "best")) { tasks.add(ecoKey(l.eco[0], l.eco[1])); if (l.also) tasks.add(ecoKey(l.also[0], l.also[1])); }
-  startPractice({ tasks: [...tasks], n: 10, label: `Tasks you missed in ${key === "kudi" ? "Kudi Savings" : "Forte Clinic"}` });
+  startPractice({ tasks: [...tasks], n: 10, label: `Tasks you missed in ${key === "kudi" ? "Kudi Savings" : key === "land" ? "Land Registry" : "Forte Clinic"}` });
 }
 
 // ---------- timer ----------
@@ -5525,7 +6323,7 @@ document.addEventListener("click", e => {
   if (d.inbox !== undefined) return openInbox();
   // situations waiting in the scene take priority over moving time forward
   if (d.talk !== undefined) return openPending();
-  if (pend && (d.commit !== undefined || d.day !== undefined || d.run !== undefined || d.cycle !== undefined || d.retro !== undefined || d.retrogo !== undefined || d.resume !== undefined)) { toast("Someone needs you first."); return openPending(); }
+  if (pend && (d.commit !== undefined || d.day !== undefined || d.run !== undefined || d.cycle !== undefined || d.month !== undefined || d.retro !== undefined || d.retrogo !== undefined || d.resume !== undefined)) { toast("Someone needs you first."); return openPending(); }
   if (d.sitskip !== undefined) return skipSituation();
   if (d.skip) { briefFast = true; Voice.stop(); return; }
   if (d.brief) { const i = d.brief.indexOf("|"); return briefChoose(d.brief.slice(0, i), d.brief.slice(i + 1), d.label); }
@@ -5565,6 +6363,11 @@ document.addEventListener("click", e => {
   // predictive
   if (d.planok !== undefined) { const S = G.clinic; Pred.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
   if (d.cycle !== undefined) return runCycleAnimated();
+  // hybrid
+  if (d.landok !== undefined) { const S = G.land; Land.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
+  if (d.month !== undefined) return runMonthAnimated();
+  if (d.laction) { if (Land.ACTIONS[d.laction].needs) return landPicker(); const S = G.land; S._actMsg = Land.doAction(S, G.people, d.laction); save(); render(); return; }
+  if (d.lpick) { closeOverlay(); const S = G.land; S._actMsg = Land.doAction(S, G.people, "meetStake", d.lpick); save(); render(); return; }
   if (d.crash) { const r = Pred.crash(G.clinic, d.crash); if (r != null) toast(`Extra crew added. Cost about ${m0(r)} from contingency.`); save(); render(); return; }
   if (d.ft !== undefined) { Pred.fastTrack(G.clinic); save(); render(); return; }
 
@@ -5629,6 +6432,7 @@ document.addEventListener("change", e => {
   const t = e.target, d = t.dataset;
   if (d.pick) { const S = G.kudi; const s = new Set(S._sel || []); t.checked ? s.add(d.pick) : s.delete(d.pick); S._sel = [...s]; save(); render(); return; }
   if (d.plan) { const S = G.clinic; S._plan = Object.assign({}, S._plan, { [d.plan]: t.value }); save(); return; }
+  if (d.landplan) { const S = G.land; S._plan = Object.assign({}, S._plan, { [d.landplan]: t.value }); save(); render(); return; }
   if (d.xset) {
     const f = G.exam.setup; const k = d.xset;
     f[k] = k === "weak" ? t.checked : t.value;

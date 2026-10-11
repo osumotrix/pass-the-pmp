@@ -99,6 +99,18 @@ const People = (() => {
     matron: ["Matron-designate of the clinic", ["senior"], ["Nursing"], { clinical: 5 }, ["Registered nurse and midwife"]],
     safety: ["Health and safety officer", ["mid"], ["Environmental Science", "Civil Engineering"], { safety: 4 }, ["NEBOSH International General Certificate"]],
     foreman: ["Site foreman", ["senior"], [], { construction: 4 }, []],
+    permsec: ["Permanent Secretary, State Lands Bureau", ["exec"], ["Law", "Estate Management", "Public Administration"], { governance: 5 }, []],
+    registrar: ["Registrar of Titles", ["exec"], ["Law", "Estate Management"], { domain: 5 }, []],
+    dpo: ["Data protection officer", ["senior"], ["Law", "Computer Science"], { privacy: 5 }, ["CIPP/E"]],
+    ictdir: ["Director of ICT, State Government", ["exec"], ["Computer Science", "Electrical and Electronic Engineering"], { tech: 4, governance: 3 }, []],
+    union: ["Branch chair, registry staff union", ["senior"], ["Public Administration", "Sociology"], { community: 4 }, []],
+    champion: ["Senior lands officer and change champion", ["mid", "senior"], ["Estate Management", "Geography", "Public Administration"], { domain: 4 }, []],
+    landofficer: ["Assistant chief lands officer", ["senior"], ["Estate Management", "Geography"], { domain: 4 }, []],
+    vendor: ["Delivery manager, digitisation contractor", ["senior"], ["Computer Science", "Business Administration"], { delivery: 4 }, []],
+    agent: ["Estate agent and frequent registry user", ["mid", "senior"], ["Estate Management", "Business Administration"], { sales: 3 }, []],
+    ba: ["Business analyst", ["mid", "senior"], ["Computer Science", "Economics", "Statistics"], { analysis: 4 }, ["CBAP"]],
+    devlead: ["Lead portal developer", ["senior"], ["Computer Science", "Software Engineering"], { backend: 4, frontend: 3 }, ["AWS Certified Developer"]],
+    datalead: ["Data migration lead", ["mid", "senior"], ["Computer Science", "Statistics", "Mathematics"], { data: 5 }, []],
   };
   const BANDS = { junior: [23, 28], mid: [27, 35], senior: [32, 46], exec: [40, 60] };
   const MOTIVES = ["career growth", "recognition", "learning new tools", "job security", "flexible hours", "better pay", "making an impact", "mentoring others", "work-life balance"];
@@ -181,7 +193,7 @@ const People = (() => {
     let life = null;
     if (!opts.noLife && age < 50) for (const [text, p, key] of r.shuffle(LIFE)) if (r.chance(p)) { life = { text, key }; break; }
     const seniorTitle = band === "senior" && ["backend", "mobile", "qa"].includes(role) ? "Senior " + def[0].toLowerCase() : band === "junior" && ["backend", "mobile", "qa"].includes(role) ? "Junior " + def[0].toLowerCase() : def[0];
-    const honor = role === "baale" ? "Chief " : role === "donor" || role === "ministry" ? "Dr " : role === "community" ? "Alhaja ".repeat(nm.muslim ? 1 : 0) || "Madam " : "";
+    const honor = role === "baale" ? "Chief " : role === "donor" || role === "ministry" ? "Dr " : role === "registrar" ? "Barr. " : role === "community" ? "Alhaja ".repeat(nm.muslim ? 1 : 0) || "Madam " : "";
     const looks = avatarGenes(r, gender, nm.muslim, age, role, gk);
     const p = {
       id: "p" + (++counter) + "_" + Math.floor(r() * 1e6).toString(36), role, title: opts.title || seniorTitle, band, gender, group: g.label, state: r.pick(g.states),
