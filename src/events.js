@@ -14,6 +14,25 @@ if (typeof World3D !== "undefined") World3D.bind({
   action: a => { const [k, v] = a.split(":"); if (k === "open") openProject(v); else if (k === "go") go(v); },
 });
 function closeOverlay() { overlayEl.hidden = true; overlayEl.innerHTML = ""; }
+// mission board: keep popovers on screen; on touch, first tap opens the brief
+const coarse = () => matchMedia("(hover: none)").matches || innerWidth <= 640;
+function placePop(slot) {
+  const p = slot.querySelector(".mpop"); if (!p || coarse()) return;
+  p.style.setProperty("--dx", "0px");
+  const r = p.getBoundingClientRect(), m = 12;
+  let dx = 0; if (r.left < m) dx = m - r.left; else if (r.right > innerWidth - m) dx = innerWidth - m - r.right;
+  p.style.setProperty("--dx", dx + "px");
+}
+["pointerover", "focusin"].forEach(ev => document.addEventListener(ev, e => { const s = e.target.closest && e.target.closest(".mslot"); if (s) placePop(s); }));
+document.addEventListener("click", e => {
+  const sl = e.target.closest(".mslot");
+  document.querySelectorAll(".mslot.show").forEach(x => { if (x !== sl) x.classList.remove("show"); });
+  if (sl && e.target.closest(".mtile, .medal")) {
+    const locked = sl.classList.contains("locked") || e.target.closest(".medal");
+    if (locked || (coarse() && !sl.classList.contains("show"))) { e.preventDefault(); e.stopImmediatePropagation(); sl.classList.toggle("show", locked ? !sl.classList.contains("show") : true); Sound.sfx("click"); return; }
+  }
+}, true);
+document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelectorAll(".mslot.show").forEach(x => x.classList.remove("show")); });
 document.addEventListener("click", e => {
   const t = e.target.closest("button, [data-region], [data-xopt], [data-talk], [data-person], [data-skip], .overlay, a");
   if (!t) return;

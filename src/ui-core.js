@@ -148,24 +148,7 @@ function viewOffice() {
       ${av(m, 56)}<div><b>${esc(People.name(m))}</b> <span class="muted small">· ${esc(m.title)}</span><p style="margin-top:6px">${greet}</p><button class="btn sm ghost" style="margin-top:10px" data-inbox>Messages from ${esc(People.short(m))}</button></div>
     </div>
   </div>
-  <div class="projects">
-    ${projCard("kudi", "P2 · Agile", "Kudi Savings", "Kudi Microfinance Bank wants customers to run rotating savings groups (àjọ) inside its app. Six two-week sprints, a team of six, a regulator watching.", k, "")}
-    ${projCard("clinic", "P1 · Predictive", "Forte Clinic", "Build and equip a 40-bed primary health clinic for a donor and the state ministry. Fourteen activities, a rainy season, an imported equipment order and ₦480m.", c, "pred")}
-    <div class="card proj locked"><div class="meta"><span class="pill">P3 · Hybrid</span><span class="pill">In development</span></div><h3>Land Registry</h3><p class="muted small">Digitise a state land registry: governance, data protection and organisational change.</p></div>
-    <div class="card proj locked"><div class="meta"><span class="pill">P4 · Hybrid</span><span class="pill">In development</span></div><h3>Cold-Chain Rescue</h3><p class="muted small">Take over a late, over-budget cold-storage hub and decide its future.</p></div>
-  </div>
-  <div class="grid2" style="margin-top:18px">
-    <div class="card"><div class="spread"><h3>Exam Hall</h3><button class="btn sm" data-go="exam">Enter</button></div>
-      <p class="muted small" style="margin:6px 0 12px">${BANK.length} original questions · practice by topic · 60-question timed mocks</p>
-      ${["People", "Process", "Business Environment"].map(d => `<div class="spread small" style="padding:4px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}
-    </div>
-    <div class="card"><div class="spread"><h3>Your progress</h3><button class="btn sm ghost" data-go="progress">Open</button></div>
-      <p class="muted small" style="margin:6px 0 12px">Exam tasks practised in the simulations and the Exam Hall</p>
-      <div class="meter"><i style="width:${(ecoCoverage() / 26 * 100).toFixed(0)}%"></i></div>
-      <p class="small" style="margin-top:8px"><b>${ecoCoverage()}</b> of 26 exam tasks practised · <b>${sits.length ? pct(best / sits.length) : "–"}</b> of situations handled the exam way</p>
-    </div>
-  </div>
-  <div class="card" style="margin-top:18px"><div class="spread"><h3>Badges</h3><span class="small muted">${Object.keys(G.badges || {}).length} of ${BADGES.length}</span></div>${badgesHTML()}</div>`;
+  ${missionBoard(k, c, rd, sits, best)}`;
 }
 function projCard(key, tag, title, text, st, cls) {
   const S = G[key];
@@ -173,6 +156,61 @@ function projCard(key, tag, title, text, st, cls) {
     <h3>${title}</h3><p class="muted small">${text}</p>
     <div class="meter ${cls ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%"></i></div>
     <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div></div>`;
+}
+// ---------- mission board: projects, training and trophies as game tiles ----------
+const ICONS = {
+  kudi: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="19" y="8" width="24" height="44" rx="5" fill="#0B2E2A"/><rect x="22" y="13" width="18" height="32" rx="2" fill="#D2F2EC"/><circle cx="31" cy="48.5" r="1.6" fill="#4FC2AE"/><path d="M25 21h12M25 25h8" stroke="#0E6E62" stroke-width="2" stroke-linecap="round"/><rect x="25" y="30" width="12" height="9" rx="2" fill="#4FC2AE"/><g><ellipse cx="46" cy="47" rx="9" ry="3.2" fill="#B9770E"/><rect x="37" y="40" width="18" height="7" fill="#E7AE4B"/><ellipse cx="46" cy="40" rx="9" ry="3.2" fill="#F7D48A"/><ellipse cx="46" cy="40" rx="5" ry="1.6" fill="none" stroke="#B9770E" stroke-width="1.2"/></g><ellipse cx="46" cy="33" rx="9" ry="3.2" fill="#B9770E" opacity=".0"/></svg>`,
+  clinic: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 52h44" stroke="#5A2E10" stroke-width="3" stroke-linecap="round"/><rect x="14" y="26" width="32" height="26" rx="2" fill="#FCFCFA"/><path d="M11 28l19-11 19 11" fill="none" stroke="#7A3E14" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><rect x="26" y="39" width="8" height="13" rx="1" fill="#0E6E62"/><rect x="18" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><rect x="36" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><circle cx="30" cy="25" r="5" fill="#fff"/><path d="M30 22v6M27 25h6" stroke="#C2412F" stroke-width="2.4" stroke-linecap="round"/><path d="M50 52V12M50 12h-14M50 16l-6-4" stroke="#13243A" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M38 12v6" stroke="#13243A" stroke-width="1.4"/><rect x="35.5" y="18" width="5" height="4" fill="#E7AE4B"/></svg>`,
+  land: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M9 16l14-5 18 5 14-5v37l-14 5-18-5-14 5z" fill="#E9E4F7"/><path d="M23 11v37M41 16v37" stroke="#B7AEDB" stroke-width="2"/><path d="M14 36c6-6 10 2 16-3s9-1 14-6" stroke="#6C5BA8" stroke-width="2" fill="none" stroke-dasharray="3 3"/><path d="M44 18a7 7 0 0 0-7 7c0 6 7 13 7 13s7-7 7-13a7 7 0 0 0-7-7z" fill="#C2412F"/><circle cx="44" cy="25" r="2.6" fill="#fff"/></svg>`,
+  cold: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="22" width="34" height="22" rx="3" fill="#E8F4FC"/><path d="M42 28h8l6 7v9H42z" fill="#2A6F9E"/><rect x="46" y="30" width="5" height="5" rx="1" fill="#BFE3F7"/><circle cx="17" cy="46" r="5" fill="#13243A"/><circle cx="48" cy="46" r="5" fill="#13243A"/><circle cx="17" cy="46" r="2" fill="#9AA9B8"/><circle cx="48" cy="46" r="2" fill="#9AA9B8"/><g stroke="#2A8CC8" stroke-width="2.2" stroke-linecap="round"><path d="M25 26v14M19 29l12 8M31 29l-12 8"/></g></svg>`,
+  exam: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="13" y="9" width="30" height="40" rx="3" fill="#FCFCFA" transform="rotate(-6 28 29)"/><g transform="rotate(-6 28 29)"><path d="M19 18l2.5 2.5 4.5-5M19 28l2.5 2.5 4.5-5M19 38l2.5 2.5 4.5-5" stroke="#1F7A4D" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M29 19h9M29 29h9M29 39h6" stroke="#9AA9B8" stroke-width="2.2" stroke-linecap="round"/></g><circle cx="45" cy="44" r="11" fill="#E7AE4B"/><circle cx="45" cy="44" r="8" fill="#FCFCFA"/><path d="M45 39v5l3 2" stroke="#13243A" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`,
+  progress: `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="30" cy="34" r="19" fill="#FCFCFA"/><circle cx="30" cy="34" r="13" fill="#D7EEDF"/><circle cx="30" cy="34" r="7" fill="#FCFCFA"/><circle cx="30" cy="34" r="3" fill="#C2412F"/><path d="M30 34l20-20" stroke="#13243A" stroke-width="2.6" stroke-linecap="round"/><path d="M45 12l7-2-2 7z" fill="#13243A"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>`,
+  star: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg>`,
+};
+const MEDAL_ICONS = { authorised: "✍", explorer: "◎", increment: "▲", mindset: "◆", servant: "♥", shipped: "➤", ribbon: "✂", fifty: "50", rehearsal: "⏱", target: "✓" };
+function tile(o) {
+  // o: {id, name, sub, icon, hue, pct, locked, flag, done, act, pop}
+  const deg = Math.round((o.pct || 0) * 360);
+  const action = o.locked ? "" : o.act;
+  return `<div class="mslot ${o.locked ? "locked" : ""}" data-slot="${o.id}">
+    <button class="mtile hue-${o.hue}" ${action} aria-describedby="pop-${o.id}" ${o.locked ? 'aria-disabled="true"' : ""} style="--ring:${deg}deg">
+      <span class="mring"></span><span class="mface">${ICONS[o.icon]}</span>
+      ${o.locked ? `<span class="mbadge lock">${ICONS.lock}</span>` : o.done ? `<span class="mbadge done">${ICONS.star}</span>` : ""}
+      ${o.flag ? `<span class="mflag">${o.flag}</span>` : ""}
+    </button>
+    <span class="mname">${o.name}</span><span class="msub">${o.sub}</span>
+    <div class="mpop" id="pop-${o.id}" role="tooltip">${o.pop}</div>
+  </div>`;
+}
+function missionBoard(k, c, rd, sits, best) {
+  const projPop = (key, tag, title, text, st, cls) => {
+    const S = G[key];
+    return `<div class="meta"><span class="pill ${cls ? "warn" : "acc"}">${tag}</span>${key === "kudi" && !S ? `<span class="pill good">Start here</span>` : ""}</div>
+      <h3>${title}</h3><p class="muted small">${text}</p>
+      <div class="meter ${cls ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%"></i></div>
+      <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div>`;
+  };
+  const lockedPop = (tag, title, text) => `<div class="meta"><span class="pill">${tag}</span><span class="pill">In development</span></div><h3>${title}</h3><p class="muted small">${text}</p><p class="tiny muted">This mission unlocks in a future update.</p>`;
+  const nb = Object.keys(G.badges || {}).length;
+  const tiles = [
+    tile({ id: "kudi", name: "Kudi Savings", sub: G.kudi ? k.label : "Agile · start here", icon: "kudi", hue: "teal", pct: k.pct, done: G.kudi && G.kudi.phase === "done", flag: !G.kudi ? "START" : "", act: 'data-open="kudi"', pop: projPop("kudi", "P2 · Agile", "Kudi Savings", "Kudi Microfinance Bank wants customers to run rotating savings groups (àjọ) inside its app. Six two-week sprints, a team of six, a regulator watching.", k, "") }),
+    tile({ id: "clinic", name: "Forte Clinic", sub: G.clinic ? c.label : "Predictive", icon: "clinic", hue: "amber", pct: c.pct, done: G.clinic && G.clinic.phase === "done", act: 'data-open="clinic"', pop: projPop("clinic", "P1 · Predictive", "Forte Clinic", "Build and equip a 40-bed primary health clinic for a donor and the state ministry. Fourteen activities, a rainy season, an imported equipment order and ₦480m.", c, "pred") }),
+    tile({ id: "land", name: "Land Registry", sub: "Hybrid · locked", icon: "land", hue: "violet", locked: true, pop: lockedPop("P3 · Hybrid", "Land Registry", "Digitise a state land registry: governance, data protection and organisational change.") }),
+    tile({ id: "cold", name: "Cold-Chain Rescue", sub: "Hybrid · locked", icon: "cold", hue: "ice", locked: true, pop: lockedPop("P4 · Hybrid", "Cold-Chain Rescue", "Take over a late, over-budget cold-storage hub and decide its future.") }),
+  ];
+  const train = [
+    tile({ id: "exam", name: "Exam Hall", sub: `${BANK.length} questions`, icon: "exam", hue: "navy", pct: Math.min(1, G.exam.answers.length / BANK.length), act: 'data-go="exam"', pop: `<div class="spread"><h3>Exam Hall</h3><button class="btn sm" data-go="exam">Enter</button></div><p class="muted small">${BANK.length} original questions · practice by topic · 60-question timed mocks</p>${["People", "Process", "Business Environment"].map(d => `<div class="spread small" style="padding:3px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}` }),
+    tile({ id: "progress", name: "Progress", sub: `${ecoCoverage()} of 26 tasks`, icon: "progress", hue: "green", pct: ecoCoverage() / 26, act: 'data-go="progress"', pop: `<div class="spread"><h3>Your progress</h3><button class="btn sm ghost" data-go="progress">Open</button></div><p class="muted small">Exam tasks practised in the simulations and the Exam Hall</p><div class="meter"><i style="width:${(ecoCoverage() / 26 * 100).toFixed(0)}%"></i></div><p class="small"><b>${ecoCoverage()}</b> of 26 exam tasks practised · <b>${sits.length ? pct(best / sits.length) : "–"}</b> of situations handled the exam way</p>` }),
+  ];
+  G.badges = G.badges || {};
+  const medals = BADGES.map(([id, t, d]) => `<div class="mslot medal-slot" data-slot="b-${id}"><button class="medal ${G.badges[id] ? "on" : ""}" aria-describedby="pop-b-${id}" aria-label="${esc(t)}${G.badges[id] ? ", earned" : ", not earned yet"}"><span>${MEDAL_ICONS[id] || "★"}</span></button><div class="mpop sm" id="pop-b-${id}" role="tooltip"><b>${t}</b><p class="small muted">${esc(d)}</p><p class="tiny ${G.badges[id] ? "" : "muted"}">${G.badges[id] ? "Earned" : "Not earned yet"}</p></div></div>`).join("");
+  return `<section class="hq" aria-label="Missions">
+    <div class="hqhead"><span>Missions</span><i></i><em>Hover or tap a mission to see the brief</em></div>
+    <div class="mrow">${tiles.join("")}<span class="msep" aria-hidden="true"></span>${train.join("")}</div>
+    <div class="hqhead" style="margin-top:26px"><span>Trophies</span><i></i><em>${nb} of ${BADGES.length} earned</em></div>
+    <div class="medals">${medals}</div>
+  </section>`;
 }
 function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : [])].filter(l => l.grade); }
 

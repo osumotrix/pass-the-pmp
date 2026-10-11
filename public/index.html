@@ -1,3 +1,19 @@
+<!doctype html>
+<html lang="en-GB">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
+<meta name="theme-color" content="#0B1320">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pass The PMP">
+<meta property="og:description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
+<meta property="og:url" content="https://pass-the-pmp.pages.dev/">
+<meta property="og:image" content="https://pass-the-pmp.pages.dev/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pass The PMP">
+<meta name="twitter:description" content="A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, talk to a voiced Nigerian team, and practise 100+ original exam questions.">
+<meta name="twitter:image" content="https://pass-the-pmp.pages.dev/og.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect x='3' y='2' width='20' height='24' rx='3' fill='%230E6E62'/%3E%3Cpath d='M8 9h10M8 13h10M8 17h6' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='21' r='5' fill='%23E7AE4B'/%3E%3C/svg%3E">
 <title>Pass The PMP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -386,6 +402,72 @@ body.w3lock{overflow:hidden}
 .w3root:has(.w3card:not([hidden])) .w3focus{display:none}
 .stage.has3d:has(.stage-banner) .w3card{bottom:84px;max-height:calc(100% - 160px)}
 @media (max-width:640px){.w3focus{display:none}.w3ctl{top:auto;bottom:10px;transform:none;flex-direction:row}.w3ctl [data-w3="in"],.w3ctl [data-w3="out"]{display:none}.w3hint{bottom:56px}.stage.has3d:has(.stage-banner) .w3ctl{bottom:104px}.stage.has3d:has(.stage-banner) .w3hint{display:none}.w3{height:62vh}.w3.small{height:46vh}.w3focus{top:56px;font-size:12px;max-width:calc(100% - 70px)}.w3top{top:6px}.w3pill{font-size:12px;padding:3px 7px}.w3card{left:8px;right:8px;width:auto;bottom:8px}.w3b{width:34px;height:34px}.stage.has3d .stage-banner{position:absolute;left:8px;right:8px;bottom:8px;border-radius:12px;border-width:1.5px}}
+/* ===== mission board ===== */
+.hq{position:relative;margin-top:18px;padding:22px 24px 26px;border-radius:20px;background:radial-gradient(120% 140% at 0% 0%,#16304A 0%,#0B1320 60%);color:#E5EBF1;overflow:visible;box-shadow:inset 0 0 0 1px rgba(79,194,174,.14),0 18px 40px -24px rgba(5,10,20,.8)}
+.hq::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:linear-gradient(rgba(79,194,174,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,194,174,.06) 1px,transparent 1px);background-size:40px 40px;mask-image:linear-gradient(180deg,#000,transparent 95%)}
+.hqhead{position:relative;display:flex;align-items:center;gap:14px;margin-bottom:18px;font-family:var(--f-mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase}
+.hqhead span{color:#4FC2AE;font-weight:600}
+.hqhead i{flex:1;height:1px;background:linear-gradient(90deg,rgba(79,194,174,.5),rgba(79,194,174,0))}
+.hqhead em{font-style:normal;color:#8496A9;letter-spacing:.06em;text-transform:none;font-family:var(--f-body);font-size:13px}
+.mrow{position:relative;display:flex;flex-wrap:wrap;gap:22px 18px;align-items:flex-start;justify-content:space-between}
+.msep{width:1px;align-self:stretch;margin:6px 6px 30px;background:linear-gradient(180deg,transparent,rgba(229,235,241,.18),transparent)}
+.mslot{position:relative;width:118px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.mtile{--ring:0deg;position:relative;width:104px;height:104px;border:0;padding:0;border-radius:28px;cursor:pointer;background:none;transition:transform .18s cubic-bezier(.2,.9,.3,1.3),filter .18s}
+.mtile .mring{position:absolute;inset:-5px;border-radius:33px;background:conic-gradient(#4FC2AE var(--ring),rgba(229,235,241,.12) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px))}
+.mtile .mface{position:absolute;inset:0;border-radius:28px;display:flex;align-items:center;justify-content:center;background:var(--g);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -6px 0 rgba(0,0,0,.22),0 8px 0 var(--g2),0 14px 22px rgba(0,0,0,.45);overflow:hidden}
+.mtile .mface::after{content:"";position:absolute;left:-20%;top:-60%;width:140%;height:90%;background:radial-gradient(closest-side,rgba(255,255,255,.28),transparent);transform:rotate(-12deg)}
+.mtile svg{width:72px;height:72px;position:relative;z-index:1;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}
+.hue-teal{--g:linear-gradient(160deg,#2FB09C,#0E6E62);--g2:#08463E}
+.hue-amber{--g:linear-gradient(160deg,#F2C46B,#C9861A);--g2:#7C5209}
+.hue-violet{--g:linear-gradient(160deg,#8C7BD1,#4A3D7D);--g2:#2C2450}
+.hue-ice{--g:linear-gradient(160deg,#6EC0EA,#2A6F9E);--g2:#174463}
+.hue-navy{--g:linear-gradient(160deg,#41679A,#1B3354);--g2:#0E1D33}
+.hue-green{--g:linear-gradient(160deg,#5FCB8E,#1F7A4D);--g2:#0F4A2C}
+.mslot:not(.locked) .mtile:hover,.mslot:not(.locked) .mtile:focus-visible,.mslot.show:not(.locked) .mtile{transform:translateY(-6px) scale(1.05)}
+.mslot:not(.locked) .mtile:active{transform:translateY(2px) scale(.97)}
+.mtile:focus-visible{outline:3px solid #E7AE4B;outline-offset:6px}
+.mslot.locked .mtile{cursor:default;filter:grayscale(.85) brightness(.6)}
+.mbadge{position:absolute;right:-8px;top:-8px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.mbadge svg{width:17px;height:17px;filter:none}
+.mbadge.lock{background:#2B3B4D;color:#C9D3DD}
+.mbadge.done{background:#E7AE4B;color:#13243A}
+.mflag{position:absolute;left:50%;top:-14px;transform:translateX(-50%);z-index:2;font-family:var(--f-mono);font-weight:600;font-size:11px;letter-spacing:.14em;background:#E7AE4B;color:#13243A;padding:3px 9px;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.35);animation:mbob 1.6s ease-in-out infinite}
+@keyframes mbob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-4px)}}
+.mname{margin-top:16px;font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.15;color:#F2F5F8}
+.msub{margin-top:3px;font-size:12px;line-height:1.25;color:#8EA0B3}
+.mslot.locked .mname{color:#97A5B4}
+/* popover brief */
+.mpop{position:absolute;z-index:30;left:50%;top:calc(100% + 10px);width:320px;transform:translate(calc(-50% + var(--dx,0px)),6px);opacity:0;visibility:hidden;pointer-events:none;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 16px 14px;box-shadow:0 22px 50px -10px rgba(5,10,20,.55);display:grid;gap:8px;transition:opacity .16s,transform .16s,visibility 0s .16s}
+.mpop::before{content:"";position:absolute;left:calc(50% - var(--dx,0px));top:-7px;width:12px;height:12px;margin-left:-6px;background:var(--surface);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
+.mpop h3{font-size:19px}
+.mpop .meta{display:flex;gap:6px;flex-wrap:wrap}
+.mpop.sm{width:240px;gap:4px}
+.mslot:hover .mpop,.mslot:focus-within .mpop,.mslot.show .mpop{opacity:1;visibility:visible;pointer-events:auto;transform:translate(calc(-50% + var(--dx,0px)),0);transition:opacity .16s,transform .16s,visibility 0s}
+.mslot:hover,.mslot:focus-within,.mslot.show{z-index:40}
+/* trophies */
+.medals{position:relative;display:flex;flex-wrap:wrap;gap:14px}
+.medal-slot{width:auto}
+.medal{width:54px;height:54px;border-radius:50%;border:2px dashed rgba(229,235,241,.22);background:rgba(229,235,241,.04);color:#5D6E80;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:default;transition:transform .15s}
+.medal.on{border:0;color:#13243A;background:radial-gradient(circle at 35% 30%,#FBE3A8,#E7AE4B 55%,#B9770E);box-shadow:inset 0 -4px 0 rgba(0,0,0,.18),0 0 0 4px rgba(231,174,75,.18),0 8px 16px rgba(0,0,0,.4)}
+.medal:hover,.medal:focus-visible{transform:scale(1.1)}
+.medal:focus-visible{outline:3px solid #E7AE4B;outline-offset:3px}
+@media (max-width:640px){
+  .hq{padding:18px 14px 20px;border-radius:16px}
+  .hqhead em{display:none}
+  .mrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 8px}
+  .msep{display:none}
+  .mslot{width:auto}
+  .mtile{width:84px;height:84px;border-radius:24px}.mtile .mface{border-radius:24px}.mtile .mring{border-radius:29px}
+  .mtile svg{width:58px;height:58px}
+  .mname{font-size:13.5px}
+  .mslot:hover .mpop{opacity:0;visibility:hidden}
+  .mpop,.mpop.sm{position:fixed;left:12px;right:12px;top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;transform:translateY(16px);box-shadow:0 -10px 40px rgba(5,10,20,.45)}
+  .mslot.show{z-index:78}
+  .mpop::before{display:none}
+  .mslot.show .mpop{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+  .mslot:focus-within:not(.show) .mpop{opacity:0;visibility:hidden}
+}
+@media (prefers-reduced-motion:reduce){.mflag{animation:none}.mtile,.mpop{transition:none}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -4176,24 +4258,7 @@ function viewOffice() {
       ${av(m, 56)}<div><b>${esc(People.name(m))}</b> <span class="muted small">· ${esc(m.title)}</span><p style="margin-top:6px">${greet}</p><button class="btn sm ghost" style="margin-top:10px" data-inbox>Messages from ${esc(People.short(m))}</button></div>
     </div>
   </div>
-  <div class="projects">
-    ${projCard("kudi", "P2 · Agile", "Kudi Savings", "Kudi Microfinance Bank wants customers to run rotating savings groups (àjọ) inside its app. Six two-week sprints, a team of six, a regulator watching.", k, "")}
-    ${projCard("clinic", "P1 · Predictive", "Forte Clinic", "Build and equip a 40-bed primary health clinic for a donor and the state ministry. Fourteen activities, a rainy season, an imported equipment order and ₦480m.", c, "pred")}
-    <div class="card proj locked"><div class="meta"><span class="pill">P3 · Hybrid</span><span class="pill">In development</span></div><h3>Land Registry</h3><p class="muted small">Digitise a state land registry: governance, data protection and organisational change.</p></div>
-    <div class="card proj locked"><div class="meta"><span class="pill">P4 · Hybrid</span><span class="pill">In development</span></div><h3>Cold-Chain Rescue</h3><p class="muted small">Take over a late, over-budget cold-storage hub and decide its future.</p></div>
-  </div>
-  <div class="grid2" style="margin-top:18px">
-    <div class="card"><div class="spread"><h3>Exam Hall</h3><button class="btn sm" data-go="exam">Enter</button></div>
-      <p class="muted small" style="margin:6px 0 12px">${BANK.length} original questions · practice by topic · 60-question timed mocks</p>
-      ${["People", "Process", "Business Environment"].map(d => `<div class="spread small" style="padding:4px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}
-    </div>
-    <div class="card"><div class="spread"><h3>Your progress</h3><button class="btn sm ghost" data-go="progress">Open</button></div>
-      <p class="muted small" style="margin:6px 0 12px">Exam tasks practised in the simulations and the Exam Hall</p>
-      <div class="meter"><i style="width:${(ecoCoverage() / 26 * 100).toFixed(0)}%"></i></div>
-      <p class="small" style="margin-top:8px"><b>${ecoCoverage()}</b> of 26 exam tasks practised · <b>${sits.length ? pct(best / sits.length) : "–"}</b> of situations handled the exam way</p>
-    </div>
-  </div>
-  <div class="card" style="margin-top:18px"><div class="spread"><h3>Badges</h3><span class="small muted">${Object.keys(G.badges || {}).length} of ${BADGES.length}</span></div>${badgesHTML()}</div>`;
+  ${missionBoard(k, c, rd, sits, best)}`;
 }
 function projCard(key, tag, title, text, st, cls) {
   const S = G[key];
@@ -4201,6 +4266,61 @@ function projCard(key, tag, title, text, st, cls) {
     <h3>${title}</h3><p class="muted small">${text}</p>
     <div class="meter ${cls ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%"></i></div>
     <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div></div>`;
+}
+// ---------- mission board: projects, training and trophies as game tiles ----------
+const ICONS = {
+  kudi: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="19" y="8" width="24" height="44" rx="5" fill="#0B2E2A"/><rect x="22" y="13" width="18" height="32" rx="2" fill="#D2F2EC"/><circle cx="31" cy="48.5" r="1.6" fill="#4FC2AE"/><path d="M25 21h12M25 25h8" stroke="#0E6E62" stroke-width="2" stroke-linecap="round"/><rect x="25" y="30" width="12" height="9" rx="2" fill="#4FC2AE"/><g><ellipse cx="46" cy="47" rx="9" ry="3.2" fill="#B9770E"/><rect x="37" y="40" width="18" height="7" fill="#E7AE4B"/><ellipse cx="46" cy="40" rx="9" ry="3.2" fill="#F7D48A"/><ellipse cx="46" cy="40" rx="5" ry="1.6" fill="none" stroke="#B9770E" stroke-width="1.2"/></g><ellipse cx="46" cy="33" rx="9" ry="3.2" fill="#B9770E" opacity=".0"/></svg>`,
+  clinic: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 52h44" stroke="#5A2E10" stroke-width="3" stroke-linecap="round"/><rect x="14" y="26" width="32" height="26" rx="2" fill="#FCFCFA"/><path d="M11 28l19-11 19 11" fill="none" stroke="#7A3E14" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><rect x="26" y="39" width="8" height="13" rx="1" fill="#0E6E62"/><rect x="18" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><rect x="36" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><circle cx="30" cy="25" r="5" fill="#fff"/><path d="M30 22v6M27 25h6" stroke="#C2412F" stroke-width="2.4" stroke-linecap="round"/><path d="M50 52V12M50 12h-14M50 16l-6-4" stroke="#13243A" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M38 12v6" stroke="#13243A" stroke-width="1.4"/><rect x="35.5" y="18" width="5" height="4" fill="#E7AE4B"/></svg>`,
+  land: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M9 16l14-5 18 5 14-5v37l-14 5-18-5-14 5z" fill="#E9E4F7"/><path d="M23 11v37M41 16v37" stroke="#B7AEDB" stroke-width="2"/><path d="M14 36c6-6 10 2 16-3s9-1 14-6" stroke="#6C5BA8" stroke-width="2" fill="none" stroke-dasharray="3 3"/><path d="M44 18a7 7 0 0 0-7 7c0 6 7 13 7 13s7-7 7-13a7 7 0 0 0-7-7z" fill="#C2412F"/><circle cx="44" cy="25" r="2.6" fill="#fff"/></svg>`,
+  cold: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="22" width="34" height="22" rx="3" fill="#E8F4FC"/><path d="M42 28h8l6 7v9H42z" fill="#2A6F9E"/><rect x="46" y="30" width="5" height="5" rx="1" fill="#BFE3F7"/><circle cx="17" cy="46" r="5" fill="#13243A"/><circle cx="48" cy="46" r="5" fill="#13243A"/><circle cx="17" cy="46" r="2" fill="#9AA9B8"/><circle cx="48" cy="46" r="2" fill="#9AA9B8"/><g stroke="#2A8CC8" stroke-width="2.2" stroke-linecap="round"><path d="M25 26v14M19 29l12 8M31 29l-12 8"/></g></svg>`,
+  exam: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="13" y="9" width="30" height="40" rx="3" fill="#FCFCFA" transform="rotate(-6 28 29)"/><g transform="rotate(-6 28 29)"><path d="M19 18l2.5 2.5 4.5-5M19 28l2.5 2.5 4.5-5M19 38l2.5 2.5 4.5-5" stroke="#1F7A4D" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M29 19h9M29 29h9M29 39h6" stroke="#9AA9B8" stroke-width="2.2" stroke-linecap="round"/></g><circle cx="45" cy="44" r="11" fill="#E7AE4B"/><circle cx="45" cy="44" r="8" fill="#FCFCFA"/><path d="M45 39v5l3 2" stroke="#13243A" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`,
+  progress: `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="30" cy="34" r="19" fill="#FCFCFA"/><circle cx="30" cy="34" r="13" fill="#D7EEDF"/><circle cx="30" cy="34" r="7" fill="#FCFCFA"/><circle cx="30" cy="34" r="3" fill="#C2412F"/><path d="M30 34l20-20" stroke="#13243A" stroke-width="2.6" stroke-linecap="round"/><path d="M45 12l7-2-2 7z" fill="#13243A"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>`,
+  star: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg>`,
+};
+const MEDAL_ICONS = { authorised: "✍", explorer: "◎", increment: "▲", mindset: "◆", servant: "♥", shipped: "➤", ribbon: "✂", fifty: "50", rehearsal: "⏱", target: "✓" };
+function tile(o) {
+  // o: {id, name, sub, icon, hue, pct, locked, flag, done, act, pop}
+  const deg = Math.round((o.pct || 0) * 360);
+  const action = o.locked ? "" : o.act;
+  return `<div class="mslot ${o.locked ? "locked" : ""}" data-slot="${o.id}">
+    <button class="mtile hue-${o.hue}" ${action} aria-describedby="pop-${o.id}" ${o.locked ? 'aria-disabled="true"' : ""} style="--ring:${deg}deg">
+      <span class="mring"></span><span class="mface">${ICONS[o.icon]}</span>
+      ${o.locked ? `<span class="mbadge lock">${ICONS.lock}</span>` : o.done ? `<span class="mbadge done">${ICONS.star}</span>` : ""}
+      ${o.flag ? `<span class="mflag">${o.flag}</span>` : ""}
+    </button>
+    <span class="mname">${o.name}</span><span class="msub">${o.sub}</span>
+    <div class="mpop" id="pop-${o.id}" role="tooltip">${o.pop}</div>
+  </div>`;
+}
+function missionBoard(k, c, rd, sits, best) {
+  const projPop = (key, tag, title, text, st, cls) => {
+    const S = G[key];
+    return `<div class="meta"><span class="pill ${cls ? "warn" : "acc"}">${tag}</span>${key === "kudi" && !S ? `<span class="pill good">Start here</span>` : ""}</div>
+      <h3>${title}</h3><p class="muted small">${text}</p>
+      <div class="meter ${cls ? "amber" : ""}"><i style="width:${(st.pct * 100).toFixed(0)}%"></i></div>
+      <div class="spread"><span class="small muted">${st.label}</span><button class="btn sm ${cls ? "dark" : ""}" data-open="${key}">${!S ? "Read the charter" : S.phase === "done" ? "See results" : "Continue"}</button></div>`;
+  };
+  const lockedPop = (tag, title, text) => `<div class="meta"><span class="pill">${tag}</span><span class="pill">In development</span></div><h3>${title}</h3><p class="muted small">${text}</p><p class="tiny muted">This mission unlocks in a future update.</p>`;
+  const nb = Object.keys(G.badges || {}).length;
+  const tiles = [
+    tile({ id: "kudi", name: "Kudi Savings", sub: G.kudi ? k.label : "Agile · start here", icon: "kudi", hue: "teal", pct: k.pct, done: G.kudi && G.kudi.phase === "done", flag: !G.kudi ? "START" : "", act: 'data-open="kudi"', pop: projPop("kudi", "P2 · Agile", "Kudi Savings", "Kudi Microfinance Bank wants customers to run rotating savings groups (àjọ) inside its app. Six two-week sprints, a team of six, a regulator watching.", k, "") }),
+    tile({ id: "clinic", name: "Forte Clinic", sub: G.clinic ? c.label : "Predictive", icon: "clinic", hue: "amber", pct: c.pct, done: G.clinic && G.clinic.phase === "done", act: 'data-open="clinic"', pop: projPop("clinic", "P1 · Predictive", "Forte Clinic", "Build and equip a 40-bed primary health clinic for a donor and the state ministry. Fourteen activities, a rainy season, an imported equipment order and ₦480m.", c, "pred") }),
+    tile({ id: "land", name: "Land Registry", sub: "Hybrid · locked", icon: "land", hue: "violet", locked: true, pop: lockedPop("P3 · Hybrid", "Land Registry", "Digitise a state land registry: governance, data protection and organisational change.") }),
+    tile({ id: "cold", name: "Cold-Chain Rescue", sub: "Hybrid · locked", icon: "cold", hue: "ice", locked: true, pop: lockedPop("P4 · Hybrid", "Cold-Chain Rescue", "Take over a late, over-budget cold-storage hub and decide its future.") }),
+  ];
+  const train = [
+    tile({ id: "exam", name: "Exam Hall", sub: `${BANK.length} questions`, icon: "exam", hue: "navy", pct: Math.min(1, G.exam.answers.length / BANK.length), act: 'data-go="exam"', pop: `<div class="spread"><h3>Exam Hall</h3><button class="btn sm" data-go="exam">Enter</button></div><p class="muted small">${BANK.length} original questions · practice by topic · 60-question timed mocks</p>${["People", "Process", "Business Environment"].map(d => `<div class="spread small" style="padding:3px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}` }),
+    tile({ id: "progress", name: "Progress", sub: `${ecoCoverage()} of 26 tasks`, icon: "progress", hue: "green", pct: ecoCoverage() / 26, act: 'data-go="progress"', pop: `<div class="spread"><h3>Your progress</h3><button class="btn sm ghost" data-go="progress">Open</button></div><p class="muted small">Exam tasks practised in the simulations and the Exam Hall</p><div class="meter"><i style="width:${(ecoCoverage() / 26 * 100).toFixed(0)}%"></i></div><p class="small"><b>${ecoCoverage()}</b> of 26 exam tasks practised · <b>${sits.length ? pct(best / sits.length) : "–"}</b> of situations handled the exam way</p>` }),
+  ];
+  G.badges = G.badges || {};
+  const medals = BADGES.map(([id, t, d]) => `<div class="mslot medal-slot" data-slot="b-${id}"><button class="medal ${G.badges[id] ? "on" : ""}" aria-describedby="pop-b-${id}" aria-label="${esc(t)}${G.badges[id] ? ", earned" : ", not earned yet"}"><span>${MEDAL_ICONS[id] || "★"}</span></button><div class="mpop sm" id="pop-b-${id}" role="tooltip"><b>${t}</b><p class="small muted">${esc(d)}</p><p class="tiny ${G.badges[id] ? "" : "muted"}">${G.badges[id] ? "Earned" : "Not earned yet"}</p></div></div>`).join("");
+  return `<section class="hq" aria-label="Missions">
+    <div class="hqhead"><span>Missions</span><i></i><em>Hover or tap a mission to see the brief</em></div>
+    <div class="mrow">${tiles.join("")}<span class="msep" aria-hidden="true"></span>${train.join("")}</div>
+    <div class="hqhead" style="margin-top:26px"><span>Trophies</span><i></i><em>${nb} of ${BADGES.length} earned</em></div>
+    <div class="medals">${medals}</div>
+  </section>`;
 }
 function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : [])].filter(l => l.grade); }
 
@@ -5375,6 +5495,25 @@ if (typeof World3D !== "undefined") World3D.bind({
   action: a => { const [k, v] = a.split(":"); if (k === "open") openProject(v); else if (k === "go") go(v); },
 });
 function closeOverlay() { overlayEl.hidden = true; overlayEl.innerHTML = ""; }
+// mission board: keep popovers on screen; on touch, first tap opens the brief
+const coarse = () => matchMedia("(hover: none)").matches || innerWidth <= 640;
+function placePop(slot) {
+  const p = slot.querySelector(".mpop"); if (!p || coarse()) return;
+  p.style.setProperty("--dx", "0px");
+  const r = p.getBoundingClientRect(), m = 12;
+  let dx = 0; if (r.left < m) dx = m - r.left; else if (r.right > innerWidth - m) dx = innerWidth - m - r.right;
+  p.style.setProperty("--dx", dx + "px");
+}
+["pointerover", "focusin"].forEach(ev => document.addEventListener(ev, e => { const s = e.target.closest && e.target.closest(".mslot"); if (s) placePop(s); }));
+document.addEventListener("click", e => {
+  const sl = e.target.closest(".mslot");
+  document.querySelectorAll(".mslot.show").forEach(x => { if (x !== sl) x.classList.remove("show"); });
+  if (sl && e.target.closest(".mtile, .medal")) {
+    const locked = sl.classList.contains("locked") || e.target.closest(".medal");
+    if (locked || (coarse() && !sl.classList.contains("show"))) { e.preventDefault(); e.stopImmediatePropagation(); sl.classList.toggle("show", locked ? !sl.classList.contains("show") : true); Sound.sfx("click"); return; }
+  }
+}, true);
+document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelectorAll(".mslot.show").forEach(x => x.classList.remove("show")); });
 document.addEventListener("click", e => {
   const t = e.target.closest("button, [data-region], [data-xopt], [data-talk], [data-person], [data-skip], .overlay, a");
   if (!t) return;
