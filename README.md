@@ -29,4 +29,4 @@ Hosted on Cloudflare Pages: build command none, output directory `public`.
 ## Analytics
 
 - **Traffic**: Cloudflare Web Analytics (cookieless) on the Pages project.
-- **Gameplay**: `src/track.js` sends anonymous events (random visitor id, event name, project, a number) to the Pages Function `functions/api/e.js`, which writes them to the D1 database `passpmp-metrics` (binding `DB` in `wrangler.toml`). No names or answers are collected. Tracking only runs on the hosted domain.
+- **Gameplay**: `src/track.js` sends anonymous events (random visitor id, event name, project, a number) to the Pages Function `functions/api/e.js`, which writes them to the D1 database `passpmp-metrics` (binding `DB` in `wrangler.toml`). No names or answers are collected. Tracking only runs on the hosted domain (passpmp.wesimai.com); each event records the host it came from. The old address pass-the-pmp.pages.dev redirects there (`functions/_middleware.js`).

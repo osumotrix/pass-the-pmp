@@ -14,7 +14,7 @@ import os,json
 vc={f[3:-4]:f[:-4] for f in sorted(os.listdir('../public/voices')) if f.startswith('ng_') and f.endswith('.mp3')}
 libs='const VOICE_CLIPS='+json.dumps(vc,separators=(',',':'))+';\n'+libs
 ui=''.join(rd(f)+'\n' for f in ['track.js','ui-core.js','ui-projects.js','chat.js','ui-land.js','ui-exam.js','events.js'])
-SITE='https://pass-the-pmp.pages.dev'
+SITE='https://passpmp.wesimai.com'
 DESC='A PMP exam-prep simulation set in Lagos. Lead an agile fintech app and a clinic build in 3D worlds, run a hybrid land-registry programme, talk to a voiced Nigerian team, and practise 100+ original exam questions.'
 skel=f'''<!doctype html>
 <html lang="en-GB">

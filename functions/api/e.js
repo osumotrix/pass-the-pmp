@@ -14,8 +14,8 @@ export async function onRequestPost({ request, env }) {
   const day = new Date(now + 3600e3).toISOString().slice(0, 10); // Lagos time (UTC+1)
   const x = typeof b.x === "number" && isFinite(b.x) ? b.x : null;
   try {
-    await env.DB.prepare("INSERT INTO events (ts, day, vid, sid, ev, proj, val, meta, country, device, ref) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)")
-      .bind(now, day, b.v, b.s, b.e, clip(b.p, 20), x, clip(b.m, 80), (request.cf && request.cf.country) || null, device, clip(b.r, 80)).run();
+    await env.DB.prepare("INSERT INTO events (ts, day, vid, sid, ev, proj, val, meta, country, device, ref, host) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)")
+      .bind(now, day, b.v, b.s, b.e, clip(b.p, 20), x, clip(b.m, 80), (request.cf && request.cf.country) || null, device, clip(b.r, 80), new URL(request.url).hostname.slice(0, 80)).run();
   } catch (e) { return new Response(null, { status: 500 }); }
   return new Response(null, { status: 204 });
 }
