@@ -3,6 +3,7 @@ function openProject(key) {
   if (!G[key]) {
     People.newWorld(); People.reserve(Object.values(G.people));
     G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : key === "land" ? Land.create(G.seed + 41, G.people) : Pred.create(G.seed + 23, G.people);
+    Track.ev("proj_start", key);
   }
   go(key);
 }
@@ -353,6 +354,7 @@ function confirmSituation() {
   const S = G[cur.key];
   const before = {}; for (const [id, p] of Object.entries(G.people)) before[id] = p.morale;
   cur.result = engine(cur.key).choose(S, G.people, cur.prepared, cur.choice);
+  try { Track.ev("decision", cur.key, cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0, cur.prepared.sit.id); } catch (e) { }
   const map = {}; for (const [id, p] of Object.entries(G.people)) { const d = p.morale - (before[id] ?? p.morale); if (Math.abs(d) >= 1) map[id] = d; }
   reactions = { key: cur.key, map, until: Date.now() + 6000 };
   Sound.sfx(cur.result.grade === "best" ? "good" : cur.result.grade === "ok" ? "ok" : "bad");
@@ -366,11 +368,11 @@ function finishSituation() {
   cur = null; overlayEl.hidden = true; overlayEl.innerHTML = "";
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
-    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); }
+    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
   } else if (key === "land") {
-    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); }
+    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
   } else {
-    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); }
+    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
   }
   save(); render();
   setTimeout(() => { if (G.view === key && reactions && reactions.until > Date.now()) { reactions.until = 0; const st = document.querySelector(".stage"); if (st) st.querySelectorAll(".sc-react").forEach(e => e.classList.add("gone")); } }, 5200);

@@ -1,3 +1,8 @@
 name = "pass-the-pmp"
 pages_build_output_dir = "public"
 compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "passpmp-metrics"
+database_id = "f89a264e-c068-440c-99af-ad979f5c4ed9"

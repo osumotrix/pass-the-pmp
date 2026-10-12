@@ -253,7 +253,7 @@ const BADGES = [
 ];
 function checkBadges() {
   G.badges = G.badges || {};
-  for (const [id, t, d, fn] of BADGES) if (!G.badges[id]) { let ok = false; try { ok = !!fn(G); } catch (e) { } if (ok) { G.badges[id] = Date.now(); save(); setTimeout(() => { toast(`Badge earned: ${t}. ${d}.`); Sound.sfx("badge"); }, 600); } }
+  for (const [id, t, d, fn] of BADGES) if (!G.badges[id]) { let ok = false; try { ok = !!fn(G); } catch (e) { } if (ok) { G.badges[id] = Date.now(); save(); Track.ev("badge", null, null, id); setTimeout(() => { toast(`Badge earned: ${t}. ${d}.`); Sound.sfx("badge"); }, 600); } }
 }
 function badgesHTML() {
   G.badges = G.badges || {};

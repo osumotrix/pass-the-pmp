@@ -64,7 +64,7 @@ function load() {
 // ---------- shell ----------
 let toastT;
 function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => toastEl.hidden = true, 4200); }
-function go(view) { if (typeof Voice !== "undefined") Voice.stop(); G.view = view; save(); render(); window.scrollTo({ top: 0 }); }
+function go(view) { if (typeof Voice !== "undefined") Voice.stop(); if (view !== G.view) Track.ev("view", view); G.view = view; save(); render(); window.scrollTo({ top: 0 }); }
 function nav() {
   document.querySelectorAll(".nav button").forEach(b => { b.setAttribute("aria-current", (b.dataset.view === G.view || (b.dataset.view === "office" && ["kudi", "clinic", "land"].includes(G.view))) ? "page" : "false"); b.hidden = !G.name && b.dataset.view !== "office"; });
 }

@@ -40,7 +40,7 @@ document.addEventListener("click", e => {
   if (t.tagName === "BUTTON" && d.brief === undefined && d.snd === undefined) Sound.sfx("click");
   // audio controls
   if (t.id === "sndbtn") { const pop = $("#sndpop"); pop.hidden = !pop.hidden; drawSnd(); return; }
-  if (d.snd) { if (d.snd === "voice") Voice.toggle(); else Sound.toggle(d.snd); drawSnd(); return; }
+  if (d.snd) { if (d.snd === "voice") { Voice.toggle(); Track.ev("voice", null, Voice.on ? 1 : 0); } else Sound.toggle(d.snd); drawSnd(); return; }
   if (d.inbox !== undefined) return openInbox();
   // situations waiting in the scene take priority over moving time forward
   if (d.talk !== undefined) return openPending();
@@ -145,7 +145,7 @@ document.addEventListener("submit", e => {
     e.preventDefault();
     const n = $("#pname").value.trim().replace(/\s+/g, " ");
     if (!n) return;
-    G.name = n.slice(0, 40); G.view = "office"; save(); render(); saveRemote();
+    G.name = n.slice(0, 40); G.view = "office"; save(); render(); saveRemote(); Track.ev("signup");
   }
 });
 
@@ -191,3 +191,4 @@ if (G.exam && G.exam.current && G.exam.current.onBreak === undefined) G.exam.cur
 render();
 drawSnd();
 connect();
+if (Track.newSession) Track.ev("visit", null, null, (Track.newVisitor ? "new" : "return") + (G.name ? "|named" : ""));

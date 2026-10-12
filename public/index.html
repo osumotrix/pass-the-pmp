@@ -4750,6 +4750,30 @@ const World3D = (() => {
 })();
 
 (() => {
+// ===== Anonymous gameplay metrics =====
+// Sends small, anonymous events to /api/e on the hosted site only (never inside the Claude artifact).
+// No names, emails or answers are sent: a random visitor id, the event name, project key and a number.
+const Track = (() => {
+  const host = location.hostname;
+  const on = /^https?:$/.test(location.protocol) && (/pass-?the-?pmp|passpmp|wesimai/i.test(host) || /\.pages\.dev$/.test(host));
+  const rid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  const get = (st, k) => { try { let v = st.getItem(k); if (!v) { v = rid(); st.setItem(k, v); return [v, true]; } return [v, false]; } catch (e) { return [rid(), true]; } };
+  let vid = "", sid = "", newVisitor = false, newSession = false;
+  if (on) { [vid, newVisitor] = get(localStorage, "ptp-vid"); [sid, newSession] = get(sessionStorage, "ptp-sid"); }
+  let ref = "";
+  try { if (document.referrer) { const u = new URL(document.referrer); if (u.hostname !== host) ref = u.hostname; } } catch (e) { }
+  const utm = (() => { try { return new URLSearchParams(location.search).get("utm_source") || ""; } catch (e) { return ""; } })();
+  function ev(e, p, x, m) {
+    if (!on) return;
+    const body = JSON.stringify({ v: vid, s: sid, e, p: p || null, x: (typeof x === "number" && isFinite(x)) ? x : null, m: m == null ? null : String(m).slice(0, 80), r: (utm ? "utm:" + utm : ref) || null });
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon("/api/e", new Blob([body], { type: "application/json" }))) return;
+      fetch("/api/e", { method: "POST", body, headers: { "content-type": "application/json" }, keepalive: true }).catch(() => { });
+    } catch (e) { }
+  }
+  return { ev, on, get newVisitor() { return newVisitor; }, get newSession() { return newSession; } };
+})();
+
 // ===== UI: core, saving, shell =====
 const $ = s => document.querySelector(s);
 const app = $("#app"), overlayEl = $("#overlay"), toastEl = $("#toast");
@@ -4816,7 +4840,7 @@ function load() {
 // ---------- shell ----------
 let toastT;
 function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => toastEl.hidden = true, 4200); }
-function go(view) { if (typeof Voice !== "undefined") Voice.stop(); G.view = view; save(); render(); window.scrollTo({ top: 0 }); }
+function go(view) { if (typeof Voice !== "undefined") Voice.stop(); if (view !== G.view) Track.ev("view", view); G.view = view; save(); render(); window.scrollTo({ top: 0 }); }
 function nav() {
   document.querySelectorAll(".nav button").forEach(b => { b.setAttribute("aria-current", (b.dataset.view === G.view || (b.dataset.view === "office" && ["kudi", "clinic", "land"].includes(G.view))) ? "page" : "false"); b.hidden = !G.name && b.dataset.view !== "office"; });
 }
@@ -4999,6 +5023,7 @@ function openProject(key) {
   if (!G[key]) {
     People.newWorld(); People.reserve(Object.values(G.people));
     G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : key === "land" ? Land.create(G.seed + 41, G.people) : Pred.create(G.seed + 23, G.people);
+    Track.ev("proj_start", key);
   }
   go(key);
 }
@@ -5349,6 +5374,7 @@ function confirmSituation() {
   const S = G[cur.key];
   const before = {}; for (const [id, p] of Object.entries(G.people)) before[id] = p.morale;
   cur.result = engine(cur.key).choose(S, G.people, cur.prepared, cur.choice);
+  try { Track.ev("decision", cur.key, cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0, cur.prepared.sit.id); } catch (e) { }
   const map = {}; for (const [id, p] of Object.entries(G.people)) { const d = p.morale - (before[id] ?? p.morale); if (Math.abs(d) >= 1) map[id] = d; }
   reactions = { key: cur.key, map, until: Date.now() + 6000 };
   Sound.sfx(cur.result.grade === "best" ? "good" : cur.result.grade === "ok" ? "ok" : "bad");
@@ -5362,11 +5388,11 @@ function finishSituation() {
   cur = null; overlayEl.hidden = true; overlayEl.innerHTML = "";
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
-    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); }
+    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
   } else if (key === "land") {
-    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); }
+    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
   } else {
-    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); }
+    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
   }
   save(); render();
   setTimeout(() => { if (G.view === key && reactions && reactions.until > Date.now()) { reactions.until = 0; const st = document.querySelector(".stage"); if (st) st.querySelectorAll(".sc-react").forEach(e => e.classList.add("gone")); } }, 5200);
@@ -5673,7 +5699,7 @@ const BADGES = [
 ];
 function checkBadges() {
   G.badges = G.badges || {};
-  for (const [id, t, d, fn] of BADGES) if (!G.badges[id]) { let ok = false; try { ok = !!fn(G); } catch (e) { } if (ok) { G.badges[id] = Date.now(); save(); setTimeout(() => { toast(`Badge earned: ${t}. ${d}.`); Sound.sfx("badge"); }, 600); } }
+  for (const [id, t, d, fn] of BADGES) if (!G.badges[id]) { let ok = false; try { ok = !!fn(G); } catch (e) { } if (ok) { G.badges[id] = Date.now(); save(); Track.ev("badge", null, null, id); setTimeout(() => { toast(`Badge earned: ${t}. ${d}.`); Sound.sfx("badge"); }, 600); } }
 }
 function badgesHTML() {
   G.badges = G.badges || {};
@@ -5976,6 +6002,7 @@ function weightedPick(r, pool, n) {
 }
 function newSession(mode, ids, sections, opts = {}) {
   const seed = (Date.now() % 100000) + G.exam.answers.length;
+  Track.ev("exam_start", null, ids.length, mode);
   const r = R.rng(seed), order = {};
   for (const id of ids) { const q = BY_ID[id]; const n = q.type === "match" ? q.right.length : (q.opts || []).length; if (n) order[id] = r.shuffle([...Array(n).keys()]); }
   return { mode, ids, sections, sec: 0, i: 0, resp: {}, flags: {}, struck: {}, checked: {}, order, timeLeft: mode === "mock" ? MOCK_TIME : null, onBreak: false, breakLeft: 0, done: false, started: Date.now(), label: opts.label || "" };
@@ -6169,6 +6196,7 @@ function submitExam(timeUp) {
   }
   if (G.exam.answers.length > 3000) G.exam.answers = G.exam.answers.slice(-3000);
   X.done = true; X.result = res; X.timeUp = !!timeUp; X.reviewing = null;
+  Track.ev("exam_done", null, Math.round(100 * res.filter(x => x.ok).length / Math.max(1, res.length)), X.mode + "|" + res.length);
   save(); render(); window.scrollTo({ top: 0 });
   if (timeUp) toast("Time is up. Your mock exam has been submitted.");
 }
@@ -6319,7 +6347,7 @@ document.addEventListener("click", e => {
   if (t.tagName === "BUTTON" && d.brief === undefined && d.snd === undefined) Sound.sfx("click");
   // audio controls
   if (t.id === "sndbtn") { const pop = $("#sndpop"); pop.hidden = !pop.hidden; drawSnd(); return; }
-  if (d.snd) { if (d.snd === "voice") Voice.toggle(); else Sound.toggle(d.snd); drawSnd(); return; }
+  if (d.snd) { if (d.snd === "voice") { Voice.toggle(); Track.ev("voice", null, Voice.on ? 1 : 0); } else Sound.toggle(d.snd); drawSnd(); return; }
   if (d.inbox !== undefined) return openInbox();
   // situations waiting in the scene take priority over moving time forward
   if (d.talk !== undefined) return openPending();
@@ -6424,7 +6452,7 @@ document.addEventListener("submit", e => {
     e.preventDefault();
     const n = $("#pname").value.trim().replace(/\s+/g, " ");
     if (!n) return;
-    G.name = n.slice(0, 40); G.view = "office"; save(); render(); saveRemote();
+    G.name = n.slice(0, 40); G.view = "office"; save(); render(); saveRemote(); Track.ev("signup");
   }
 });
 
@@ -6470,6 +6498,7 @@ if (G.exam && G.exam.current && G.exam.current.onBreak === undefined) G.exam.cur
 render();
 drawSnd();
 connect();
+if (Track.newSession) Track.ev("visit", null, null, (Track.newVisitor ? "new" : "return") + (G.name ? "|named" : ""));
 
 })();
 </script>

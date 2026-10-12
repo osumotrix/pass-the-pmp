@@ -25,3 +25,8 @@ Hosted on Cloudflare Pages: build command none, output directory `public`.
 ## Credits
 
 3D rendering uses three.js r128 (loaded from cdnjs). Voices recorded with ElevenLabs v4 via Higgsfield.
+
+## Analytics
+
+- **Traffic**: Cloudflare Web Analytics (cookieless) on the Pages project.
+- **Gameplay**: `src/track.js` sends anonymous events (random visitor id, event name, project, a number) to the Pages Function `functions/api/e.js`, which writes them to the D1 database `passpmp-metrics` (binding `DB` in `wrangler.toml`). No names or answers are collected. Tracking only runs on the hosted domain.

@@ -150,6 +150,7 @@ function weightedPick(r, pool, n) {
 }
 function newSession(mode, ids, sections, opts = {}) {
   const seed = (Date.now() % 100000) + G.exam.answers.length;
+  Track.ev("exam_start", null, ids.length, mode);
   const r = R.rng(seed), order = {};
   for (const id of ids) { const q = BY_ID[id]; const n = q.type === "match" ? q.right.length : (q.opts || []).length; if (n) order[id] = r.shuffle([...Array(n).keys()]); }
   return { mode, ids, sections, sec: 0, i: 0, resp: {}, flags: {}, struck: {}, checked: {}, order, timeLeft: mode === "mock" ? MOCK_TIME : null, onBreak: false, breakLeft: 0, done: false, started: Date.now(), label: opts.label || "" };
@@ -343,6 +344,7 @@ function submitExam(timeUp) {
   }
   if (G.exam.answers.length > 3000) G.exam.answers = G.exam.answers.slice(-3000);
   X.done = true; X.result = res; X.timeUp = !!timeUp; X.reviewing = null;
+  Track.ev("exam_done", null, Math.round(100 * res.filter(x => x.ok).length / Math.max(1, res.length)), X.mode + "|" + res.length);
   save(); render(); window.scrollTo({ top: 0 });
   if (timeUp) toast("Time is up. Your mock exam has been submitted.");
 }
