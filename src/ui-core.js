@@ -89,7 +89,7 @@ function after() {
   else if (v === "exam") mood = "exam";
   Sound.setMood(mood);
   Sound.rain(v === "clinic" && S && S.phase === "run" ? Math.max(0, Pred.rainLevel(S.week) - 0.3) : 0);
-  coachTriggers(); checkBadges(); updateInbox();
+  coachTriggers(); checkBadges(); updateInbox(); VL.paintBoard();
   if (typeof World3D !== "undefined" && World3D.ok()) World3D.flush();
 }
 const av = (p, s = 44, mood) => People.avatar(p, s, mood);

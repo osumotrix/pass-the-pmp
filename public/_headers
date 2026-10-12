@@ -1,3 +1,5 @@
+/*
+  Content-Security-Policy: frame-ancestors 'self' https://lagoslife.app https://www.lagoslife.app https://naijalife.app https://www.naijalife.app https://lagoslife.eliysites.com
 /voices/*
   Cache-Control: public, max-age=31536000, immutable
 /index.html

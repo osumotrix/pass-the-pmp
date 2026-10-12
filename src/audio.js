@@ -220,5 +220,7 @@ const Sound = (() => {
   function duck(on) { ducked = on; if (!ctx || !music) return; music.gain.setTargetAtTime(set.music ? (on ? 0.28 : 0.9) : 0.0001, ctx.currentTime, 0.25); }
   function toggle(k) { set[k] = !set[k]; persist(); if (set[k]) start(); apply(); }
   function volume(v) { set.vol = Math.max(0, Math.min(1, v)); persist(); apply(); }
-  return { start, setMood, sfx, rain, toggle, volume, duck, get settings() { return Object.assign({}, set); }, get started() { return started; }, get mood() { return want; } };
+  function pause() { try { if (ctx && ctx.state === "running") ctx.suspend(); } catch (e) { } }
+  function resume() { try { if (ctx && started && ctx.state === "suspended") ctx.resume(); } catch (e) { } }
+  return { pause, resume, start, setMood, sfx, rain, toggle, volume, duck, get settings() { return Object.assign({}, set); }, get started() { return started; }, get mood() { return want; } };
 })();

@@ -106,6 +106,7 @@ document.addEventListener("click", e => {
   if (d.practiceweak) return practiceWeak(d.practiceweak);
 
   // exam hall
+  if (d.vlbuy !== undefined) { VL.buy(); return; }
   if (d.xstart) { if (d.xstart === "mock") startMock(); else startPractice(); window.scrollTo({ top: 0 }); return; }
   if (d.xstrike !== undefined) { e.stopPropagation(); const [X, id] = xq(); const k = +d.xstrike; const s = new Set(X.struck[id] || []); s.has(k) ? s.delete(k) : s.add(k); X.struck[id] = [...s]; save(); render(); return; }
   if (d.xopt !== undefined) return pickOpt(+d.xopt);
@@ -191,4 +192,6 @@ if (G.exam && G.exam.current && G.exam.current.onBreak === undefined) G.exam.cur
 render();
 drawSnd();
 connect();
+VL.boot();
 if (Track.newSession) Track.ev("visit", null, null, (Track.newVisitor ? "new" : "return") + (G.name ? "|named" : ""));
+window.__ptp = { get G() { return G; }, render, go, VL };

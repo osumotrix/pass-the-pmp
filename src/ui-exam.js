@@ -156,6 +156,7 @@ function newSession(mode, ids, sections, opts = {}) {
   return { mode, ids, sections, sec: 0, i: 0, resp: {}, flags: {}, struck: {}, checked: {}, order, timeLeft: mode === "mock" ? MOCK_TIME : null, onBreak: false, breakLeft: 0, done: false, started: Date.now(), label: opts.label || "" };
 }
 function startMock() {
+  if (VL.locked && G.exam.mocks.length >= 1) { VL.buy(); return; }
   const r = R.rng(Date.now() % 100000);
   const cases = BANK.filter(q => q.case).map(q => q.id);
   const quota = { People: 20, Process: 25, "Business Environment": 15 };
@@ -172,6 +173,7 @@ function startMock() {
 }
 function startPractice(f) {
   f = f || G.exam.setup || {};
+  if (VL.locked) f = Object.assign({}, f, { weak: false, n: Math.min(+(f.n || 10), 10) });
   const r = R.rng(Date.now() % 100000);
   let pool = BANK.filter(q => (!f.d || q.d === f.d) && (!f.ap || q.ap === f.ap) && (!f.t || q.t === +f.t));
   if (f.tasks && f.tasks.length) pool = BANK.filter(q => f.tasks.includes(ecoKey(q.d, q.t)));
@@ -228,21 +230,22 @@ function viewExam() {
   const rd = readiness();
   const seen = new Set(G.exam.answers.map(a => a.id)).size;
   const tasks = f.d ? ECO[f.d].map((l, i) => `<option value="${i + 1}" ${+f.t === i + 1 ? "selected" : ""}>Task ${i + 1}: ${esc(l)}</option>`).join("") : "";
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">PMP preparation · July 2026 exam outline</p><h2>Exam Hall</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">PMP preparation · July 2026 exam outline</p><h2>Exam Hall${VL.on && VL.pro ? ` <span class="pill acc" style="vertical-align:middle">Pro</span>` : ""}</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+  ${proCard()}
   <div class="grid2">
     <div class="card"><h3>Practice by topic</h3><p class="small muted" style="margin:6px 0 12px">Untimed. You see the answer and explanation after each question.</p>
       <div class="stack">
         <label class="small"><b>Domain</b><select id="xdom" data-xset="d"><option value="">All domains</option>${DOMAINS.map(d => `<option ${f.d === d ? "selected" : ""}>${d}</option>`).join("")}</select></label>
         ${f.d ? `<label class="small"><b>Task</b><select id="xtask" data-xset="t"><option value="">All ${f.d} tasks</option>${tasks}</select></label>` : ""}
         <label class="small"><b>Approach</b><select id="xap" data-xset="ap"><option value="">Predictive, agile and hybrid</option>${Object.entries(AP).map(([k, v]) => `<option value="${k}" ${f.ap === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
-        <label class="small"><b>Questions</b><select id="xn" data-xset="n">${[5, 10, 20].map(n => `<option ${+f.n === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-        <label class="choice small"><input type="checkbox" id="xweak" data-xset="weak" ${f.weak ? "checked" : ""}><span><b>Focus on weak areas</b><br><span class="muted">Questions you got wrong, and tasks where your simulations or answers are below 70%.</span></span></label>
+        <label class="small"><b>Questions</b><select id="xn" data-xset="n">${[5, 10, 20].map(n => `<option value="${n}" ${+f.n === n && !(VL.locked && n > 10) ? "selected" : ""} ${VL.locked && n > 10 ? "disabled" : ""}>${n}${VL.locked && n > 10 ? " (Pro)" : ""}</option>`).join("")}</select></label>
+        <label class="choice small"><input type="checkbox" id="xweak" data-xset="weak" ${f.weak && !VL.locked ? "checked" : ""} ${VL.locked ? "disabled" : ""}><span><b>Focus on weak areas</b>${VL.locked ? ` <span class="pill">Pro</span>` : ""}<br><span class="muted">Questions you got wrong, and tasks where your simulations or answers are below 70%.</span></span></label>
         <button class="btn" data-xstart="practice">Start practice</button>
       </div></div>
     <div class="stack">
       <div class="card"><h3>Mini mock exam</h3><p class="small muted" style="margin:6px 0 10px">A one-third-length rehearsal of the real exam's structure: 60 questions in 80 minutes, in three sections.</p>
         <ul class="small" style="margin:0 0 12px 18px;padding:0;line-height:1.6"><li>Section 1: case studies, which come first on the exam</li><li>Sections 2 and 3: 27 mixed questions each</li><li>An optional 10-minute break after sections 1 and 2; the clock stops</li><li>Once you leave a section you cannot return, just as on the day</li><li>About 60% agile or hybrid, weighted by domain: People 33%, Process 41%, Business Environment 26%</li></ul>
-        <button class="btn dark" data-xstart="mock">Start the mock exam</button></div>
+        ${VL.locked && G.exam.mocks.length >= 1 ? `<p class="small" style="margin:0 0 10px">You've used your free mock exam. Exam Hall Pro gives you unlimited mocks, each with a fresh mix of questions.</p><button class="btn dark" data-vlbuy>Unlock Exam Hall Pro</button>` : `<button class="btn dark" data-xstart="mock">Start the mock exam</button>${VL.locked ? `<p class="tiny muted" style="margin-top:8px">Your first mock exam is free.</p>` : ""}`}</div>
       <div class="card"><h3>Your readiness</h3><p class="small muted" style="margin:6px 0 10px">${seen} of ${BANK.length} questions attempted · based on your latest answer to each</p>
         ${DOMAINS.map(d => `<div class="spread small" style="padding:4px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}
         <p class="tiny muted" style="margin-top:10px">The real exam reports four performance levels per domain and publishes no pass mark. These bands are estimates from this question bank: Above Target 80%+, Target 68–79%, Below Target 55–67%, Needs Improvement under 55%.</p></div>
@@ -250,6 +253,10 @@ function viewExam() {
   </div>
   ${G.exam.mocks.length ? `<div class="card" style="margin-top:16px"><h3>Mock exam history</h3>${mockTable()}</div>` : ""}
   <p class="tiny muted" style="margin-top:16px;max-width:80ch">All questions are original and written for Pass The PMP to match the style and formats of PMP exam simulators. They are not copied from any commercial simulator or from the exam itself. PMP and PMI are registered marks of the Project Management Institute.</p>`;
+}
+function proCard() {
+  if (!VL.on || VL.pro) return "";
+  return `<div class="card" style="margin-bottom:16px;border-color:var(--acc)"><div class="spread" style="flex-wrap:wrap;gap:10px"><div style="min-width:0;flex:1 1 280px"><p class="eyebrow">Exam Hall Pro${VL.mode === "test" ? " · test mode" : ""}</p><h3 style="margin:4px 0 6px">Rehearse until you're ready</h3><ul class="small" style="margin:0 0 0 18px;padding:0;line-height:1.6"><li>Unlimited mini mock exams, each with a fresh mix of questions</li><li>20-question practice sets</li><li>Focus on weak areas: drills built from the questions and tasks you miss</li></ul><p class="tiny muted" style="margin-top:6px">One-time purchase through Lagos Life. Projects and topic practice stay free.</p></div><button class="btn dark" data-vlbuy>Unlock Exam Hall Pro</button></div></div>`;
 }
 function mockTable() {
   return `<div class="stack" style="margin-top:8px">${G.exam.mocks.slice().reverse().map(m => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px;flex-wrap:wrap;gap:6px"><span>${new Date(m.at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · <b>${pct(m.score)}</b></span><span class="row">${DOMAINS.map(d => `<span class="band ${m.bands[d]}" title="${d}: ${pct(m.p[d])}">${DSHORT[d]}</span>`).join("")}</span></div>`).join("")}</div>`;

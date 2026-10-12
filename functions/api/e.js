@@ -1,5 +1,5 @@
 // Pass The PMP: anonymous gameplay event collector (Cloudflare Pages Function, bound to D1 as DB).
-const EVENTS = new Set(["visit", "signup", "view", "proj_start", "decision", "proj_done", "exam_start", "exam_done", "badge", "voice"]);
+const EVENTS = new Set(["visit", "signup", "view", "proj_start", "decision", "proj_done", "exam_start", "exam_done", "badge", "voice", "pro"]);
 const ID = /^[a-z0-9]{6,24}$/;
 const clip = (s, n) => (typeof s === "string" ? s.slice(0, n) : null);
 

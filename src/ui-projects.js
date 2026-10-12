@@ -368,11 +368,11 @@ function finishSituation() {
   cur = null; overlayEl.hidden = true; overlayEl.innerHTML = "";
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
-    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
+    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   } else if (key === "land") {
-    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
+    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   } else {
-    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
+    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   }
   save(); render();
   setTimeout(() => { if (G.view === key && reactions && reactions.until > Date.now()) { reactions.until = 0; const st = document.querySelector(".stage"); if (st) st.querySelectorAll(".sc-react").forEach(e => e.classList.add("gone")); } }, 5200);
@@ -417,6 +417,7 @@ function viewResults(key) {
     : [["Finished", `week ${r.actualFinish} (deadline ${r.deadline})`], ["Final cost", `${m0(r.finalCost)} of ${m0(r.funded)} funded`], ["CPI at close", r.CPI.toFixed(2)], ["Stakeholder support", Math.round(r.support)], ["Quality defects", r.defects], ["Audit findings", r.audit], ["Safety incidents", r.incidents]];
   return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : key === "land" ? "P3 · Land Registry" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
   ${stageHTML(key)}
+  ${VL.on ? `<div style="margin-bottom:16px">${VL.boardCard()}</div>` : ""}
   <div class="grid2"><div class="card"><p class="eyebrow">Overall score</p><div class="row" style="margin:6px 0"><b style="font-family:var(--f-display);font-size:64px;line-height:1">${r.score}</b><span class="muted">/ 100</span><span style="font-size:28px;color:var(--amber)">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span></div>
     <p class="small">You handled <b>${best} of ${L.length}</b> situations the way the exam expects (${pct(r.mindset)}).</p>
     <div class="stack" style="margin-top:12px">${head.map(([k, v]) => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div></div>

@@ -3126,7 +3126,9 @@ const Sound = (() => {
   function duck(on) { ducked = on; if (!ctx || !music) return; music.gain.setTargetAtTime(set.music ? (on ? 0.28 : 0.9) : 0.0001, ctx.currentTime, 0.25); }
   function toggle(k) { set[k] = !set[k]; persist(); if (set[k]) start(); apply(); }
   function volume(v) { set.vol = Math.max(0, Math.min(1, v)); persist(); apply(); }
-  return { start, setMood, sfx, rain, toggle, volume, duck, get settings() { return Object.assign({}, set); }, get started() { return started; }, get mood() { return want; } };
+  function pause() { try { if (ctx && ctx.state === "running") ctx.suspend(); } catch (e) { } }
+  function resume() { try { if (ctx && started && ctx.state === "suspended") ctx.resume(); } catch (e) { } }
+  return { pause, resume, start, setMood, sfx, rain, toggle, volume, duck, get settings() { return Object.assign({}, set); }, get started() { return started; }, get mood() { return want; } };
 })();
 
 // ===== Pass The PMP: voiced characters (pre-recorded ElevenLabs clips, matched by spoken text) =====
@@ -4774,6 +4776,102 @@ const Track = (() => {
   return { ev, on, get newVisitor() { return newVisitor; }, get newSession() { return newSession; } };
 })();
 
+// ===== Vatar Games link (Lagos Life) =====
+// Only runs when the game is opened inside a Vatar world's game player (a frame on lagoslife.app).
+// Standalone, inside Claude or on our own site, everything stays as it is and nothing here loads.
+const VL = (() => {
+  const PRO = "exam_hall_pro";
+  const SDK = "https://lagoslife.app/sdk/vatar-games-v1.js";
+  let framed = false; try { framed = window.self !== window.top; } catch (e) { framed = true; }
+  if (!/wesimai\.com$|\.pages\.dev$/.test(location.hostname)) framed = false; // only our hosted site can talk to Vatar
+  const st = { on: false, mode: null, player: null, pro: false, board: null, boardAt: 0 };
+  let session = null, sessionAt = 0, pendingScore = null, scoreTimer = null;
+
+  const loadSdk = () => new Promise((res, rej) => {
+    if (window.Vatar) return res();
+    const s = document.createElement("script"); s.src = SDK; s.async = true;
+    s.onload = () => (window.Vatar ? res() : rej(new Error("no_sdk"))); s.onerror = () => rej(new Error("no_sdk"));
+    document.head.appendChild(s);
+  });
+  async function fresh() {
+    if (session && Date.now() - sessionAt < 10 * 60e3) return session;
+    const t = await Vatar.session(); session = typeof t === "string" ? t : (t && t.session); sessionAt = Date.now(); return session;
+  }
+  async function api(path, body) {
+    const r = await fetch("/api/vatar/" + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.message || "Something went wrong."); e.code = j.error || "error"; throw e; }
+    return j;
+  }
+  function setPro(v) { const was = st.pro; st.pro = !!v; if (was !== st.pro) { save(); render(); } }
+  async function claim(purchaseId) {
+    const r = await api("claim", { session: await fresh(), purchaseId });
+    if (r.pro) { setPro(true); Track.ev("pro", null, null, st.mode); }
+    return r;
+  }
+
+  async function boot() {
+    if (!framed) return;
+    try {
+      await loadSdk();
+      const r = await Vatar.init();
+      st.on = true; st.mode = r.mode; st.player = r.player || null; session = r.session; sessionAt = Date.now();
+      if (!G.name && st.player && st.player.name) { G.name = String(st.player.name).slice(0, 40); G.view = "office"; save(); }
+      Vatar.onPause(() => { try { Voice.stop(); Sound.pause(); stopTimer(); } catch (e) { } });
+      Vatar.onResume(() => { try { Sound.resume(); if (G.view === "exam") startTimer(); } catch (e) { } });
+      Vatar.onPurchase((p) => { if (p && p.purchaseId) claim(p.purchaseId).catch(() => { }); });
+      render();
+      try { const me = await api("me", { session }); setPro(me.pro); } catch (e) { }
+      try { for (const p of (await Vatar.purchases()) || []) await claim(p.purchaseId).catch(() => { }); } catch (e) { }
+      const best = bestScore(); if (best != null) submit(best);
+    } catch (e) { st.on = false; }
+  }
+
+  async function buy() {
+    if (!st.on) return;
+    try {
+      const r = await Vatar.purchase(PRO);
+      toast("Payment confirmed. Unlocking Exam Hall Pro…");
+      const c = await claim(r.purchaseId);
+      toast(c.pro ? "Exam Hall Pro is unlocked. Good luck with your prep!" : "We couldn't unlock it yet. It will unlock automatically shortly.");
+    } catch (e) {
+      const c = e && e.code;
+      if (c === "cancelled") return;
+      if (c === "owned") { try { const me = await api("me", { session: await fresh() }); setPro(me.pro); } catch (x) { } toast("You already own Exam Hall Pro."); return; }
+      toast(c === "payment_failed" ? "The payment didn't go through. You haven't been charged." : c === "signed_out" ? "Sign in to Lagos Life to buy this." : c === "not_for_sale" || c === "not_available" ? "Exam Hall Pro isn't on sale just now." : "Something went wrong. Please try again.");
+    }
+  }
+
+  function bestScore() {
+    const xs = ["kudi", "clinic", "land"].map((k) => G[k] && G[k].result && G[k].result.score).filter((x) => typeof x === "number");
+    return xs.length ? Math.round(Math.max(...xs)) : null;
+  }
+  function submit(score) {
+    if (!st.on || score == null) return;
+    pendingScore = Math.max(pendingScore || 0, Math.round(score));
+    if (scoreTimer) return;
+    const go = async () => {
+      scoreTimer = null; const n = pendingScore; pendingScore = null;
+      try { await Vatar.submitScore(n); st.boardAt = 0; } catch (e) { if (e && (e.code === "too_soon" || e.code === "rate_limited")) { pendingScore = Math.max(pendingScore || 0, n); scoreTimer = setTimeout(go, 21000); } }
+    };
+    go();
+  }
+  async function paintBoard() {
+    const el = document.getElementById("vlboard"); if (!el || !st.on) return;
+    if (!st.board || Date.now() - st.boardAt > 60e3) { try { st.board = await Vatar.leaderboard(); st.boardAt = Date.now(); } catch (e) { el.querySelector(".vlb").textContent = "The leaderboard isn't available just now."; return; } }
+    const b = st.board, box = el.querySelector(".vlb"); if (!box) return;
+    box.innerHTML = (b.top || []).slice(0, 10).map((r) => `<div class="spread small" style="padding:3px 0"><span>${r.rank}. ${esc(r.name)}</span><b>${r.score}</b></div>`).join("") || `<p class="small muted">No scores yet. Yours could be first.</p>`;
+    if (b.me) box.insertAdjacentHTML("beforeend", `<p class="small" style="margin-top:8px">Your best: <b>${b.me.score}</b> · rank ${esc(b.me.label)}</p>`);
+  }
+  const boardCard = () => (st.on ? `<div class="card" id="vlboard"><p class="eyebrow">Lagos Life leaderboard</p><p class="small muted" style="margin:4px 0 8px">Best project score across Kudi Savings, Forte Clinic and Land Registry.</p><div class="vlb small muted">Loading…</div></div>` : "");
+
+  return {
+    boot, buy, submit, bestScore, paintBoard, boardCard,
+    get on() { return st.on; }, get pro() { return st.pro; }, get mode() { return st.mode; },
+    get locked() { return st.on && !st.pro; },
+  };
+})();
+
 // ===== UI: core, saving, shell =====
 const $ = s => document.querySelector(s);
 const app = $("#app"), overlayEl = $("#overlay"), toastEl = $("#toast");
@@ -4865,7 +4963,7 @@ function after() {
   else if (v === "exam") mood = "exam";
   Sound.setMood(mood);
   Sound.rain(v === "clinic" && S && S.phase === "run" ? Math.max(0, Pred.rainLevel(S.week) - 0.3) : 0);
-  coachTriggers(); checkBadges(); updateInbox();
+  coachTriggers(); checkBadges(); updateInbox(); VL.paintBoard();
   if (typeof World3D !== "undefined" && World3D.ok()) World3D.flush();
 }
 const av = (p, s = 44, mood) => People.avatar(p, s, mood);
@@ -5388,11 +5486,11 @@ function finishSituation() {
   cur = null; overlayEl.hidden = true; overlayEl.innerHTML = "";
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
-    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
+    if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   } else if (key === "land") {
-    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
+    if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   } else {
-    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); }
+    if (S.phase === "closure" && S.fired.C12 && S.fired.C13) { Pred.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   }
   save(); render();
   setTimeout(() => { if (G.view === key && reactions && reactions.until > Date.now()) { reactions.until = 0; const st = document.querySelector(".stage"); if (st) st.querySelectorAll(".sc-react").forEach(e => e.classList.add("gone")); } }, 5200);
@@ -5437,6 +5535,7 @@ function viewResults(key) {
     : [["Finished", `week ${r.actualFinish} (deadline ${r.deadline})`], ["Final cost", `${m0(r.finalCost)} of ${m0(r.funded)} funded`], ["CPI at close", r.CPI.toFixed(2)], ["Stakeholder support", Math.round(r.support)], ["Quality defects", r.defects], ["Audit findings", r.audit], ["Safety incidents", r.incidents]];
   return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : key === "land" ? "P3 · Land Registry" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
   ${stageHTML(key)}
+  ${VL.on ? `<div style="margin-bottom:16px">${VL.boardCard()}</div>` : ""}
   <div class="grid2"><div class="card"><p class="eyebrow">Overall score</p><div class="row" style="margin:6px 0"><b style="font-family:var(--f-display);font-size:64px;line-height:1">${r.score}</b><span class="muted">/ 100</span><span style="font-size:28px;color:var(--amber)">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span></div>
     <p class="small">You handled <b>${best} of ${L.length}</b> situations the way the exam expects (${pct(r.mindset)}).</p>
     <div class="stack" style="margin-top:12px">${head.map(([k, v]) => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div></div>
@@ -6008,6 +6107,7 @@ function newSession(mode, ids, sections, opts = {}) {
   return { mode, ids, sections, sec: 0, i: 0, resp: {}, flags: {}, struck: {}, checked: {}, order, timeLeft: mode === "mock" ? MOCK_TIME : null, onBreak: false, breakLeft: 0, done: false, started: Date.now(), label: opts.label || "" };
 }
 function startMock() {
+  if (VL.locked && G.exam.mocks.length >= 1) { VL.buy(); return; }
   const r = R.rng(Date.now() % 100000);
   const cases = BANK.filter(q => q.case).map(q => q.id);
   const quota = { People: 20, Process: 25, "Business Environment": 15 };
@@ -6024,6 +6124,7 @@ function startMock() {
 }
 function startPractice(f) {
   f = f || G.exam.setup || {};
+  if (VL.locked) f = Object.assign({}, f, { weak: false, n: Math.min(+(f.n || 10), 10) });
   const r = R.rng(Date.now() % 100000);
   let pool = BANK.filter(q => (!f.d || q.d === f.d) && (!f.ap || q.ap === f.ap) && (!f.t || q.t === +f.t));
   if (f.tasks && f.tasks.length) pool = BANK.filter(q => f.tasks.includes(ecoKey(q.d, q.t)));
@@ -6080,21 +6181,22 @@ function viewExam() {
   const rd = readiness();
   const seen = new Set(G.exam.answers.map(a => a.id)).size;
   const tasks = f.d ? ECO[f.d].map((l, i) => `<option value="${i + 1}" ${+f.t === i + 1 ? "selected" : ""}>Task ${i + 1}: ${esc(l)}</option>`).join("") : "";
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">PMP preparation · July 2026 exam outline</p><h2>Exam Hall</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">PMP preparation · July 2026 exam outline</p><h2>Exam Hall${VL.on && VL.pro ? ` <span class="pill acc" style="vertical-align:middle">Pro</span>` : ""}</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+  ${proCard()}
   <div class="grid2">
     <div class="card"><h3>Practice by topic</h3><p class="small muted" style="margin:6px 0 12px">Untimed. You see the answer and explanation after each question.</p>
       <div class="stack">
         <label class="small"><b>Domain</b><select id="xdom" data-xset="d"><option value="">All domains</option>${DOMAINS.map(d => `<option ${f.d === d ? "selected" : ""}>${d}</option>`).join("")}</select></label>
         ${f.d ? `<label class="small"><b>Task</b><select id="xtask" data-xset="t"><option value="">All ${f.d} tasks</option>${tasks}</select></label>` : ""}
         <label class="small"><b>Approach</b><select id="xap" data-xset="ap"><option value="">Predictive, agile and hybrid</option>${Object.entries(AP).map(([k, v]) => `<option value="${k}" ${f.ap === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
-        <label class="small"><b>Questions</b><select id="xn" data-xset="n">${[5, 10, 20].map(n => `<option ${+f.n === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-        <label class="choice small"><input type="checkbox" id="xweak" data-xset="weak" ${f.weak ? "checked" : ""}><span><b>Focus on weak areas</b><br><span class="muted">Questions you got wrong, and tasks where your simulations or answers are below 70%.</span></span></label>
+        <label class="small"><b>Questions</b><select id="xn" data-xset="n">${[5, 10, 20].map(n => `<option value="${n}" ${+f.n === n && !(VL.locked && n > 10) ? "selected" : ""} ${VL.locked && n > 10 ? "disabled" : ""}>${n}${VL.locked && n > 10 ? " (Pro)" : ""}</option>`).join("")}</select></label>
+        <label class="choice small"><input type="checkbox" id="xweak" data-xset="weak" ${f.weak && !VL.locked ? "checked" : ""} ${VL.locked ? "disabled" : ""}><span><b>Focus on weak areas</b>${VL.locked ? ` <span class="pill">Pro</span>` : ""}<br><span class="muted">Questions you got wrong, and tasks where your simulations or answers are below 70%.</span></span></label>
         <button class="btn" data-xstart="practice">Start practice</button>
       </div></div>
     <div class="stack">
       <div class="card"><h3>Mini mock exam</h3><p class="small muted" style="margin:6px 0 10px">A one-third-length rehearsal of the real exam's structure: 60 questions in 80 minutes, in three sections.</p>
         <ul class="small" style="margin:0 0 12px 18px;padding:0;line-height:1.6"><li>Section 1: case studies, which come first on the exam</li><li>Sections 2 and 3: 27 mixed questions each</li><li>An optional 10-minute break after sections 1 and 2; the clock stops</li><li>Once you leave a section you cannot return, just as on the day</li><li>About 60% agile or hybrid, weighted by domain: People 33%, Process 41%, Business Environment 26%</li></ul>
-        <button class="btn dark" data-xstart="mock">Start the mock exam</button></div>
+        ${VL.locked && G.exam.mocks.length >= 1 ? `<p class="small" style="margin:0 0 10px">You've used your free mock exam. Exam Hall Pro gives you unlimited mocks, each with a fresh mix of questions.</p><button class="btn dark" data-vlbuy>Unlock Exam Hall Pro</button>` : `<button class="btn dark" data-xstart="mock">Start the mock exam</button>${VL.locked ? `<p class="tiny muted" style="margin-top:8px">Your first mock exam is free.</p>` : ""}`}</div>
       <div class="card"><h3>Your readiness</h3><p class="small muted" style="margin:6px 0 10px">${seen} of ${BANK.length} questions attempted · based on your latest answer to each</p>
         ${DOMAINS.map(d => `<div class="spread small" style="padding:4px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}
         <p class="tiny muted" style="margin-top:10px">The real exam reports four performance levels per domain and publishes no pass mark. These bands are estimates from this question bank: Above Target 80%+, Target 68–79%, Below Target 55–67%, Needs Improvement under 55%.</p></div>
@@ -6102,6 +6204,10 @@ function viewExam() {
   </div>
   ${G.exam.mocks.length ? `<div class="card" style="margin-top:16px"><h3>Mock exam history</h3>${mockTable()}</div>` : ""}
   <p class="tiny muted" style="margin-top:16px;max-width:80ch">All questions are original and written for Pass The PMP to match the style and formats of PMP exam simulators. They are not copied from any commercial simulator or from the exam itself. PMP and PMI are registered marks of the Project Management Institute.</p>`;
+}
+function proCard() {
+  if (!VL.on || VL.pro) return "";
+  return `<div class="card" style="margin-bottom:16px;border-color:var(--acc)"><div class="spread" style="flex-wrap:wrap;gap:10px"><div style="min-width:0;flex:1 1 280px"><p class="eyebrow">Exam Hall Pro${VL.mode === "test" ? " · test mode" : ""}</p><h3 style="margin:4px 0 6px">Rehearse until you're ready</h3><ul class="small" style="margin:0 0 0 18px;padding:0;line-height:1.6"><li>Unlimited mini mock exams, each with a fresh mix of questions</li><li>20-question practice sets</li><li>Focus on weak areas: drills built from the questions and tasks you miss</li></ul><p class="tiny muted" style="margin-top:6px">One-time purchase through Lagos Life. Projects and topic practice stay free.</p></div><button class="btn dark" data-vlbuy>Unlock Exam Hall Pro</button></div></div>`;
 }
 function mockTable() {
   return `<div class="stack" style="margin-top:8px">${G.exam.mocks.slice().reverse().map(m => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px;flex-wrap:wrap;gap:6px"><span>${new Date(m.at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · <b>${pct(m.score)}</b></span><span class="row">${DOMAINS.map(d => `<span class="band ${m.bands[d]}" title="${d}: ${pct(m.p[d])}">${DSHORT[d]}</span>`).join("")}</span></div>`).join("")}</div>`;
@@ -6413,6 +6519,7 @@ document.addEventListener("click", e => {
   if (d.practiceweak) return practiceWeak(d.practiceweak);
 
   // exam hall
+  if (d.vlbuy !== undefined) { VL.buy(); return; }
   if (d.xstart) { if (d.xstart === "mock") startMock(); else startPractice(); window.scrollTo({ top: 0 }); return; }
   if (d.xstrike !== undefined) { e.stopPropagation(); const [X, id] = xq(); const k = +d.xstrike; const s = new Set(X.struck[id] || []); s.has(k) ? s.delete(k) : s.add(k); X.struck[id] = [...s]; save(); render(); return; }
   if (d.xopt !== undefined) return pickOpt(+d.xopt);
@@ -6498,7 +6605,9 @@ if (G.exam && G.exam.current && G.exam.current.onBreak === undefined) G.exam.cur
 render();
 drawSnd();
 connect();
+VL.boot();
 if (Track.newSession) Track.ev("visit", null, null, (Track.newVisitor ? "new" : "return") + (G.name ? "|named" : ""));
+window.__ptp = { get G() { return G; }, render, go, VL };
 
 })();
 </script>

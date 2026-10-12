@@ -30,3 +30,15 @@ Hosted on Cloudflare Pages: build command none, output directory `public`.
 
 - **Traffic**: Cloudflare Web Analytics (cookieless) on the Pages project.
 - **Gameplay**: `src/track.js` sends anonymous events (random visitor id, event name, project, a number) to the Pages Function `functions/api/e.js`, which writes them to the D1 database `passpmp-metrics` (binding `DB` in `wrangler.toml`). No names or answers are collected. Tracking only runs on the hosted domain (passpmp.wesimai.com); each event records the host it came from. The old address pass-the-pmp.pages.dev redirects there (`functions/_middleware.js`).
+
+## Lagos Life (Vatar Games)
+
+Inside a Vatar world's game player the game loads Vatar's SDK (`src/vatar.js`), takes the player's name from Lagos Life, submits each player's best project score to the leaderboard, pauses sound and the mock-exam clock on pause, and sells one product, `exam_hall_pro` (unlimited mini mocks, 20-question sets, weak-area drills). Outside Vatar nothing changes and everything stays free.
+
+Server side (Pages Functions, `lib/vatar.js`):
+
+- `POST /api/vatar/me` — verifies the session, returns whether the player owns Exam Hall Pro (re-checks refunds).
+- `POST /api/vatar/claim` — verifies the session and the purchase with Vatar, checks it belongs to that player, records it once in D1 (`vatar_purchases`) and marks it delivered.
+- `POST /api/vatar/webhook` — Vatar's `purchase.paid`, HMAC-checked with `VATAR_WEBHOOK_SECRET`, then re-read from the API before granting.
+
+Environment variables (Cloudflare Pages → Settings → Variables and Secrets, as encrypted secrets): `VATAR_SECRET`, `VATAR_WEBHOOK_SECRET`. Never commit them. Swap in the live values after Vatar approves the game.
