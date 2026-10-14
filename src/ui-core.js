@@ -98,27 +98,20 @@ const moodColor = m => m >= 70 ? "var(--good)" : m >= 50 ? "var(--amber)" : "var
 // ---------- welcome ----------
 function viewWelcome() {
   return `<section class="hero">
-    <div>
+    <div class="hero-copy">
       <p class="eyebrow">A project management simulation · PMP preparation</p>
       <h1>Pass The PMP</h1>
-      <p class="lede">Lead real projects with real people: a savings app for a Lagos microfinance bank and Forte Clinic, a donor-funded health centre in Ikorodu. Every decision has consequences, and every debrief shows how the PMP exam would test it. Then practise in an exam hall built to the July 2026 exam outline.</p>
-      <form class="stack" style="margin-top:22px;max-width:440px" data-form="welcome">
+      <p class="lede">Run real projects from a Lagos office. Every decision teaches you how the PMP exam thinks.</p>
+      <form class="stack hero-form" data-form="welcome">
         <label for="pname" class="small"><b>Your name</b>, as it will appear on your project charters</label>
         <input id="pname" type="text" autocomplete="name" maxlength="40" placeholder="For example, Adaeze Okafor" required>
         <button class="btn" type="submit">Join Bluegate Consulting</button>
-        <p class="tiny muted">Progress saves to your account when you are signed in, and on this device otherwise. Music and sound start when you join; use the ♪ button to change them.</p>
+        <p class="tiny muted">Free to play. Sound starts when you join; the ♪ button changes it.</p>
       </form>
     </div>
-    <div class="charter-mini" aria-hidden="true">
-      <h4>Project charter</h4>
-      <div style="margin:10px 0 6px"><b style="font-family:var(--f-display);font-size:22px">Kudi Savings</b></div>
-      <div class="line"><span>Sponsor</span><span>Head of Digital Banking, Kudi Microfinance Bank</span></div>
-      <div class="line"><span>Purpose</span><span>Let customers run rotating savings groups safely inside the app</span></div>
-      <div class="line"><span>Approach</span><span>Agile: six two-week sprints</span></div>
-      <div class="line"><span>Budget</span><span class="num">₦62.0m</span></div>
-      <div class="line"><span>Project manager</span><span class="signature" style="font-size:28px">your signature</span></div>
-      <div class="stamp">AUTHORISED</div>
-    </div>
+    <figure class="hero-art">
+      <img src="__HERO_IMG__" width="1400" height="1145" alt="The Bluegate project office: a cut-away 3D room with three project boards on the wall (Kudi Savings, Forte Clinic, Land Registry), a meeting table and colleagues at work.">
+    </figure>
   </section>
   <section class="grid3">
     <div class="card"><h3>Real people</h3><p class="muted small" style="margin-top:6px">Every colleague, client and community leader is generated with a name, background, personality, commute and motivations. How they react depends on who they are.</p></div>
