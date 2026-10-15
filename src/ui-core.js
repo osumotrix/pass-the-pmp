@@ -101,7 +101,7 @@ function viewWelcome() {
     <div class="hero-copy">
       <p class="eyebrow">A project management simulation · PMP preparation</p>
       <h1>Pass The PMP</h1>
-      <p class="lede">Run real projects with real teams. Every decision teaches you how the PMP exam thinks.</p>
+      <p class="lede"><span class="nobr">Run real projects with real teams.</span><br>Every decision teaches you how the PMP exam thinks.</p>
       <form class="stack hero-form" data-form="welcome">
         <label for="pname" class="small"><b>Your name</b>, as it will appear on your project charters</label>
         <input id="pname" type="text" autocomplete="name" maxlength="40" placeholder="For example, Adaeze Okafor" required>
