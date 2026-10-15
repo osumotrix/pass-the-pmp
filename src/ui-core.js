@@ -106,7 +106,6 @@ function viewWelcome() {
         <label for="pname" class="small"><b>Your name</b>, as it will appear on your project charters</label>
         <input id="pname" type="text" autocomplete="name" maxlength="40" placeholder="For example, Adaeze Okafor" required>
         <button class="btn" type="submit">Join Bluegate Consulting</button>
-        <p class="tiny muted">Free to play. Sound starts when you join; the ♪ button changes it.</p>
       </form>
     </div>
     <figure class="hero-art">
