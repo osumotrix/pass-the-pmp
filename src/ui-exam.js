@@ -434,28 +434,37 @@ function moveTo(j) {
 function viewProgress() {
   const st = taskStats();
   const sits = allSituations();
-  const cell = (d, t) => {
+  const lvlOf = v => v >= 0.8 ? "l4" : v >= 0.68 ? "l3" : v >= 0.5 ? "l2" : "l1";
+  const CODE = { People: "PE", Process: "PR", "Business Environment": "BE" };
+  const WEIGHT = { People: "33%", Process: "41%", "Business Environment": "26%" };
+  // one entry per task: score (0–1) or null when not practised
+  const task = (d, t) => {
     const x = st[ecoKey(d, t)];
-    let lvl = "", txt = "Not practised yet";
-    if (x) {
-      const all = [...x.s, ...x.q], v = all.reduce((a, b) => a + b, 0) / all.length;
-      lvl = v >= 0.8 ? "l4" : v >= 0.68 ? "l3" : v >= 0.5 ? "l2" : "l1";
-      txt = [x.s.length ? `${x.s.length} situation${x.s.length > 1 ? "s" : ""}` : "", x.q.length ? `${x.q.filter(Boolean).length}/${x.q.length} questions` : ""].filter(Boolean).join(" · ");
-    }
-    return `<div class="ecocell ${lvl}" title="${esc(ecoLabel(d, t))}"><b>${d === "Business Environment" ? "BE" : d === "People" ? "PE" : "PR"} ${t}</b>${esc(ECO[d][t - 1])}<div class="tiny muted" style="margin-top:4px">${txt}</div></div>`;
+    if (!x) return { d, t, v: null, info: "Not practised" };
+    const all = [...x.s, ...x.q], v = all.reduce((a, b) => a + b, 0) / all.length;
+    const info = [x.s.length ? `${x.s.length} situation${x.s.length > 1 ? "s" : ""}` : "", x.q.length ? `${x.q.filter(Boolean).length}/${x.q.length} questions` : ""].filter(Boolean).join(" · ");
+    return { d, t, v, info };
   };
+  const row = k => `<li class="task ${k.v == null ? "off" : ""}" title="${esc(ecoLabel(k.d, k.t))} · ${k.info}"><span class="c">${CODE[k.d]} ${k.t}</span><span class="n">${esc(ECO[k.d][k.t - 1])}${k.v != null ? `<span class="m"><i class="${lvlOf(k.v)}" style="width:${Math.max(4, k.v * 100).toFixed(0)}%"></i></span>` : ""}</span><span class="v ${k.v != null ? lvlOf(k.v) : ""}">${k.v != null ? pct(k.v) : "—"}</span></li>`;
+  const rd = readiness();
+  const doms = DOMAINS.map(d => ({ d, ks: ECO[d].map((_, i) => task(d, i + 1)) }));
+  const done = doms.reduce((a, x) => a + x.ks.filter(k => k.v != null).length, 0), total = doms.reduce((a, x) => a + x.ks.length, 0);
   const pr = {};
   for (const l of sits) { const p = pr[l.principle] || (pr[l.principle] = { n: 0, v: 0 }); p.n++; p.v += l.grade === "best" ? 1 : l.grade === "ok" ? 0.5 : 0; }
-  const rd = readiness();
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">Readiness for the PMP exam</p><h2>Your progress</h2></div><button class="btn ghost sm" data-go="exam">Exam Hall</button></div>
-  <div class="grid3" style="margin-bottom:16px">${DOMAINS.map(d => `<div class="card"><p class="eyebrow">${d} · ${{ People: "33%", Process: "41%", "Business Environment": "26%" }[d]} of the exam</p><div style="margin-top:8px">${bandPill(rd[d])}</div>${rd[d] ? `<p class="small muted" style="margin-top:6px">${pct(rd[d].p)} of ${rd[d].n} questions correct</p>` : ""}</div>`).join("")}</div>
-  <div class="card"><div class="spread"><h3>The 26 exam tasks</h3><span class="row tiny"><span class="ecocell l4" style="min-height:0;padding:2px 8px">80%+</span><span class="ecocell l3" style="min-height:0;padding:2px 8px">68–79%</span><span class="ecocell l2" style="min-height:0;padding:2px 8px">50–67%</span><span class="ecocell l1" style="min-height:0;padding:2px 8px">under 50%</span></span></div>
-    <p class="small muted" style="margin:6px 0 12px">Each task combines how you handled simulation situations and your latest answers to exam questions.</p>
-    <div class="ecomap">${DOMAINS.map(d => `<div><h4 style="margin-bottom:6px">${d}</h4><div class="ecorow">${ECO[d].map((_, i) => cell(d, i + 1)).join("")}</div></div>`).join("")}</div></div>
-  <div class="grid2" style="margin-top:16px">
-    <div class="card"><h3>Principles in your decisions</h3><p class="small muted" style="margin:6px 0 10px">How often your simulation choices matched the mindset the exam rewards.</p>
-      ${Object.keys(pr).length ? Object.entries(PRINCIPLES).filter(([k]) => pr[k]).map(([k, l]) => { const v = pr[k].v / pr[k].n; return `<div style="margin-bottom:8px"><div class="spread small"><span>${l} <span class="muted">(${pr[k].n})</span></span><b class="num">${pct(v)}</b></div><div class="meter ${v < 0.5 ? "bad" : v < 0.75 ? "amber" : ""}"><i style="width:${(v * 100).toFixed(0)}%"></i></div></div>`; }).join("") : `<p class="small muted">Play a project to see this.</p>`}</div>
-    <div class="card"><h3>Concepts discovered</h3><p class="small muted" style="margin:6px 0 10px">Found by talking to people and examining things in the 3D worlds: ${Object.keys(G.insights || {}).length} of ${WCONTENT.count}.</p><div class="meter"><i style="width:${(Object.keys(G.insights || {}).length / WCONTENT.count * 100).toFixed(0)}%"></i></div><div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px">${Object.keys(G.insights || {}).map(k => WCONTENT.C[k] ? `<span class="pill acc">${esc(WCONTENT.C[k][0])}</span>` : "").join("") || `<span class="small muted">Tap people and objects in a project to start collecting concepts.</span>`}</div></div>
-    <div class="card"><h3>Mock exams</h3>${G.exam.mocks.length ? mockTable() + `<p class="small" style="margin-top:12px">${bookSignal() ? "<b>Ready to book.</b> Two mock exams in a row at Target or above in every domain." : "Book the exam when two mock exams in a row reach Target or above in every domain."}</p>` : `<p class="small muted" style="margin-top:6px">No mock exams yet. Take one when you have practised each domain.</p><button class="btn sm" style="margin-top:10px" data-go="exam">Go to the Exam Hall</button>`}</div>
+  const found = Object.keys(G.insights || {}).length;
+  return `<div class="spread" style="margin-bottom:18px;flex-wrap:wrap;gap:12px"><div><p class="eyebrow">PMP readiness</p><h2>Your progress</h2></div><button class="btn ghost sm" data-go="exam">Exam Hall</button></div>
+  <div class="card prog-total"><div class="spread"><b>Exam tasks practised</b><span class="num"><b>${done}</b><span class="muted"> / ${total}</span></span></div><div class="meter lg"><i style="width:${(done / total * 100).toFixed(0)}%"></i></div><div class="row tiny muted proglegend" aria-label="Colour key"><span><i class="l4"></i>80%+</span><span><i class="l3"></i>68–79%</span><span><i class="l2"></i>50–67%</span><span><i class="l1"></i>Under 50%</span></div></div>
+  <div class="grid3" style="margin:16px 0">${doms.map(({ d, ks }) => {
+    const n = ks.filter(k => k.v != null).length;
+    return `<section class="card dom" aria-label="${d}"><div class="spread"><h3>${d}</h3><span class="wt" title="Share of the exam">${WEIGHT[d]}</span></div>
+      <div class="segbar" role="img" aria-label="${n} of ${ks.length} tasks practised">${ks.map(k => `<i${k.v != null ? ` class="${lvlOf(k.v)}"` : ""}></i>`).join("")}</div>
+      <div class="spread small"><span class="muted">${n}/${ks.length} tasks</span>${rd[d] ? bandPill(rd[d]) : ""}</div>
+      <ul class="tasks">${ks.map(row).join("")}</ul></section>`;
+  }).join("")}</div>
+  <div class="grid3" style="margin-top:16px">
+    <div class="card"><h3>Principles</h3><div class="stack" style="margin-top:12px;gap:10px">
+      ${Object.keys(pr).length ? Object.entries(PRINCIPLES).filter(([k]) => pr[k]).map(([k, l]) => { const v = pr[k].v / pr[k].n; return `<div><div class="spread small"><span>${l}</span><b class="num">${pct(v)}</b></div><div class="meter ${v < 0.5 ? "bad" : v < 0.75 ? "amber" : ""}" style="margin-top:4px"><i style="width:${(v * 100).toFixed(0)}%"></i></div></div>`; }).join("") : `<p class="small muted">Play a project to fill this.</p>`}</div></div>
+    <div class="card"><div class="spread"><h3>Concepts</h3><span class="num"><b>${found}</b><span class="muted"> / ${WCONTENT.count}</span></span></div><div class="meter" style="margin-top:12px"><i style="width:${(found / WCONTENT.count * 100).toFixed(0)}%"></i></div><div class="row" style="margin-top:12px;flex-wrap:wrap;gap:6px">${Object.keys(G.insights || {}).map(k => WCONTENT.C[k] ? `<span class="pill acc">${esc(WCONTENT.C[k][0])}</span>` : "").join("") || `<span class="small muted">Explore a 3D world to collect them.</span>`}</div></div>
+    <div class="card"><h3>Mock exams</h3>${G.exam.mocks.length ? mockTable() + `<p class="small" style="margin-top:12px">${bookSignal() ? "<b>Ready to book.</b>" : "Book after two mocks in a row at Target+ in every domain."}</p>` : `<p class="small muted" style="margin-top:8px">None yet.</p><button class="btn sm" style="margin-top:10px" data-go="exam">Take a mock</button>`}</div>
   </div>`;
 }
