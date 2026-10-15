@@ -101,7 +101,7 @@ function viewWelcome() {
     <div class="hero-copy">
       <p class="eyebrow">A project management simulation · PMP preparation</p>
       <h1>Pass The PMP</h1>
-      <p class="lede">Run real projects from a Lagos office. Every decision teaches you how the PMP exam thinks.</p>
+      <p class="lede">Run real projects with real teams. Every decision teaches you how the PMP exam thinks.</p>
       <form class="stack hero-form" data-form="welcome">
         <label for="pname" class="small"><b>Your name</b>, as it will appear on your project charters</label>
         <input id="pname" type="text" autocomplete="name" maxlength="40" placeholder="For example, Adaeze Okafor" required>
@@ -114,7 +114,7 @@ function viewWelcome() {
     </figure>
   </section>
   <section class="grid3">
-    <div class="card"><h3>Real people</h3><p class="muted small" style="margin-top:6px">Every colleague, client and community leader is generated with a name, background, personality, commute and motivations. How they react depends on who they are.</p></div>
+    <div class="card"><h3>Real people</h3><p class="muted small" style="margin-top:6px">Every colleague and stakeholder has their own personality and reacts to you in their own way.</p></div>
     <div class="card"><h3>Real consequences</h3><p class="muted small" style="margin-top:6px">Sprints, critical paths, earned value, budgets, morale and stakeholder support all respond to your choices.</p></div>
     <div class="card"><h3>Real exam practice</h3><p class="muted small" style="margin-top:6px">Over 100 original questions in all the exam's formats, case studies, timed mocks and a readiness report by domain.</p></div>
   </section>`;
