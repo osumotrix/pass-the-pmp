@@ -292,23 +292,46 @@ function openPending() {
   drawSituation();
 }
 function maybeSituation() { }
-function sayLine([who, text], c) {
-  if (who === "narr") return `<div class="narr fade">${esc(text)}</div>`;
-  const p = c.p(who);
-  return `<div class="line-say fade">${av(p, 46)}<div><div class="who">${esc(People.name(p))} <span>· ${esc(p.title)}</span></div><div class="bubble">${esc(text)}</div></div></div>`;
+// ---------- situations as a group chat ----------
+const VICON = { best: "✓", ok: "≈", poor: "✕" };
+const VSHORT = { best: "Best answer", ok: "Reasonable, not the best", poor: "Breaks a principle" };
+function chatLine(line, prev, c, fresh) {
+  const [who, text] = line, f = fresh ? " fadein" : "";
+  if (who === "narr") return `<div class="msg sys${f}"><div class="sysnote">${esc(text)}</div></div>`;
+  const p = c.p(who), same = prev && prev[0] === who;
+  return `<div class="msg them${same ? " cont" : ""}${f}"><span class="avslot">${same ? "" : av(p, 32)}</span><div class="mcol">${same ? "" : `<div class="cname">${esc(People.short(p))} <span>· ${esc(p.title)}</span></div>`}<div class="mb">${esc(text)}</div></div></div>`;
+}
+function typingMsg(p, sys) {
+  if (sys || !p) return `<div class="msg sys"><div class="sysnote typing" aria-label="typing"><i></i><i></i><i></i></div></div>`;
+  return `<div class="msg them"><span class="avslot">${av(p, 32)}</span><div class="mcol"><div class="mb typing" aria-label="${esc(People.short(p))} is typing"><i></i><i></i><i></i></div></div></div>`;
+}
+// what the chat shows after you reply, one message at a time
+function resultItems() {
+  if (cur._ri) return cur._ri;
+  const Rz = cur.result, sit = cur.prepared.sit, m = mentor(), letters = "ABCD";
+  const chosen = Rz.options.find(o => o.chosen) || {};
+  const items = [];
+  items.push({ who: "me", html: f => `<div class="msg me${f}"><div class="mcol"><div class="mb">${esc(chosen.text || "")}</div><div class="verdict react ${Rz.grade}${f ? " pop" : ""}" title="${esc(verdictLabel(Rz.grade))}"><span aria-hidden="true">${VICON[Rz.grade]}</span> ${VSHORT[Rz.grade]}</div></div></div>` });
+  items.push({ who: "sys", html: f => `<div class="msg sys${f}"><div class="sysnote outcome"><span class="eyebrow">What happened</span><span>${esc(Rz.outcome)}</span>${Rz.deltas.length ? `<span class="deltas">${Rz.deltas.map(([k, v, inv]) => { const good = inv === "n" ? null : inv ? v < 0 : v > 0; return `<span class="pill ${good == null ? "" : good ? "good" : "bad"}">${esc(k)} ${inv === "n" ? "+" + v : sgn(v)}</span>`; }).join("")}</span>` : ""}</div></div>` });
+  items.push({ who: m, voice: true, html: f => `<div class="msg them coach${f}"><span class="avslot">${av(m, 32)}</span><div class="mcol"><div class="cname">${esc(People.short(m))} <span>· your coach</span></div><div class="mb">${esc(Rz.lesson)}</div></div></div>` });
+  if (Rz.grade !== "best") items.push({ who: m, html: f => `<div class="msg them coach cont${f}"><span class="avslot"></span><div class="mcol"><div class="mb"><b>The best answer:</b> ${esc(Rz.best)}</div></div></div>` });
+  items.push({ who: "sys", html: f => `<div class="msg sys${f}"><div class="examcard"><details><summary><b>On the exam</b><span class="tiny muted">${esc(ecoLabel(sit.eco[0], sit.eco[1]))}</span></summary><p>${esc(Rz.lens)}</p><p class="tiny muted">${sit.also ? `Also ${esc(ecoLabel(sit.also[0], sit.also[1]))} · ` : ""}Principle: ${esc(PRINCIPLES[sit.principle])}</p></details><details><summary><b>All four answers</b><span class="tiny muted">How each option is graded</span></summary><ol class="allopts">${Rz.options.map((o, i) => `<li class="g-${o.grade}${o.chosen ? " chosen" : ""}"><span class="k">${letters[i]}</span><span>${esc(o.text)}<span class="tiny"> · ${o.grade === "best" ? "best answer" : o.grade === "ok" ? "reasonable" : "poor"}${o.chosen ? " · your reply" : ""}</span></span></li>`).join("")}</ol></details></div></div>` });
+  return (cur._ri = items);
 }
 let sitTimer = null;
 function drawSituation() {
   const { prepared: P, result: Rz } = cur;
-  const c = P.c, sit = P.sit, m = mentor();
-  const letters = "ABCD";
+  const c = P.c, sit = P.sit, letters = "ABCD", fast = !!window.__pcFast;
   const total = P.scene.length;
   const playing = !Rz && cur.shown < total;
-  let body = P.scene.slice(0, Rz ? total : cur.shown).map(l => sayLine(l, c)).join("");
+  const shown = Rz ? total : cur.shown;
+  let log = "";
+  for (let i = 0; i < shown; i++) log += chatLine(P.scene[i], P.scene[i - 1], c, i === shown - 1 && !Rz && cur._lastFresh !== i && (cur._lastFresh = i, true));
+  let tray = "";
   if (playing) {
     const nx = P.scene[cur.shown];
-    if (!cur.talking) body += nx[0] === "narr" ? `<div class="narr typingline"><span class="mb typing"><i></i><i></i><i></i></span></div>` : `<div class="line-say">${av(c.p(nx[0]), 46)}<div><div class="who">${esc(People.name(c.p(nx[0])))}</div><div class="bubble typing"><i></i><i></i><i></i></div></div></div>`;
-    body += `<div class="spread"><span class="tiny muted">${cur.talking && Voice.on ? "🔊 Listening…" : ""}</span><button class="btn sm ghost" data-sitskip>Skip ahead</button></div>`;
+    if (!cur.talking) log += typingMsg(nx[0] === "narr" ? null : c.p(nx[0]), nx[0] === "narr");
+    tray = `<div class="traybar"><span class="tiny muted">${cur.talking && Voice.on ? "🔊 Listening…" : "The conversation is under way"}</span><button class="btn sm ghost" data-sitskip>Skip ahead</button></div>`;
     if (!cur.busy) {
       cur.busy = true;
       const S = G[cur.key], i = cur.shown, line = P.scene[i];
@@ -321,26 +344,49 @@ function drawSituation() {
         cur.shown++; cur.talking = !!voiced; Sound.sfx("pop"); drawSituation();
         const go = () => { if (!cur || cur.result || cur.shown !== i + 1) return; cur.busy = false; cur.talking = false; drawSituation(); };
         if (voiced) Voice.say(vk, sp).then(() => setTimeout(go, 250));
-        else sitTimer = setTimeout(go, Math.max(500, Math.min(1600, (line[1] || "").length * 9)));
-      }, voiced ? 450 : Math.max(700, Math.min(1800, 400 + (line[1] || "").length * 8)));
+        else sitTimer = setTimeout(go, fast ? 10 : Math.max(500, Math.min(1600, (line[1] || "").length * 9)));
+      }, fast ? 10 : voiced ? 450 : Math.max(700, Math.min(1800, 400 + (line[1] || "").length * 8)));
     }
-  } else if (!Rz) {
-    body += `<h3 class="fade" style="margin-top:4px">${esc(P.q || sit.q)}</h3><div class="opts fade">${P.options.map((o, i) => `<button class="opt" aria-pressed="${cur.choice === o.idx}" data-choose="${o.idx}"><span class="k">${letters[i]}</span><span>${esc(o.text(c))}</span></button>`).join("")}</div>
-      <div class="spread"><span class="tiny muted">Choose the action you would take. There is no going back.</span><button class="btn" data-confirm ${cur.choice == null ? "disabled" : ""}>Confirm decision</button></div>`;
   } else {
-    body += `<h3 style="margin-top:4px">${esc(P.q || sit.q)}</h3><div class="opts">${Rz.options.map((o, i) => `<div class="opt res-${o.grade} ${o.chosen ? "chosen" : ""}" aria-pressed="${o.chosen}"><span class="k">${letters[i]}</span><span>${esc(o.text)}${o.grade === "best" ? ` <span class="pill good">best answer</span>` : ""}${o.chosen ? ` <span class="pill">your choice</span>` : ""}</span></div>`).join("")}</div>
-      <div class="verdict ${Rz.grade} pop">${verdictLabel(Rz.grade)}</div>
-      <div><p class="eyebrow">What happened</p><p style="margin-top:4px">${esc(Rz.outcome)}</p></div>
-      ${Rz.deltas.length ? `<div class="deltas">${Rz.deltas.map(([k, v, inv]) => { const good = inv === "n" ? null : inv ? v < 0 : v > 0; return `<span class="pill ${good == null ? "" : good ? "good" : "bad"}">${esc(k)} ${inv === "n" ? "+" + v : sgn(v)}</span>`; }).join("")}</div>` : ""}
-      <div class="line-say">${av(m, 46)}<div><div class="who">${esc(People.name(m))} <span>· debrief</span></div><div class="bubble lesson" style="border-left:4px solid var(--accent)">${esc(Rz.lesson)}${Rz.grade !== "best" ? `<br><br><b>The best answer:</b> ${esc(Rz.best)}` : ""}</div></div></div>
-      <div class="lens"><b>On the exam.</b> ${esc(Rz.lens)}<br><span class="tiny">Task: ${esc(ecoLabel(sit.eco[0], sit.eco[1]))}${sit.also ? ` · also ${esc(ecoLabel(sit.also[0], sit.also[1]))}` : ""} · Principle: ${esc(PRINCIPLES[sit.principle])}</span></div>
-      <div class="spread"><span></span><button class="btn" data-sitdone>Back to work</button></div>`;
+    log += `<div class="msg sys${!Rz && !cur._askShown ? " fadein" : ""}"><div class="askq">${esc(P.q || sit.q)}</div></div>`; cur._askShown = true;
+    if (!Rz) {
+      tray = `<p class="trayhint">Choose your reply. There's no going back.</p><div class="replies" role="radiogroup" aria-label="Your reply">${P.options.map((o, i) => `<button class="reply" role="radio" aria-checked="${cur.choice === o.idx}" aria-pressed="${cur.choice === o.idx}" data-choose="${o.idx}"><span class="k">${letters[i]}</span><span>${esc(o.text(c))}</span></button>`).join("")}</div>
+        <div class="traybar"><span class="tiny muted">${cur.choice == null ? "Tap a reply to select it" : "Ready to send"}</span><button class="btn sendbtn" data-confirm ${cur.choice == null ? "disabled" : ""}>Send <span aria-hidden="true">➤</span></button></div>`;
+    } else {
+      const items = resultItems(), n = Math.min(cur.rshown || 0, items.length);
+      for (let i = 0; i < n; i++) log += items[i].html(i === n - 1 && cur._rFresh !== i ? (cur._rFresh = i, " fadein") : "");
+      if (n < items.length) {
+        const nx = items[n];
+        if (n > 0) log += nx.who === "sys" ? typingMsg(null, true) : nx.who === "me" ? "" : typingMsg(nx.who);
+        tray = `<div class="traybar"><span class="tiny muted">${n === 0 ? "Sending…" : "Your coach is replying"}</span><button class="btn sm ghost" data-sitskip>Skip ahead</button></div>`;
+        if (!cur.rbusy) {
+          cur.rbusy = true; clearTimeout(sitTimer);
+          const wait = fast ? 10 : n === 0 ? 250 : nx.who === "sys" ? 900 : 1300;
+          sitTimer = setTimeout(() => {
+            if (!cur || !cur.result) return;
+            cur.rshown = n + 1; cur.rbusy = false;
+            if (nx.voice) sayLesson();
+            Sound.sfx(n === 0 ? (cur.result.grade === "best" ? "good" : cur.result.grade === "ok" ? "ok" : "bad") : "pop");
+            drawSituation();
+          }, wait);
+        }
+      } else tray = `<button class="btn backbtn" data-sitdone>Back to work</button>`;
+    }
   }
   const where = cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : cur.key === "land" ? (G.land.phase === "closure" ? "Closure" : `Month ${G.land.month}`) : `Week ${G.clinic.week}`;
+  const ppl = [...new Set(P.scene.filter(l => l[0] !== "narr").map(l => l[0]))].map(w => c.p(w)).filter(Boolean);
   const fadeCls = cur._drawn ? "" : " fade"; if (!cur._drawn) { const pp = document.getElementById("coachpop"); if (pp) pp.hidden = true; } cur._drawn = true;
-  overlayEl.innerHTML = `<div class="brief sitbrief${fadeCls}" role="dialog" aria-modal="true" aria-labelledby="sitT"><header><p class="eyebrow">Situation · ${where}</p><h3 id="sitT" style="font-size:24px;margin-top:4px">${esc(sit.title)}</h3></header><div class="body">${body}</div></div>`;
+  const oldTray = overlayEl.querySelector(".sittray"), trayTop = oldTray && !Rz ? oldTray.scrollTop : 0;
+  overlayEl.innerHTML = `<div class="sitchat${fadeCls}" role="dialog" aria-modal="true" aria-labelledby="sitT">
+    <header class="sithead"><span class="avstack" aria-hidden="true">${ppl.slice(0, 3).map(p => av(p, 34)).join("")}</span><div style="min-width:0"><p class="eyebrow">Situation · ${where}</p><h3 id="sitT">${esc(sit.title)}</h3><p class="tiny muted sitwho">${ppl.map(p => esc(People.short(p))).join(", ")}${ppl.length ? " and you" : ""}</p></div></header>
+    <div class="chatlog sitlog" id="sitlog" aria-live="polite">${log}</div>
+    <div class="sittray">${tray}</div></div>`;
   overlayEl.hidden = false;
-  overlayEl.scrollTop = Rz ? 0 : overlayEl.scrollHeight;
+  const lg = document.getElementById("sitlog"); if (lg) lg.scrollTop = lg.scrollHeight;
+  const nt = overlayEl.querySelector(".sittray"); if (nt && trayTop) nt.scrollTop = trayTop;
+}
+function sayLesson() {
+  try { const S = G[cur.key], sit = cur.prepared.sit, lesson = sit.lesson(Voice.spokenCast(cur.prepared.c, S)); Voice.say(Voice.voiceKey(S, "mentor", mentor()), lesson); } catch (e) { }
 }
 function spokenScene(cur) {
   if (cur._sp) return cur._sp;
@@ -349,7 +395,7 @@ function spokenScene(cur) {
   if (!sit.dyn && sit.id !== "A15") { try { out = sit.scene(Voice.spokenCast(cur.prepared.c, S)).map(l => l[1]); } catch (e) { out = []; } }
   return (cur._sp = out);
 }
-function skipSituation() { if (!cur || cur.result) return; clearTimeout(sitTimer); Voice.stop(); cur.shown = cur.prepared.scene.length; cur.busy = false; cur.talking = false; drawSituation(); }
+function skipSituation() { if (!cur) return; clearTimeout(sitTimer); if (cur.result) { const it = resultItems(); if ((cur.rshown || 0) < 3 && it.length >= 3) sayLesson(); cur.rshown = it.length; cur.rbusy = false; drawSituation(); return; } Voice.stop(); cur.shown = cur.prepared.scene.length; cur.busy = false; cur.talking = false; drawSituation(); }
 function confirmSituation() {
   const S = G[cur.key];
   const before = {}; for (const [id, p] of Object.entries(G.people)) before[id] = p.morale;
@@ -357,10 +403,8 @@ function confirmSituation() {
   try { Track.ev("decision", cur.key, cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0, cur.prepared.sit.id); } catch (e) { }
   const map = {}; for (const [id, p] of Object.entries(G.people)) { const d = p.morale - (before[id] ?? p.morale); if (Math.abs(d) >= 1) map[id] = d; }
   reactions = { key: cur.key, map, until: Date.now() + 6000 };
-  Sound.sfx(cur.result.grade === "best" ? "good" : cur.result.grade === "ok" ? "ok" : "bad");
+  cur.rshown = 0; cur.rbusy = false; cur._ri = null;
   save(); drawSituation();
-  // the coach talks you through the debrief
-  try { const sit = cur.prepared.sit, lesson = sit.lesson(Voice.spokenCast(cur.prepared.c, S)), k = cur.key; setTimeout(() => { if (cur && cur.key === k && cur.result) Voice.say(Voice.voiceKey(S, "mentor", mentor()), lesson); }, 1100); } catch (e) { }
 }
 function finishSituation() {
   const key = cur.key, S = G[key];
