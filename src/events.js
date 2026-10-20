@@ -188,6 +188,7 @@ document.addEventListener("keydown", e => { if (!Sound.started && (e.key === "En
 
 // ---------- boot ----------
 G = load() || fresh();
+RT.boot();
 if (G.exam && G.exam.current && G.exam.current.onBreak === undefined) G.exam.current.onBreak = false;
 render();
 drawSnd();

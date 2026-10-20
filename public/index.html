@@ -244,6 +244,30 @@ select{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;backgro
 .band{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:700;font-size:13px}
 .band.AT{background:var(--good-soft);color:var(--good)} .band.T{background:var(--accent-soft);color:var(--accent)} .band.BT{background:var(--amber-soft);color:var(--amber)} .band.NI{background:var(--bad-soft);color:var(--bad)}
 
+/* round table */
+.rt-intro p{margin:0;max-width:62ch}
+.rt-code{min-height:44px;padding:0 14px;border:1.5px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:var(--f-mono);font-size:17px;letter-spacing:.12em;text-transform:uppercase;width:11ch}
+.rt-link{min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:6px;background:var(--surface-2);color:var(--ink);font-family:var(--f-mono);font-size:13.5px;flex:1 1 220px;min-width:0}
+.rt-row{padding:8px 0;border-top:1px solid var(--line)}
+.rt-board{list-style:none;margin:10px 0 0;padding:0}
+.rt-board li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.rt-steps{display:flex;gap:4px;margin:0 0 16px}
+.rt-steps i{flex:1;height:8px;border-radius:3px;background:var(--surface-2)}
+.rt-steps i.on{background:var(--accent)} .rt-steps i.cur{background:var(--amber)}
+.rt-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media (max-width:900px){.rt-grid{grid-template-columns:1fr}}
+.rt-seats{list-style:none;margin:10px 0 0;padding:0}
+.rt-seats li{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.rt-line{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start}
+.rt-line p{margin:2px 0 0;font-size:15px}
+.rt-scene{padding:12px;border-radius:8px;background:var(--surface-2)}
+.rt-opt{padding:10px 12px;border:1.5px dashed var(--line);border-radius:8px}
+.rt-opt p{margin:0}
+.rt-turn select{min-height:44px;padding:0 10px;border:1.5px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;max-width:100%}
+.rt-hist{border-top:1px solid var(--line);padding:10px 0 0}
+.rt-hist summary{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;list-style:none}
+.rt-hist summary::-webkit-details-marker{display:none}
+.rt-hist .lens{font-size:14px;margin:0}
 /* progress page */
 .prog-total{display:grid;gap:12px}
 .meter.lg{height:12px}
@@ -5020,7 +5044,7 @@ function render() {
   nav();
   if (!G.name) { app.innerHTML = viewWelcome(); return; }
   const v = G.view;
-  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "land" ? viewLand() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : viewOffice();
+  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "land" ? viewLand() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : v === "table" ? viewTable() : viewOffice();
   app.innerHTML = html;
   after();
 }
@@ -5038,6 +5062,7 @@ function after() {
   Sound.setMood(mood);
   Sound.rain(v === "clinic" && S && S.phase === "run" ? Math.max(0, Pred.rainLevel(S.week) - 0.3) : 0);
   coachTriggers(); checkBadges(); updateInbox(); VL.paintBoard();
+  if (G.name && RT.pending) RT.consumeJoin();
   if (typeof World3D !== "undefined" && World3D.ok()) World3D.flush();
 }
 const av = (p, s = 44, mood) => People.avatar(p, s, mood);
@@ -5101,6 +5126,7 @@ function projCard(key, tag, title, text, st, cls) {
 }
 // ---------- mission board: projects, training and trophies as game tiles ----------
 const ICONS = {
+  table: `<svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="36" rx="20" ry="11" fill="#FCFCFA"/><ellipse cx="32" cy="34" rx="20" ry="11" fill="#D2EAE5"/><circle cx="32" cy="16" r="5" fill="#E7AE4B"/><circle cx="12" cy="28" r="4.5" fill="#FCFCFA"/><circle cx="52" cy="28" r="4.5" fill="#FCFCFA"/><circle cx="20" cy="52" r="4.5" fill="#FCFCFA"/><circle cx="44" cy="52" r="4.5" fill="#FCFCFA"/></svg>`,
   kudi: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="19" y="8" width="24" height="44" rx="5" fill="#0B2E2A"/><rect x="22" y="13" width="18" height="32" rx="2" fill="#D2F2EC"/><circle cx="31" cy="48.5" r="1.6" fill="#4FC2AE"/><path d="M25 21h12M25 25h8" stroke="#0E6E62" stroke-width="2" stroke-linecap="round"/><rect x="25" y="30" width="12" height="9" rx="2" fill="#4FC2AE"/><g><ellipse cx="46" cy="47" rx="9" ry="3.2" fill="#B9770E"/><rect x="37" y="40" width="18" height="7" fill="#E7AE4B"/><ellipse cx="46" cy="40" rx="9" ry="3.2" fill="#F7D48A"/><ellipse cx="46" cy="40" rx="5" ry="1.6" fill="none" stroke="#B9770E" stroke-width="1.2"/></g><ellipse cx="46" cy="33" rx="9" ry="3.2" fill="#B9770E" opacity=".0"/></svg>`,
   clinic: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 52h44" stroke="#5A2E10" stroke-width="3" stroke-linecap="round"/><rect x="14" y="26" width="32" height="26" rx="2" fill="#FCFCFA"/><path d="M11 28l19-11 19 11" fill="none" stroke="#7A3E14" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><rect x="26" y="39" width="8" height="13" rx="1" fill="#0E6E62"/><rect x="18" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><rect x="36" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><circle cx="30" cy="25" r="5" fill="#fff"/><path d="M30 22v6M27 25h6" stroke="#C2412F" stroke-width="2.4" stroke-linecap="round"/><path d="M50 52V12M50 12h-14M50 16l-6-4" stroke="#13243A" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M38 12v6" stroke="#13243A" stroke-width="1.4"/><rect x="35.5" y="18" width="5" height="4" fill="#E7AE4B"/></svg>`,
   land: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M9 16l14-5 18 5 14-5v37l-14 5-18-5-14 5z" fill="#E9E4F7"/><path d="M23 11v37M41 16v37" stroke="#B7AEDB" stroke-width="2"/><path d="M14 36c6-6 10 2 16-3s9-1 14-6" stroke="#6C5BA8" stroke-width="2" fill="none" stroke-dasharray="3 3"/><path d="M44 18a7 7 0 0 0-7 7c0 6 7 13 7 13s7-7 7-13a7 7 0 0 0-7-7z" fill="#C2412F"/><circle cx="44" cy="25" r="2.6" fill="#fff"/></svg>`,
@@ -5144,6 +5170,7 @@ function missionBoard(k, c, rd, sits, best, l) {
   const train = [
     tile({ id: "exam", name: "Exam Hall", sub: `${BANK.length} questions`, icon: "exam", hue: "navy", pct: Math.min(1, G.exam.answers.length / BANK.length), act: 'data-go="exam"', pop: `<div class="spread"><h3>Exam Hall</h3><button class="btn sm" data-go="exam">Enter</button></div><p class="muted small">${BANK.length} original questions · practice by topic · 60-question timed mocks</p>${["People", "Process", "Business Environment"].map(d => `<div class="spread small" style="padding:3px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}` }),
     tile({ id: "progress", name: "Progress", sub: `${ecoCoverage()} of 26 tasks`, icon: "progress", hue: "green", pct: ecoCoverage() / 26, act: 'data-go="progress"', pop: `<div class="spread"><h3>Your progress</h3><button class="btn sm ghost" data-go="progress">Open</button></div><p class="muted small">Exam tasks practised in the simulations and the Exam Hall</p><div class="meter"><i style="width:${(ecoCoverage() / 26 * 100).toFixed(0)}%"></i></div><p class="small"><b>${ecoCoverage()}</b> of 26 exam tasks practised · <b>${sits.length ? pct(best / sits.length) : "–"}</b> of situations handled the exam way</p>` }),
+    tile({ id: "table", name: "Round Table", sub: "With friends · beta", icon: "table", hue: "teal", pct: 0, flag: "NEW", act: 'data-go="table"', pop: `<div class="spread"><h3>Round Table</h3><button class="btn sm" data-go="table">Open</button></div><p class="muted small">Lead a Kudi sprint with up to three other PMs. Pick privately, huddle when you disagree, and take turns as the chair.</p>` }),
   ];
   G.badges = G.badges || {};
   const medals = BADGES.map(([id, t, d]) => `<div class="mslot medal-slot" data-slot="b-${id}"><button class="medal ${G.badges[id] ? "on" : ""}" aria-describedby="pop-b-${id}" aria-label="${esc(t)}${G.badges[id] ? ", earned" : ", not earned yet"}"><span>${MEDAL_ICONS[id] || "★"}</span></button><div class="mpop sm" id="pop-b-${id}" role="tooltip"><b>${t}</b><p class="small muted">${esc(d)}</p><p class="tiny ${G.badges[id] ? "" : "muted"}">${G.badges[id] ? "Earned" : "Not earned yet"}</p></div></div>`).join("");
@@ -5154,7 +5181,7 @@ function missionBoard(k, c, rd, sits, best, l) {
     <div class="medals">${medals}</div>
   </section>`;
 }
-function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : []), ...(G.land ? G.land.log : [])].filter(l => l.grade); }
+function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : []), ...(G.land ? G.land.log : []), ...Object.values(G.rtLog || {})].filter(l => l.grade); }
 
 // ---------- people ----------
 function personCard(p) {
@@ -6530,6 +6557,252 @@ function viewProgress() {
   </div>`;
 }
 
+// ===== UI: Round Table (shared projects) =====
+// The server resolves every shared decision. This file only shows the room and sends moves.
+const RT = (() => {
+  const KEY = "ptp_rt_key";
+  const cache = {}; // code -> latest view
+  let board = null, boardAt = 0, timer = null, busy = false;
+  const sel = {}; // pending choices on screen: { pick, stance, final, call }
+
+  function key() {
+    let k = null;
+    try { k = localStorage.getItem(KEY); } catch (e) { }
+    if (!k || !/^[a-f0-9]{32}$/.test(k)) {
+      k = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
+      try { localStorage.setItem(KEY, k); } catch (e) { }
+    }
+    return k;
+  }
+  const st = () => (G.rt = G.rt || { list: [], cur: null });
+  async function api(method, path, body) {
+    const r = await fetch("/api/room/" + path, { method, headers: { "content-type": "application/json", "x-rt-key": key() }, body: body ? JSON.stringify(body) : undefined });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.message || "Something went wrong. Check your connection and try again."); e.code = j.error; throw e; }
+    return j;
+  }
+  function remember(v) {
+    cache[v.code] = v;
+    const s = st();
+    const row = s.list.find(x => x.code === v.code);
+    const label = v.status === "done" ? "Finished" : v.status === "lobby" ? "Waiting to start" : `Decision ${v.step} of ${v.steps}`;
+    if (row) { row.label = label; row.at = Date.now(); } else s.list.unshift({ code: v.code, label, at: Date.now() });
+    s.list = s.list.slice(0, 12);
+    // own graded decisions count towards readiness, exactly like solo situations
+    G.rtLog = G.rtLog || {};
+    let added = 0;
+    for (const r of v.mine || []) { const k = `${r.room}:${r.turn}:${r.kind}`; if (!G.rtLog[k]) { G.rtLog[k] = r; added++; } }
+    save();
+    return added;
+  }
+  async function refresh(code, quiet) {
+    const v0 = cache[code];
+    try {
+      const v = await api("GET", `state?code=${code}${v0 ? "&v=" + v0.version : ""}`);
+      if (v.same) return false;
+      const changedTurn = !v0 || (v0.turn && v.turn ? v0.turn.n !== v.turn.n || v0.turn.stage !== v.turn.stage : v0.turn !== v.turn);
+      remember(v);
+      if (changedTurn) for (const k of Object.keys(sel)) delete sel[k];
+      if (G.view === "table" && st().cur === code) render();
+      if (changedTurn && quiet && v0) { Sound.sfx("pop"); toast(v.turn ? "The table has moved on. Your next decision is ready." : v.status === "done" ? "The sprint is over. See your table's score." : "The table has moved on."); }
+      return true;
+    } catch (e) { if (!quiet) toast(e.message); return false; }
+  }
+  function poll() {
+    clearInterval(timer);
+    timer = setInterval(() => { const c = st().cur; if (G.view === "table" && c && document.visibilityState === "visible" && !busy) refresh(c, true); }, 20000);
+  }
+  async function loadBoard() {
+    if (board && Date.now() - boardAt < 60e3) return;
+    try { board = await api("GET", "board?industry=fintech"); boardAt = Date.now(); if (G.view === "table" && !st().cur) render(); } catch (e) { }
+  }
+  async function act(fn, after) {
+    if (busy) return; busy = true;
+    try { const v = await fn(); remember(v); for (const k of Object.keys(sel)) delete sel[k]; if (after) after(v); render(); }
+    catch (e) { toast(e.message); }
+    finally { busy = false; }
+  }
+
+  // ---------- moves ----------
+  function create() {
+    if (VL.locked) { toast("Hosting a Round Table inside Lagos Life needs Exam Hall Pro."); return; }
+    act(() => api("POST", "create", { name: G.name }), v => { st().cur = v.code; Track.ev("decision", "table", 0, "rt_create"); });
+  }
+  function joinCode(code) {
+    code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (code.length !== 6) { toast("Invite codes have six letters and numbers."); return; }
+    act(() => api("POST", "join", { code, name: G.name }), v => { st().cur = v.code; Track.ev("decision", "table", 0, "rt_join"); });
+  }
+  function consumeJoin() {
+    const s = st(); const code = s.pendingJoin; if (!code || busy) return;
+    delete s.pendingJoin; save();
+    G.view = "table"; joinCode(code);
+  }
+  function open(code) { st().cur = code; save(); render(); refresh(code); }
+  function home() { st().cur = null; board = null; save(); render(); }
+  function start() { const c = st().cur; act(() => api("POST", "start", { code: c })); }
+  function sendPick() {
+    const v = cache[st().cur], t = v.turn;
+    if (sel.pick == null) { toast("Choose an option first."); return; }
+    act(() => api("POST", "pick", { code: v.code, turn: t.n, option: sel.pick }), () => Track.ev("decision", "table", t.n, "rt_pick"));
+  }
+  function sendStance() {
+    const v = cache[st().cur], t = v.turn;
+    if (!sel.stance) { toast("Choose how you'll handle the disagreement."); return; }
+    const fin = sel.stance === "withdraw" ? null : sel.final != null ? sel.final : t.myPick;
+    act(() => api("POST", "stance", { code: v.code, turn: t.n, stance: sel.stance, final: fin }));
+  }
+  function sendCall() {
+    const v = cache[st().cur], t = v.turn;
+    if (sel.call == null) { toast("Choose the pick that goes ahead."); return; }
+    act(() => api("POST", "call", { code: v.code, turn: t.n, option: sel.call }));
+  }
+  function copyInvite() {
+    const url = location.origin + "/j/" + st().cur;
+    const done = () => toast("Invite link copied. Send it to up to three PMs.");
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, () => toast(url)); else toast(url);
+  }
+
+  // ---------- views ----------
+  const due = ms => { const h = (ms - Date.now()) / 3600e3; return h <= 0 ? "closing now" : h < 1 ? `closes in ${Math.max(1, Math.round(h * 60))} min` : `closes in ${Math.round(h)} h`; };
+  const HOW = { unanimous: ["Agreed", "good"], huddle: ["Settled in a huddle", "acc"], chair: ["Chair's call", "warn"], default: ["Went ahead by default", ""] };
+  const GP = { best: ["Exam way", "good"], ok: ["Partly", "warn"], poor: ["Missed", "bad"] };
+  const KIND = { pick: "Pick", huddle: "Huddle", call: "Call" };
+  const STANCE_SHORT = { collaborate: "Collaborate", compromise: "Compromise", accommodate: "Accommodate", force: "Force", withdraw: "Step back" };
+
+  function view() {
+    const s = st();
+    if (s.cur) { if (!timer) poll(); const v = cache[s.cur]; if (!v) { refresh(s.cur); return `<p class="muted">Loading the table…</p>`; } return roomView(v); }
+    loadBoard();
+    return lobbyView();
+  }
+  function lobbyView() {
+    const s = st();
+    const rows = (board && board.rows) || [];
+    return `<div class="spread" style="margin-bottom:18px;flex-wrap:wrap;gap:12px"><div><p class="eyebrow">Round Table · beta</p><h2>Lead a project together</h2></div><button class="btn ghost sm" data-go="office">Office</button></div>
+    <div class="card rt-intro"><p>Two to four PMs share one Kudi sprint. Everyone picks privately. If you disagree, you huddle; if that fails, the chair decides. About six decisions, one a day.</p></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card stack"><h3>Host a table</h3><p class="small muted">You get an invite link to share.</p>
+        ${VL.locked ? `<p class="small">Hosting inside Lagos Life needs Exam Hall Pro. Joining is free.</p><button class="btn dark" data-vlbuy>Unlock Exam Hall Pro</button>` : `<button class="btn" data-rt="create">Host a new table</button>`}</div>
+      <div class="card stack"><h3>Join a table</h3><label class="small" for="rtcode">Invite code</label>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><input id="rtcode" class="rt-code" maxlength="8" autocomplete="off" placeholder="K7Q2AB" aria-label="Invite code"><button class="btn" data-rt="join">Join</button></div></div>
+    </div>
+    ${s.list.length ? `<div class="card" style="margin-top:16px"><h3>Your tables</h3><div class="stack" style="margin-top:10px;gap:0">${s.list.map(x => `<div class="spread rt-row"><span><b class="num">${esc(x.code)}</b> <span class="small muted">· ${esc(x.label || "")}</span></span><button class="btn sm ghost" data-rt="open" data-code="${esc(x.code)}">Open</button></div>`).join("")}</div></div>` : ""}
+    <div class="card" style="margin-top:16px"><div class="spread"><h3>Fintech leaderboard</h3><span class="small muted">Sprint scores</span></div>
+      ${rows.length ? `<ol class="rt-board">${rows.map(r => `<li><span class="num">${r.rank}</span><span>${esc(r.members.join(", "))}</span><b class="num">${r.score}</b></li>`).join("")}</ol>` : `<p class="small muted" style="margin-top:8px">No finished tables yet. Be the first.</p>`}</div>`;
+  }
+  function seatList(v) {
+    const t = v.turn;
+    return `<ul class="rt-seats">${v.seats.map(s => {
+      const ts = t && t.status.find(x => x.name === s.name);
+      const mark = !t ? "" : t.stage === "pick" ? (ts && ts.picked ? `<span class="pill good">Picked</span>` : ts ? `<span class="pill">Thinking</span>` : `<span class="pill">Next turn</span>`) : t.stage === "huddle" ? (ts && ts.stanced ? `<span class="pill good">Ready</span>` : ts ? `<span class="pill warn">Huddling</span>` : "") : "";
+      return `<li><span>${esc(s.name)}${s.me ? ` <span class="muted">(you)</span>` : ""}${s.host ? ` <span class="pill">Host</span>` : ""}${ts && ts.chair ? ` <span class="pill acc">Chair</span>` : ""}</span>${mark}</li>`;
+    }).join("")}</ul>`;
+  }
+  function roomView(v) {
+    const head = `<div class="spread" style="margin-bottom:14px;flex-wrap:wrap;gap:12px"><div><p class="eyebrow">Round Table · ${esc(v.code)} · Fintech</p><h2>Kudi Savings, sprint 1</h2></div><button class="btn ghost sm" data-rt="home">All tables</button></div>`;
+    const prog = `<div class="rt-steps" role="img" aria-label="Decision ${v.step} of ${v.steps}">${Array.from({ length: v.steps }, (_, i) => `<i class="${i < v.history.length ? "on" : i === v.history.length && v.turn ? "cur" : ""}"></i>`).join("")}</div>`;
+    if (v.status === "lobby") {
+      const can = v.host && v.seats.length >= 2;
+      return head + `<div class="grid2"><div class="card stack"><h3>Invite your co-PMs</h3><p class="small muted">Share this link or the code <b class="num">${esc(v.code)}</b>. Up to four PMs in total.</p>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><input class="rt-link" readonly value="${esc(location.origin + "/j/" + v.code)}" aria-label="Invite link"><button class="btn" data-rt="copy">Copy link</button></div>
+        ${v.host ? `<button class="btn dark" data-rt="start" ${can ? "" : "disabled"}>Start the sprint</button><p class="tiny muted">${can ? "Everyone who has joined will take part. Others can join until the sprint ends." : "Invite at least one other PM first."}</p>` : `<p class="small">Waiting for the host to start.</p>`}</div>
+        <div class="card"><h3>At the table</h3>${seatList(v)}<p class="small muted" style="margin-top:10px">How it works: each decision stays open for 24 hours. Everyone picks privately. If the picks differ, you huddle for 12 hours; if that doesn't settle it, the chair decides. The chair rotates every decision.</p></div></div>`;
+    }
+    const side = `<div class="stack"><div class="card"><h3>At the table</h3>${seatList(v)}</div>
+      <div class="card"><h3>The project</h3><div class="stack small" style="margin-top:10px;gap:8px">
+        ${stat("Team morale", v.stats.morale)}${stat("Product owner support", v.stats.po)}${stat("Customer operations", v.stats.ops)}
+        ${v.status === "done" ? "" : `<div class="spread"><span>Forecast</span><b class="num">${v.stats.forecast} pts</b></div>${v.stats.committed ? `<div class="spread"><span>Committed</span><b class="num">${v.stats.committed} pts</b></div>` : ""}`}
+        ${v.stats.goal ? `<p class="tiny muted">Sprint goal: ${esc(v.stats.goal)}</p>` : ""}</div></div></div>`;
+    const main = v.status === "done" ? doneCard(v) : v.turn ? turnCard(v) : `<div class="card"><p class="muted">Working…</p></div>`;
+    return head + prog + `<div class="rt-grid"><div class="stack">${main}${historyList(v)}</div>${side}</div>`;
+  }
+  const stat = (l, x) => `<div><div class="spread"><span>${l}</span><b class="num">${x}</b></div><div class="meter ${x < 50 ? "bad" : x < 65 ? "amber" : ""}" style="margin-top:4px"><i style="width:${x}%"></i></div></div>`;
+  function scene(v, t) {
+    return `<div class="stack rt-scene">${t.scene.map(l => { const p = l.who && v.people[l.who.id]; return l.who ? `<div class="rt-line">${p ? av(p, 36) : ""}<div><b>${esc(l.who.name)}</b> <span class="tiny muted">${esc(l.who.title)}</span><p>${esc(l.text)}</p></div></div>` : `<p class="small muted">${esc(l.text)}</p>`; }).join("")}</div>`;
+  }
+  const optText = (t, idx) => (t.options.find(o => o.idx === idx) || {}).text || "";
+  function turnCard(v) {
+    const t = v.turn;
+    const tag = t.eco ? `<span class="pill acc">${esc(t.eco[0])} ${t.eco[1]}</span>` : "";
+    let body = "";
+    if (!t.inTurn) body = `<p class="small">You joined after this decision opened. You'll take part from the next one.</p>`;
+    else if (t.stage === "pick") {
+      body = t.myPick != null ? `<p class="small"><b>Your pick is locked in.</b> It stays hidden until everyone has picked or the window closes.</p><p class="small muted">${esc(optText(t, t.myPick))}</p>`
+        : `<p><b>${esc(t.q)}</b></p><div class="stack" role="radiogroup" aria-label="Options">${t.options.map(o => `<label class="choice"><input type="radio" name="rtpick" value="${o.idx}" data-rtsel="pick" ${sel.pick === o.idx ? "checked" : ""}><span>${esc(o.text)}</span></label>`).join("")}</div><button class="btn" data-rt="pick">Lock in my pick</button>`;
+    } else if (t.stage === "huddle") {
+      const backers = idx => t.status.filter(s => s.pick === idx).map(s => s.name + (s.me ? " (you)" : ""));
+      body = `<p><b>The PMs disagree.</b> Here is what is on the table:</p><div class="stack">${t.onTable.map(i => `<div class="rt-opt"><p class="small">${esc(optText(t, i))}</p><p class="tiny muted">Picked by ${esc(backers(i).join(", "))}</p></div>`).join("")}</div>`;
+      body += t.myStance ? `<p class="small"><b>You chose to ${esc(STANCE_SHORT[t.myStance].toLowerCase())}.</b> Waiting for the others.</p>`
+        : `<p style="margin-top:6px"><b>How will you handle it?</b></p><div class="stack" role="radiogroup" aria-label="Approach">${Object.entries(t.stances).map(([k, l]) => `<label class="choice"><input type="radio" name="rtstance" value="${k}" data-rtsel="stance" ${sel.stance === k ? "checked" : ""}><span>${esc(l)}</span></label>`).join("")}</div>
+          <label class="small" for="rtfinal"><b>Where do you land?</b></label><select id="rtfinal" data-rtsel="final">${t.onTable.map(i => `<option value="${i}" ${(sel.final != null ? sel.final : t.myPick) === i ? "selected" : ""}>${esc(optText(t, i).slice(0, 110))}${t.myPick === i ? " (your pick)" : ""}</option>`).join("")}</select>
+          <button class="btn" data-rt="stance">Send to the huddle</button>`;
+    } else {
+      const list = t.onTable.length ? t.onTable : t.options.map(o => o.idx);
+      body = `<p><b>No agreement.</b> ${t.amChair ? "You are the chair: choose which pick goes ahead." : `${esc(t.chair)} is the chair and will make the call.`}</p>
+        <div class="stack">${t.status.filter(s => s.stance || s.pick != null).map(s => `<p class="small">${esc(s.name)}${s.me ? " (you)" : ""}: ${s.stance ? `<span class="pill">${STANCE_SHORT[s.stance]}</span>` : ""} ${s.final != null ? esc(optText(t, s.final).slice(0, 90)) : s.pick != null ? esc(optText(t, s.pick).slice(0, 90)) : "no pick"}</p>`).join("")}</div>`;
+      if (t.amChair) body += `<div class="stack" role="radiogroup" aria-label="Your call">${list.map(i => `<label class="choice"><input type="radio" name="rtcall" value="${i}" data-rtsel="call" ${sel.call === i ? "checked" : ""}><span>${esc(optText(t, i))}</span></label>`).join("")}</div><button class="btn dark" data-rt="call">Make the call</button>`;
+    }
+    const stageLabel = { pick: "Everyone picks", huddle: "Huddle", call: "Chair's call" }[t.stage];
+    return `<div class="card stack rt-turn"><div class="spread" style="flex-wrap:wrap;gap:8px"><span class="eyebrow">${stageLabel} · ${due(t.due)}</span><span class="row" style="gap:6px">${tag}<span class="pill">Chair: ${esc(t.chair)}</span></span></div>
+      <h3>${esc(t.title)}</h3>${scene(v, t)}${body}</div>`;
+  }
+  function historyList(v) {
+    if (!v.history.length) return "";
+    const mine = n => v.mine.filter(r => r.turn === n);
+    return `<div class="card"><h3>Decisions so far</h3><div class="stack" style="margin-top:10px">${v.history.slice().reverse().map(h => {
+      const [hl, hc] = HOW[h.how] || ["", ""];
+      const my = mine(h.n);
+      const missedBest = my.some(r => r.kind === "pick" && r.grade !== "best");
+      return `<details class="rt-hist" ${h.n === v.history.length - 1 ? "open" : ""}><summary><span><b>${esc(h.title)}</b></span><span class="row" style="gap:6px">${my.map(r => `<span class="pill ${GP[r.grade][1]}" title="Your ${KIND[r.kind].toLowerCase()}">${KIND[r.kind]}: ${GP[r.grade][0]}</span>`).join("")}<span class="pill ${hc}">${hl}</span></span></summary>
+        <div class="stack small" style="margin-top:8px"><p><b>Went ahead:</b> ${esc(h.choiceText)}</p><p>${esc(h.outcome)}</p>${h.reaction ? `<p class="muted">${esc(h.reaction)}</p>` : ""}
+        ${h.picks.length > 1 ? `<p class="tiny muted">Picks: ${h.picks.map(p => `${esc(p.name)}${p.me ? " (you)" : ""}: ${esc(p.text.slice(0, 60))}${p.text.length > 60 ? "…" : ""}`).join(" · ")}</p>` : ""}
+        ${h.stances.length ? `<p class="tiny muted">Huddle: ${h.stances.map(s => `${esc(s.name)}: ${STANCE_SHORT[s.stance]}${s.missed ? " (missed)" : ""}`).join(" · ")}</p>` : ""}
+        ${missedBest && h.best ? `<p class="lens"><b>The exam way.</b> ${esc(h.best)}</p>` : ""}
+        ${h.lesson ? `<p class="lens"><b>Why.</b> ${esc(h.lesson)}</p>` : ""}
+        ${h.huddleLesson && my.some(r => r.kind === "huddle") ? `<p class="lens"><b>Huddles.</b> ${esc(h.huddleLesson)}</p>` : ""}</div></details>`;
+    }).join("")}</div></div>`;
+  }
+  function doneCard(v) {
+    const s = v.score;
+    return `<div class="card stack"><p class="eyebrow">Sprint score</p><div class="row" style="gap:12px;align-items:baseline"><b style="font-family:var(--f-display);font-size:56px;line-height:1">${s.score}</b><span class="muted">/ 100 · shared by the whole table</span></div>
+      <div class="stack small" style="gap:6px"><div class="spread"><span>Sprint goal met</span><b>${s.goalMet ? "Yes" : "No"}</b></div><div class="spread"><span>Delivered</span><b class="num">${s.vel} of ${s.committed} pts</b></div><div class="spread"><span>Team morale</span><b class="num">${s.morale}</b></div><div class="spread"><span>Product owner support</span><b class="num">${s.po}</b></div><div class="spread"><span>Situations handled the exam way</span><b class="num">${s.mindset}%</b></div></div>
+      <p class="small muted">Your own picks, huddles and calls now count on your Progress page.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-go="progress">See my progress</button><button class="btn ghost" data-rt="home">Leaderboard</button></div></div>`;
+  }
+
+  // ---------- events ----------
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-rt]"); if (!b) return;
+    const a = b.dataset.rt;
+    if (a === "create") create();
+    else if (a === "join") joinCode(($("#rtcode") || {}).value);
+    else if (a === "open") open(b.dataset.code);
+    else if (a === "home") home();
+    else if (a === "start") start();
+    else if (a === "copy") copyInvite();
+    else if (a === "pick") sendPick();
+    else if (a === "stance") sendStance();
+    else if (a === "call") sendCall();
+  });
+  document.addEventListener("change", e => {
+    const el = e.target.closest("[data-rtsel]"); if (!el) return;
+    const k = el.dataset.rtsel;
+    sel[k] = k === "stance" ? el.value : +el.value;
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "rtcode") joinCode(e.target.value); });
+  document.addEventListener("visibilitychange", () => { const c = G && G.rt && G.rt.cur; if (document.visibilityState === "visible" && G.view === "table" && c) refresh(c, true); });
+
+  // invite links arrive as /?t=CODE
+  function boot() {
+    const p = new URLSearchParams(location.search), code = (p.get("t") || "").toUpperCase();
+    if (!/^[A-Z0-9]{6}$/.test(code)) return;
+    st().pendingJoin = code; save();
+    history.replaceState(null, "", location.pathname);
+  }
+  return { view, boot, consumeJoin, get pending() { return !!(G.rt && G.rt.pendingJoin); } };
+})();
+function viewTable() { return RT.view(); }
+
 // ===== UI: events and boot =====
 function picker(key) {
   const S = G.kudi, c = castOf("kudi");
@@ -6720,6 +6993,7 @@ document.addEventListener("keydown", e => { if (!Sound.started && (e.key === "En
 
 // ---------- boot ----------
 G = load() || fresh();
+RT.boot();
 if (G.exam && G.exam.current && G.exam.current.onBreak === undefined) G.exam.current.onBreak = false;
 render();
 drawSnd();

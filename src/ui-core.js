@@ -72,7 +72,7 @@ function render() {
   nav();
   if (!G.name) { app.innerHTML = viewWelcome(); return; }
   const v = G.view;
-  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "land" ? viewLand() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : viewOffice();
+  const html = v === "kudi" ? viewKudi() : v === "clinic" ? viewClinic() : v === "land" ? viewLand() : v === "exam" ? viewExam() : v === "progress" ? viewProgress() : v === "people" ? viewPeople() : v === "table" ? viewTable() : viewOffice();
   app.innerHTML = html;
   after();
 }
@@ -90,6 +90,7 @@ function after() {
   Sound.setMood(mood);
   Sound.rain(v === "clinic" && S && S.phase === "run" ? Math.max(0, Pred.rainLevel(S.week) - 0.3) : 0);
   coachTriggers(); checkBadges(); updateInbox(); VL.paintBoard();
+  if (G.name && RT.pending) RT.consumeJoin();
   if (typeof World3D !== "undefined" && World3D.ok()) World3D.flush();
 }
 const av = (p, s = 44, mood) => People.avatar(p, s, mood);
@@ -153,6 +154,7 @@ function projCard(key, tag, title, text, st, cls) {
 }
 // ---------- mission board: projects, training and trophies as game tiles ----------
 const ICONS = {
+  table: `<svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="36" rx="20" ry="11" fill="#FCFCFA"/><ellipse cx="32" cy="34" rx="20" ry="11" fill="#D2EAE5"/><circle cx="32" cy="16" r="5" fill="#E7AE4B"/><circle cx="12" cy="28" r="4.5" fill="#FCFCFA"/><circle cx="52" cy="28" r="4.5" fill="#FCFCFA"/><circle cx="20" cy="52" r="4.5" fill="#FCFCFA"/><circle cx="44" cy="52" r="4.5" fill="#FCFCFA"/></svg>`,
   kudi: `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="19" y="8" width="24" height="44" rx="5" fill="#0B2E2A"/><rect x="22" y="13" width="18" height="32" rx="2" fill="#D2F2EC"/><circle cx="31" cy="48.5" r="1.6" fill="#4FC2AE"/><path d="M25 21h12M25 25h8" stroke="#0E6E62" stroke-width="2" stroke-linecap="round"/><rect x="25" y="30" width="12" height="9" rx="2" fill="#4FC2AE"/><g><ellipse cx="46" cy="47" rx="9" ry="3.2" fill="#B9770E"/><rect x="37" y="40" width="18" height="7" fill="#E7AE4B"/><ellipse cx="46" cy="40" rx="9" ry="3.2" fill="#F7D48A"/><ellipse cx="46" cy="40" rx="5" ry="1.6" fill="none" stroke="#B9770E" stroke-width="1.2"/></g><ellipse cx="46" cy="33" rx="9" ry="3.2" fill="#B9770E" opacity=".0"/></svg>`,
   clinic: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 52h44" stroke="#5A2E10" stroke-width="3" stroke-linecap="round"/><rect x="14" y="26" width="32" height="26" rx="2" fill="#FCFCFA"/><path d="M11 28l19-11 19 11" fill="none" stroke="#7A3E14" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><rect x="26" y="39" width="8" height="13" rx="1" fill="#0E6E62"/><rect x="18" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><rect x="36" y="31" width="6" height="5" rx="1" fill="#9CC9E4"/><circle cx="30" cy="25" r="5" fill="#fff"/><path d="M30 22v6M27 25h6" stroke="#C2412F" stroke-width="2.4" stroke-linecap="round"/><path d="M50 52V12M50 12h-14M50 16l-6-4" stroke="#13243A" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M38 12v6" stroke="#13243A" stroke-width="1.4"/><rect x="35.5" y="18" width="5" height="4" fill="#E7AE4B"/></svg>`,
   land: `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M9 16l14-5 18 5 14-5v37l-14 5-18-5-14 5z" fill="#E9E4F7"/><path d="M23 11v37M41 16v37" stroke="#B7AEDB" stroke-width="2"/><path d="M14 36c6-6 10 2 16-3s9-1 14-6" stroke="#6C5BA8" stroke-width="2" fill="none" stroke-dasharray="3 3"/><path d="M44 18a7 7 0 0 0-7 7c0 6 7 13 7 13s7-7 7-13a7 7 0 0 0-7-7z" fill="#C2412F"/><circle cx="44" cy="25" r="2.6" fill="#fff"/></svg>`,
@@ -196,6 +198,7 @@ function missionBoard(k, c, rd, sits, best, l) {
   const train = [
     tile({ id: "exam", name: "Exam Hall", sub: `${BANK.length} questions`, icon: "exam", hue: "navy", pct: Math.min(1, G.exam.answers.length / BANK.length), act: 'data-go="exam"', pop: `<div class="spread"><h3>Exam Hall</h3><button class="btn sm" data-go="exam">Enter</button></div><p class="muted small">${BANK.length} original questions · practice by topic · 60-question timed mocks</p>${["People", "Process", "Business Environment"].map(d => `<div class="spread small" style="padding:3px 0"><span>${d}</span>${bandPill(rd[d])}</div>`).join("")}` }),
     tile({ id: "progress", name: "Progress", sub: `${ecoCoverage()} of 26 tasks`, icon: "progress", hue: "green", pct: ecoCoverage() / 26, act: 'data-go="progress"', pop: `<div class="spread"><h3>Your progress</h3><button class="btn sm ghost" data-go="progress">Open</button></div><p class="muted small">Exam tasks practised in the simulations and the Exam Hall</p><div class="meter"><i style="width:${(ecoCoverage() / 26 * 100).toFixed(0)}%"></i></div><p class="small"><b>${ecoCoverage()}</b> of 26 exam tasks practised · <b>${sits.length ? pct(best / sits.length) : "–"}</b> of situations handled the exam way</p>` }),
+    tile({ id: "table", name: "Round Table", sub: "With friends · beta", icon: "table", hue: "teal", pct: 0, flag: "NEW", act: 'data-go="table"', pop: `<div class="spread"><h3>Round Table</h3><button class="btn sm" data-go="table">Open</button></div><p class="muted small">Lead a Kudi sprint with up to three other PMs. Pick privately, huddle when you disagree, and take turns as the chair.</p>` }),
   ];
   G.badges = G.badges || {};
   const medals = BADGES.map(([id, t, d]) => `<div class="mslot medal-slot" data-slot="b-${id}"><button class="medal ${G.badges[id] ? "on" : ""}" aria-describedby="pop-b-${id}" aria-label="${esc(t)}${G.badges[id] ? ", earned" : ", not earned yet"}"><span>${MEDAL_ICONS[id] || "★"}</span></button><div class="mpop sm" id="pop-b-${id}" role="tooltip"><b>${t}</b><p class="small muted">${esc(d)}</p><p class="tiny ${G.badges[id] ? "" : "muted"}">${G.badges[id] ? "Earned" : "Not earned yet"}</p></div></div>`).join("");
@@ -206,7 +209,7 @@ function missionBoard(k, c, rd, sits, best, l) {
     <div class="medals">${medals}</div>
   </section>`;
 }
-function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : []), ...(G.land ? G.land.log : [])].filter(l => l.grade); }
+function allSituations() { return [...(G.kudi ? G.kudi.log : []), ...(G.clinic ? G.clinic.log : []), ...(G.land ? G.land.log : []), ...Object.values(G.rtLog || {})].filter(l => l.grade); }
 
 // ---------- people ----------
 function personCard(p) {
