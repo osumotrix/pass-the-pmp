@@ -2,12 +2,12 @@
 function openProject(key) {
   if (!G[key]) {
     People.newWorld(); People.reserve(Object.values(G.people));
-    G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : key === "land" ? Land.create(G.seed + 41, G.people) : Pred.create(G.seed + 23, G.people);
+    G[key] = key === "kudi" ? Agile.create(G.seed + 11, G.people) : key === "land" ? Land.create(G.seed + 41, G.people) : key === "cold" ? Cold.create(G.seed + 59, G.people) : Pred.create(G.seed + 23, G.people);
     Track.ev("proj_start", key);
   }
   go(key);
 }
-const engine = key => key === "kudi" ? Agile : key === "land" ? Land : Pred;
+const engine = key => key === "kudi" ? Agile : key === "land" ? Land : key === "cold" ? Cold : Pred;
 const castOf = key => engine(key).cast(G[key], G.people);
 
 // ---------- charter ----------
@@ -278,11 +278,11 @@ function stageHTML(key) {
   sceneFx = { walk: false, prev: null };
   opts.player = { name: G.name };
   const w3 = World3D.ok();
-  const svg = key === "kudi" ? (w3 ? World3D.kudi(S, G.people, opts) : Scene.kudi(S, G.people, opts)) : key === "land" ? (w3 ? World3D.land(S, G.people, opts) : Scene.room(G.people, [S.cast.registrar, S.cast.champion, S.cast.ba].concat(p && p.who ? [p.who] : []), { id: "land", label: "The records hall at the State Lands Bureau, Alausa", sky: "#A8D3EA", wall: "#EDE6D6", papers: true })) : (w3 ? World3D.clinic(S, G.people, opts) : Scene.clinic(S, G.people, opts));
+  const svg = key === "cold" ? (w3 && World3D.cold ? World3D.cold(S, G.people, opts) : Scene.room(G.people, [S.cast.chair, S.cast.opsmgr, S.cast.commeng].concat(p && p.who ? [p.who] : []), { id: "cold", label: "The Lakeshore Fresh cold-storage hub, Mississauga", sky: "#BFD9EA", wall: "#E3E9EE", papers: true })) : key === "kudi" ? (w3 ? World3D.kudi(S, G.people, opts) : Scene.kudi(S, G.people, opts)) : key === "land" ? (w3 ? World3D.land(S, G.people, opts) : Scene.room(G.people, [S.cast.registrar, S.cast.champion, S.cast.ba].concat(p && p.who ? [p.who] : []), { id: "land", label: "The records hall at the State Lands Bureau, Alausa", sky: "#A8D3EA", wall: "#EDE6D6", papers: true })) : (w3 ? World3D.clinic(S, G.people, opts) : Scene.clinic(S, G.people, opts));
   const wet = key === "clinic" && Pred.rainLevel(S.week || 0) >= 0.5 && S.phase === "run";
   let banner = "";
   if (p) { const w = p.who && G.people[p.who]; banner = `<div class="stage-banner fade" role="status">${w ? av(w, 40) : ""}<span style="min-width:0"><b>${w ? esc(People.name(w)) + " wants a word" : "Something needs your attention"}</b><br><span class="tiny">${esc(p.prepared.sit.title)}</span></span><button class="btn sm" data-talk>${w ? "Talk to " + esc(People.short(w)) : "Look into it"}</button></div>`; }
-  else if (running) banner = `<div class="stage-banner quiet"><span class="pulse"></span><span class="small">${key === "kudi" ? "The team is working…" : key === "land" ? "Scanning under way…" : "Work under way on site…"}</span></div>`;
+  else if (running) banner = `<div class="stage-banner quiet"><span class="pulse"></span><span class="small">${key === "kudi" ? "The team is working…" : key === "land" ? "Scanning under way…" : key === "cold" ? "Crews at work on the hub…" : "Work under way on site…"}</span></div>`;
   return `<div class="stage${wet ? " wet" : ""}">${svg}${banner}</div>`;
 }
 function openPending() {
@@ -308,7 +308,7 @@ function typingMsg(p, sys) {
 // what the chat shows after you reply, one message at a time
 function resultItems() {
   if (cur._ri) return cur._ri;
-  const Rz = cur.result, sit = cur.prepared.sit, m = mentor(), letters = "ABCD";
+  const Rz = cur.result, sit = cur.prepared.sit, m = coachOf(cur.key), letters = "ABCD";
   const chosen = Rz.options.find(o => o.chosen) || {};
   const items = [];
   items.push({ who: "me", html: f => `<div class="msg me${f}"><div class="mcol"><div class="mb">${esc(chosen.text || "")}</div><div class="verdict react ${Rz.grade}${f ? " pop" : ""}" title="${esc(verdictLabel(Rz.grade))}"><span aria-hidden="true">${VICON[Rz.grade]}</span> ${VSHORT[Rz.grade]}</div></div></div>` });
@@ -373,7 +373,7 @@ function drawSituation() {
       } else tray = `<button class="btn backbtn" data-sitdone>Back to work</button>`;
     }
   }
-  const where = cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : cur.key === "land" ? (G.land.phase === "closure" ? "Closure" : `Month ${G.land.month}`) : `Week ${G.clinic.week}`;
+  const where = cur.key === "cold" ? ({ closure: "Close-out", gate: "The gate" }[G.cold.phase] || `Fortnight ${G.cold.fn}`) : cur.key === "kudi" ? `Sprint ${G.kudi.sprint}` : cur.key === "land" ? (G.land.phase === "closure" ? "Closure" : `Month ${G.land.month}`) : `Week ${G.clinic.week}`;
   const ppl = [...new Set(P.scene.filter(l => l[0] !== "narr").map(l => l[0]))].map(w => c.p(w)).filter(Boolean);
   const fadeCls = cur._drawn ? "" : " fade"; if (!cur._drawn) { const pp = document.getElementById("coachpop"); if (pp) pp.hidden = true; } cur._drawn = true;
   const oldTray = overlayEl.querySelector(".sittray"), trayTop = oldTray && !Rz ? oldTray.scrollTop : 0;
@@ -386,7 +386,7 @@ function drawSituation() {
   const nt = overlayEl.querySelector(".sittray"); if (nt && trayTop) nt.scrollTop = trayTop;
 }
 function sayLesson() {
-  try { const S = G[cur.key], sit = cur.prepared.sit, lesson = sit.lesson(Voice.spokenCast(cur.prepared.c, S)); Voice.say(Voice.voiceKey(S, "mentor", mentor()), lesson); } catch (e) { }
+  try { const S = G[cur.key], sit = cur.prepared.sit, lesson = sit.lesson(Voice.spokenCast(cur.prepared.c, S)); Voice.say(coachVK(cur.key, S), lesson); } catch (e) { }
 }
 function spokenScene(cur) {
   if (cur._sp) return cur._sp;
@@ -413,6 +413,8 @@ function finishSituation() {
   if (key === "kudi") {
     if (S.phase === "release" && S.fired.A15) S.phase = "closure";
     if (S.phase === "closure" && S.fired.A16) { Agile.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
+  } else if (key === "cold") {
+    if (S.phase === "closure" && S.fired.C14) { Cold.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   } else if (key === "land") {
     if (S.phase === "closure" && S.fired.L13) { Land.finish(S, G.people); Sound.sfx("fanfare"); Track.ev("proj_done", key, S.result.score); VL.submit(VL.bestScore()); }
   } else {
@@ -448,6 +450,12 @@ function runCycleAnimated() {
 }
 
 // ---------- results ----------
+function coldHead(r) {
+  const ev = { leave: "A major member left the co-op", fund: "The agency's funding grew", review: "The agency reviewed its funding", none: "No outside change" }[r.event];
+  const gate = { continue: "Continue", conditional: "Continue with conditions", pause: "Pause, then continue", stop: "Stop" }[r.gate] || "–";
+  if (r.stopped) return [["At the gate", `${ev} · you recommended: ${gate}`], ["Gate decision", r.gateRight ? "The exam way" : "Not the best call"], ["Shutdown tasks done", `${r.shut} of 5`], ["Spent", Cold.money(r.ac)], ["Cost avoided by stopping", Cold.money(Math.max(0, r.EAC - r.ac))], ["Stakeholder support", Math.round(r.support)], ["Team morale", Math.round(r.morale)]];
+  return [["At the gate", `${ev} · you recommended: ${gate}`], ["Cold rooms live", `${r.live} of 4${r.vaxLive ? ` (vaccines from fortnight ${r.vaxLive})` : ""}`], ["Final cost", `${Cold.money(r.ac)} of ${Cold.money(r.bac2)} approved`], ["CPI · SPI at close", `${r.CPI.toFixed(2)} · ${r.SPI.toFixed(2)}`], ["Quality", `${r.quality}${r.unreported ? ` · ${r.unreported} unreported excursion${r.unreported > 1 ? "s" : ""}` : ""}`], ["Staff readiness", r.ready], ["Stakeholder support", Math.round(r.support)]];
+}
 function viewResults(key) {
   const S = G[key], r = S.result, c = castOf(key);
   const L = S.log.filter(l => l.grade);
@@ -457,9 +465,9 @@ function viewResults(key) {
     ["Launch", { full: "Launched in full", phased: "Phased release", late: "Launched late", partial: "Launched with gaps", suspended: "Suspended after launch", none: "Not launched" }[r.launch]],
     ["Must-haves done", `${r.mustDone} of ${r.mustAll}`], ["Value delivered", `${r.valueDone} of ${r.valueTotal}`], ["Adoption index", r.adoption],
     ["Team morale", Math.round(r.morale)], ["Stakeholder support", Math.round(r.support)], ["Budget", r.budgetVar >= 0 ? `${m1(r.budgetVar)} under` : `${m1(-r.budgetVar)} over`]]
-    : key === "land" ? [["Records digitised", `${Math.round(r.digPct * 100)}% of ${Math.round(r.tot)}k files`], ["Districts live", `${r.live} of 5 (${r.byDeadline} by the deadline)`], ["Index accuracy", `${r.acc.toFixed(1)}%`], ["Staff adoption", r.stage], ["Title search time", `${Math.round(r.turn)} days (was 21)`], ["Benefits realised over the year", `${r.benefits}%`], ["Budget", r.budgetVar >= 0 ? `${m0(r.budgetVar)} under` : `${m0(-r.budgetVar)} over`], ["Compliance", r.breaches || r.audit ? `${r.audit} audit finding${r.audit === 1 ? "" : "s"}, ${r.breaches} breach${r.breaches === 1 ? "" : "es"}` : "Clean"], ["Tailoring", `${G.land.choices.rollout === "pilot" ? "Pilot" : "Big bang"} · ${G.land.choices.portal === "agile" ? "agile portal" : "one-release portal"} · ${G.land.choices.change === "champions" ? "champions" : "training only"} · ${G.land.choices.governance === "gates" ? "stage gates" : "monthly report"}`]]
+    : key === "cold" ? coldHead(r) : key === "land" ? [["Records digitised", `${Math.round(r.digPct * 100)}% of ${Math.round(r.tot)}k files`], ["Districts live", `${r.live} of 5 (${r.byDeadline} by the deadline)`], ["Index accuracy", `${r.acc.toFixed(1)}%`], ["Staff adoption", r.stage], ["Title search time", `${Math.round(r.turn)} days (was 21)`], ["Benefits realised over the year", `${r.benefits}%`], ["Budget", r.budgetVar >= 0 ? `${m0(r.budgetVar)} under` : `${m0(-r.budgetVar)} over`], ["Compliance", r.breaches || r.audit ? `${r.audit} audit finding${r.audit === 1 ? "" : "s"}, ${r.breaches} breach${r.breaches === 1 ? "" : "es"}` : "Clean"], ["Tailoring", `${G.land.choices.rollout === "pilot" ? "Pilot" : "Big bang"} · ${G.land.choices.portal === "agile" ? "agile portal" : "one-release portal"} · ${G.land.choices.change === "champions" ? "champions" : "training only"} · ${G.land.choices.governance === "gates" ? "stage gates" : "monthly report"}`]]
     : [["Finished", `week ${r.actualFinish} (deadline ${r.deadline})`], ["Final cost", `${m0(r.finalCost)} of ${m0(r.funded)} funded`], ["CPI at close", r.CPI.toFixed(2)], ["Stakeholder support", Math.round(r.support)], ["Quality defects", r.defects], ["Audit findings", r.audit], ["Safety incidents", r.incidents]];
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : key === "land" ? "P3 · Land Registry" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Kudi Savings" : key === "land" ? "P3 · Land Registry" : key === "cold" ? "P4 · Cold-Chain Rescue · Toronto" : "P1 · Forte Clinic"} · Project closed</p><h2>Project report</h2></div><div class="row"><button class="btn ghost sm" data-replay="${key}">Play this project again</button><button class="btn sm" data-go="office">Office</button></div></div>
   ${stageHTML(key)}
   ${VL.on ? `<div style="margin-bottom:16px">${VL.boardCard()}</div>` : ""}
   <div class="grid2"><div class="card"><p class="eyebrow">Overall score</p><div class="row" style="margin:6px 0"><b style="font-family:var(--f-display);font-size:64px;line-height:1">${r.score}</b><span class="muted">/ 100</span><span style="font-size:28px;color:var(--amber)">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span></div>

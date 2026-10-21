@@ -36,3 +36,15 @@ function Cast(map) {
 }
 
 const clampN = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+// ---------- Bluegate offices ----------
+// One profile per office: where it is, its money, its people and its projects. Lagos is the first office.
+const OFFICES = {
+  lagos: { city: "Lagos", country: "Nigeria", cur: "₦", region: "lagos", voices: "ng", projects: ["kudi", "clinic", "land"], pin: [6.45, 3.4], live: true },
+  toronto: { city: "Toronto", country: "Canada", cur: "C$", region: "toronto", voices: "ca", projects: ["cold"], pin: [43.65, -79.38], live: true },
+  london: { city: "London", country: "United Kingdom", cur: "£", region: "london", projects: [], pin: [51.5, -0.12], live: false, teaser: "A hospital wing, built the predictive way" },
+  bengaluru: { city: "Bengaluru", country: "India", cur: "₹", region: "bengaluru", projects: [], pin: [12.97, 77.59], live: false, teaser: "A fast-growing SaaS company goes agile" },
+  dubai: { city: "Dubai", country: "United Arab Emirates", cur: "AED", region: "dubai", projects: [], pin: [25.2, 55.27], live: false, teaser: "A hybrid build for an international expo" },
+};
+const officeOf = key => Object.values(OFFICES).find(o => o.projects.includes(key)) || OFFICES.lagos;
+const money = (cur, x, d = 1) => cur + (Math.round(x * 10 ** d) / 10 ** d).toLocaleString("en-GB", { minimumFractionDigits: d, maximumFractionDigits: d }) + "m";

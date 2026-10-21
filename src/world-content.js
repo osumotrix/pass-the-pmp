@@ -2,6 +2,13 @@
 const WCONTENT = (() => {
   // id: [title, [domain, task] | null, explanation, exam tip]
   const C = {
+    verify: ["Verify before you report", ["Process", 9], "Status comes from measured progress, not a supplier's estimate. Walk the work against the drawings, then calculate earned value from what is really done.", "If two parties report different progress, the exam answer is to measure objectively, not to pick one or average them."],
+    reserves: ["Contingency and management reserve", ["Process", 6], "Contingency reserve covers identified risks and sits with the project manager. Management reserve covers unknown events and belongs to the sponsor, who releases it and changes the baseline.", "Known risk: contingency. Unknown event: management reserve, through the sponsor."],
+    sunk: ["Sunk costs and the business case", ["Business Environment", 8], "Money already spent is gone whatever you decide. A gate compares the cost to complete with the value still to come.", "When the business case collapses, recommending an orderly stop is the professional answer."],
+    tolerance: ["Tolerances and exceptions", ["Business Environment", 1], "Tolerances say how far time and cost may move before a decision goes back to the sponsors. Inside tolerance the project manager acts; outside it, an exception report goes up.", "Raise exceptions early, with options and a recommendation, through the agreed route."],
+    validation: ["Validation and temperature mapping", ["Process", 7], "Each cold room is mapped with probes for days to prove it holds temperature everywhere, including by the door. Failures are recorded, fixed at the root and re-tested.", "Quality failures are contained, investigated and reported. Hiding one is an ethics failure, not a quality one."],
+    rebaseline: ["Re-baselining", ["Process", 8], "When the original plan can no longer be achieved, an approved new baseline gives everyone something honest to measure against. It changes through change control, not by drifting.", "Re-baseline with the sponsor's approval; don't quietly measure against a plan you've abandoned."],
+    claims: ["Claims and the change clause", ["Process", 5], "Contracts say how changes are instructed, priced and claimed, and what happens when claims are disputed. The records decide, not the loudest voice.", "Review the contract and evidence first, then use the change or dispute process."],
     radiator: ["Information radiators", ["Process", 9], "The task board shows the sprint's work in plain sight: to do, doing, testing and done. Anyone can see progress and blockers without asking for a report.", "Agile teams favour visible, low-ceremony information radiators over long status reports."],
     burndown: ["Burndown charts and velocity", ["Process", 9], "A burndown shows the work remaining each day of the sprint. Velocity is the number of story points a team actually finishes per sprint, and it is the basis for forecasting.", "A flat burndown line means work is stuck. Ask why at the stand-up rather than pushing people to work harder."],
     dod: ["Definition of done", ["Process", 7], "The definition of done is a shared quality standard every story must meet, such as code reviewed, tested, accessible and secure. It stops half-finished work being called finished.", "Never weaken the definition of done to hit a deadline. Hidden debt shows up later as defects."],
@@ -89,10 +96,20 @@ const WCONTENT = (() => {
     ba: [["The registry decides what the portal does first. I make sure every feature has clear acceptance criteria.", "backlog"]],
     devlead: [["We release the portal every month, so users can tell us early what isn't working.", "feedback"]],
     datalead: [["A record that's scanned but wrongly indexed is worse than no record at all. Nobody can find it.", "dataquality"]],
+    todirector: [["Rescues are won in the first fortnight: find out what's true before you promise anything.", "verify"], ["Stopping a project that no longer makes sense is good governance, not failure.", "sunk"]],
+    chair: [["I've had a year of other people's numbers. Give me ones you've checked.", "verify"], ["Anything outside the tolerances we agree comes back to the board.", "tolerance"]],
+    healthdir: [["A vaccine room that fails mapping is a vaccine room that isn't ready. No shortcuts on temperature.", "validation"]],
+    opsmgr: [["My people will run this place long after you've gone. Train them on the real kit, in the real cold.", "transition"]],
+    refrig: [["If your predecessor told us to move it, there's a paper trail. Read the contract and the instructions.", "claims"]],
+    wms: [["Receiving, alarms and dispatch first. The rest can follow in fortnightly releases.", "mvp"]],
+    qlead: [["If a test fails, it gets recorded, fixed at the root and run again. That's what validation means.", "validation"]],
+    commeng: [["Eighty per cent on paper isn't eighty per cent on site. Walk it with me and you'll see.", "verify"]],
+    controls: [["Write it down while I'm here. Set points, alarm logic, the restart sequence.", "knowledge"]],
+    coord: [["Contingency is for the risks we logged. The transformer wasn't one of them.", "reserves"], ["The new baseline is the only plan we measure against now.", "rebaseline"]],
     mentor: [["Assess first, talk to people, use the agreed process, and escalate only as a last resort.", "mindset"], ["About 60% of the exam is agile or hybrid. The Kudi project is your training ground for that.", "exam"], ["Read the question's last sentence first. Words like FIRST and NEXT matter.", "examtips"]],
   };
   // hotspot id -> concept id (or an action)
-  const H = { scrum: "radiator", burndown: "burndown", dod: "dod", agreement: "teamcharter", vision: "vision", gantt: "critical", risk: "risk", sign: "charter", building: "evm", crates: "procurement", safetyboard: "safety", rain: "riskresp", cert: "exam", shelf: "eco", charterdoc: "charter", sponsorDoor: "sponsor", callcentre: "transition", archive: "dataquality", scanner: "privacy", portal: "tailoring", rack: "cutover", registrarDoor: "stagegate", counter: "benefits", map: "rollout", dpnotice: "privacy", adkar: "adkar", committee: "stagegate" };
+  const H = { vaxroom: "validation", frozen: "rebaseline", racking: "transition", temps: "validation", board: "verify", office: "reserves", controls: "knowledge", dock: "claims", scrum: "radiator", burndown: "burndown", dod: "dod", agreement: "teamcharter", vision: "vision", gantt: "critical", risk: "risk", sign: "charter", building: "evm", crates: "procurement", safetyboard: "safety", rain: "riskresp", cert: "exam", shelf: "eco", charterdoc: "charter", sponsorDoor: "sponsor", callcentre: "transition", archive: "dataquality", scanner: "privacy", portal: "tailoring", rack: "cutover", registrarDoor: "stagegate", counter: "benefits", map: "rollout", dpnotice: "privacy", adkar: "adkar", committee: "stagegate" };
   // ambient chatter: world/phase -> lines
   const A = {
     "kudi:planning": ["How big is the group-invite story?", "Three points, maybe five.", "Can we split that one?", "What's the sprint goal?"],
@@ -108,6 +125,12 @@ const WCONTENT = (() => {
     "land:plan": ["Which district goes first?", "The Ikeja files are the most complete.", "Who sits on the steering committee?"],
     "land:run": ["Batch 214 is ready for checking.", "This file is from 1974!", "Mind the staples, they jam the feeder.", "Is the portal down or is it me?", "Next, please.", "Has Epe sent its jackets yet?", "Double-check that plot number."],
     "land:closure": ["Who's taking the support calls next month?", "The handover pack is printed.", "The last shelf is empty!"],
+    "cold:probe": ["Who's the new PM?", "Don't believe the eighty per cent.", "Have you seen the claim folder?"],
+    "cold:plan": ["Is the opening date moving?", "We need one plan, not three.", "What's left in contingency?"],
+    "cold:run": ["Panels for room two arrived!", "Mind the forklift.", "Probe seven is reading high.", "Door seals on the vaccine room tomorrow.", "Who's got the torque wrench?", "Grab a toque, it's cold in there.", "Scanner battery's dead again."],
+    "cold:gate": ["Big board meeting today.", "Are they going to stop it?", "Just tell them the truth."],
+    "cold:shutdown": ["Last shift on site.", "Where do the probes go?", "It was a good team."],
+    "cold:closure": ["Retention is due this month.", "Snag list is nearly closed.", "Who signs the validation reports?"],
     pmo: ["Printer's jammed again.", "Lunch at one?", "Have you seen the new mock exam?", "The Ikorodu site photos are in."],
     brief: ["Let me get the charter."],
   };

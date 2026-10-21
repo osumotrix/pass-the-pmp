@@ -68,6 +68,38 @@ const People = (() => {
       surnames: "Iorliam,Akaa,Gbaden,Hembe,Ayua,Tyav,Ugba".split(","),
       muslim: 0, english: 0.35, unis: ["Benue State University", "Joseph Sarwuan Tarka University, Makurdi", "University of Abuja"] },
   };
+  // Toronto: groups and weights reflect the city's broad mix. Names only: everyone speaks Canadian English in the game.
+  const TO_GROUPS = {
+    euro: { label: "British, Irish or European Canadian", weight: 34, origins: ["Etobicoke", "Halifax", "Ottawa", "Belfast", "Glasgow", "Kraków", "Hamilton", "London, Ontario"],
+      male: N("James,Liam,Ryan,Connor,Matthew,Andrew,Tyler,Ethan,Graham,Owen,Patrick,Lukas"), female: N("Sarah,Emily,Megan,Laura,Claire,Hannah,Katie,Rachel,Fiona,Jessica,Erin,Agnieszka/Aga"),
+      surnames: "MacDonald,Campbell,Murphy,O'Brien,Walsh,Thompson,Fraser,Bennett,Kowalski,Novak,Lindqvist,Sinclair,Doyle".split(","), skin: [12, 14], hair: [4, 9] },
+    southasian: { label: "South Asian Canadian", weight: 18, origins: ["Brampton", "Mississauga", "Punjab", "Mumbai", "Karachi", "Colombo", "Scarborough"],
+      male: N("Arjun,Rohan,Vikram,Harpreet/Harp,Sanjay,Nikhil,Imran,Aditya,Gurpreet/Gurp,Karan,Faisal"), female: N("Priya,Anjali,Simran,Neha,Kavya,Meera,Ayesha,Divya,Harleen,Ritu,Sana"),
+      surnames: "Sharma,Patel,Singh,Gill,Dhaliwal,Iyer,Chaudhry,Mehta,Sandhu,Rao,Khan,Bhatia".split(","), skin: [6, 10], hair: [0, 3] },
+    chinese: { label: "Chinese Canadian", weight: 12, origins: ["Markham", "Richmond Hill", "Hong Kong", "Guangzhou", "Shanghai", "Vancouver"],
+      male: N("Kevin,Wei,Jason,Ming,Eric,Hao,Andy,Jun,Brian"), female: N("Michelle,Ling,Grace,Mei,Vivian,Xin,Karen,Yan,Jenny"),
+      surnames: "Chen,Wong,Li,Zhang,Liu,Lam,Chan,Wu,Huang,Ng,Tsang".split(","), skin: [11, 13], hair: [0, 2] },
+    black: { label: "Black Canadian", weight: 10, origins: ["Scarborough", "Kingston, Jamaica", "Accra", "Lagos", "Port of Spain", "Montreal", "Rexdale"],
+      male: N("Andre,Marcus,Jamal,Kwame,Darnell,Tobi,Malik,Nathaniel,Kofi"), female: N("Keisha,Simone,Tanisha,Abena,Danielle,Amara,Shanice,Natalie,Adwoa"),
+      surnames: "Grant,Williams,Asante,Mensah,Brown,Okafor,Henry,Clarke,Boateng,Thomas".split(","), skin: [0, 6], hair: [0, 3] },
+    filipino: { label: "Filipino Canadian", weight: 6, origins: ["Manila", "Cebu", "Bathurst and Wilson", "Winnipeg"],
+      male: N("Mark,Paolo,Jerome,Rafael,Carlo,Miguel"), female: N("Joy,Kristine,Angelica,Maricel,Bea,Camille"),
+      surnames: "Santos,Reyes,Cruz,Bautista,Dela Cruz,Garcia,Mendoza,Villanueva".split(","), skin: [8, 11], hair: [0, 2] },
+    italport: { label: "Italian or Portuguese Canadian", weight: 8, origins: ["Woodbridge", "Little Portugal", "Naples", "the Azores", "Lisbon", "Calabria"],
+      male: N("Marco,Anthony,Luca,João/Joe,Paulo,Dominic,Nick,Rui"), female: N("Sofia,Gabriella,Ana,Lucia,Isabella,Teresa,Carla"),
+      surnames: "Rossi,DiCarlo,Ferreira,Silva,Costa,Mancini,Moretti,Pereira,Medeiros".split(","), skin: [11, 13], hair: [0, 5] },
+    westasian: { label: "West Asian or Arab Canadian", weight: 7, origins: ["North York", "Tehran", "Beirut", "Cairo", "Mississauga", "Damascus"],
+      male: N("Omar,Ali,Reza,Karim,Arash,Samir,Tarek"), female: N("Leila,Sara,Nadia,Yasmin,Shirin,Rana,Dina"),
+      surnames: "Haddad,Hosseini,Rahimi,Nasser,Karimi,Saleh,Mansour,Farah".split(","), skin: [9, 12], hair: [0, 3] },
+    korean: { label: "Korean Canadian", weight: 3, origins: ["North York", "Seoul", "Busan"],
+      male: N("Daniel,Joon,Min,Steven"), female: N("Grace,Ji-woo,Soo-jin,Hannah"),
+      surnames: "Kim,Park,Lee,Choi,Jung".split(","), skin: [11, 13], hair: [0, 1] },
+  };
+  const TO_UNIS = ["the University of Toronto", "Toronto Metropolitan University", "York University", "McMaster University", "the University of Waterloo", "Western University", "Queen's University", "Humber College", "Seneca College", "George Brown College"];
+  const TO_AREAS = [ // Greater Toronto, typical one-way rush-hour commute to the Mississauga hub in minutes
+    ["Mississauga", 20], ["Brampton", 35], ["Etobicoke", 30], ["Oakville", 35], ["Liberty Village", 45], ["The Annex", 50], ["North York", 50], ["Vaughan", 45],
+    ["Scarborough", 75], ["Markham", 65], ["Hamilton", 60], ["Pickering", 90], ["Leslieville", 60],
+  ];
   const ENGLISH_M = N("David,Michael,Samuel,Daniel,Emmanuel,Joseph,Victor,Peter,Stephen,Paul,John,Solomon,Joshua,Timothy,Gabriel,Anthony");
   const ENGLISH_F = N("Grace,Blessing,Joy,Esther,Mercy,Deborah,Ruth,Faith,Patience,Gloria,Precious,Favour,Sarah,Elizabeth,Jennifer,Victoria,Esther,Rebecca");
 
@@ -111,6 +143,17 @@ const People = (() => {
     ba: ["Business analyst", ["mid", "senior"], ["Computer Science", "Economics", "Statistics"], { analysis: 4 }, ["CBAP"]],
     devlead: ["Lead portal developer", ["senior"], ["Computer Science", "Software Engineering"], { backend: 4, frontend: 3 }, ["AWS Certified Developer"]],
     datalead: ["Data migration lead", ["mid", "senior"], ["Computer Science", "Statistics", "Mathematics"], { data: 5 }, []],
+    // Toronto: Cold-Chain Rescue
+    todirector: ["Director, Bluegate Toronto", ["exec"], ["Industrial Engineering", "Commerce", "Civil Engineering"], { pm: 5 }, ["PMP"]],
+    chair: ["Board chair, Lakeshore Fresh Co-operative", ["exec"], ["Commerce", "Economics", "Business Administration"], { strategy: 4 }, []],
+    healthdir: ["Programme director, provincial health agency", ["exec"], ["Public Health", "Pharmacy", "Medicine"], { health: 5 }, []],
+    opsmgr: ["Hub operations manager, Lakeshore Fresh", ["senior"], ["Supply Chain Management", "Business Administration"], { ops: 5 }, ["CSCP"]],
+    refrig: ["Project director, refrigeration contractor", ["exec"], ["Mechanical Engineering"], { construction: 4 }, []],
+    wms: ["Delivery lead, warehouse software vendor", ["senior"], ["Computer Science", "Business Administration"], { delivery: 4 }, ["PSM I"]],
+    qlead: ["Quality and validation lead", ["senior"], ["Chemical Engineering", "Pharmacy", "Microbiology"], { quality: 5 }, ["ASQ Certified Quality Engineer"]],
+    commeng: ["Commissioning engineer", ["mid"], ["Mechanical Engineering", "Electrical Engineering"], { construction: 4, controls: 3 }, ["P.Eng."]],
+    controls: ["Controls specialist, refrigeration contractor", ["senior"], ["Electrical Engineering Technology"], { controls: 5 }, []],
+    coord: ["Project coordinator", ["junior"], ["Commerce", "Supply Chain Management", "Engineering"], { planning: 3 }, ["CAPM"]],
   };
   const BANDS = { junior: [23, 28], mid: [27, 35], senior: [32, 46], exec: [40, 60] };
   const MOTIVES = ["career growth", "recognition", "learning new tools", "job security", "flexible hours", "better pay", "making an impact", "mentoring others", "work-life balance"];
@@ -168,6 +211,7 @@ const People = (() => {
   function newWorld() { used = new Set(); }
   function reserve(list) { for (const p of list) { used.add(p.known + p.last); used.add(p.last); } }
   function make(r, role, opts = {}) {
+    if (opts.region === "toronto") return makeTO(r, role, opts);
     if (role === "baale" || role === "community" || role === "cda") opts.group = opts.group || "yoruba";
     const def = ROLES[role] || ROLES.backend;
     const gender = opts.gender || (r.chance(role === "matron" ? 0.85 : role === "foreman" || role === "baale" ? 0.05 : role === "community" ? 0.95 : 0.46) ? "f" : "m");
@@ -206,13 +250,55 @@ const People = (() => {
     p.bio = bio(r, p);
     return p;
   }
+  // Toronto people: same personalities and skills, local names, places, schools and looks
+  function makeTO(r, role, opts) {
+    const def = ROLES[role] || ROLES.backend;
+    const gender = opts.gender || (r.chance(0.5) ? "f" : "m");
+    const gk = opts.group || r.weighted(Object.fromEntries(Object.entries(TO_GROUPS).map(([k, g]) => [k, g.weight])));
+    const g = TO_GROUPS[gk];
+    let first, last, tries = 0;
+    do { first = r.pick(gender === "m" ? g.male : g.female); last = r.pick(g.surnames); } while ((used.has(first[1] + last) || used.has(last)) && tries++ < 30);
+    used.add(first[1] + last); used.add(last);
+    const band = opts.band || r.pick(def[1]);
+    const age = r.int(BANDS[band][0], BANDS[band][1]);
+    const b = bigFive(r);
+    const degree = def[2].length ? r.pick(def[2]) : null;
+    const uni = degree ? r.pick(TO_UNIS) : null;
+    const masters = degree && band !== "junior" && r.chance(band === "exec" ? 0.5 : 0.18) ? r.pick(["MBA from the Rotman School", "MBA from Schulich", "MEng from the University of Toronto", "MSc from McMaster University"]) : null;
+    const area = r.pick(TO_AREAS);
+    const expYears = Math.max(1, age - (degree ? 22 : 18) - r.int(0, 2));
+    const skills = {}, lvl = { junior: 2, mid: 3, senior: 4, exec: 4 }[band];
+    for (const [k, base] of Object.entries(def[3])) skills[k] = Math.max(1, Math.min(5, Math.round(base + (lvl - 3) * 0.6 + r.normal(0, 0.6))));
+    const certs = def[4].filter(() => r.chance(band === "junior" ? 0.25 : 0.55));
+    const motives = r.shuffle(MOTIVES).slice(0, 2);
+    let life = null;
+    if (!opts.noLife && age < 50) for (const [text, pr2, key] of r.shuffle(LIFE)) if (key !== "side" && r.chance(pr2)) { life = { text, key }; break; }
+    const looks = avatarGenes(r, gender, false, age, role, gk);
+    looks.skin = r.int(g.skin[0], g.skin[1]); looks.hairC = r.int(g.hair[0], g.hair[1]);
+    if (gender === "m") looks.hair = r.pick(gk === "black" ? ["low", "fade", "twists", "locs", "bald"] : age > 50 ? ["bald", "side", "low"] : ["side", "side", "low", "fade"]);
+    else looks.hair = r.pick(gk === "black" ? ["braids", "afro", "puff", "bun", "bob"] : ["long", "long", "bob", "bun"]);
+    if (gk === "westasian" && gender === "f" && r.chance(0.3)) looks.hair = "hijab";
+    looks.outfit = r.pick(["shirt", "shirt", "blazer"]);
+    if (looks.hair === "kufi" || looks.hair === "gele" || looks.hair === "wrap") looks.hair = gender === "m" ? "side" : "bob";
+    const honor = opts.honor || "";
+    const p = {
+      id: "p" + (++counter) + "_" + Math.floor(r() * 1e6).toString(36), role, title: opts.title || def[0], band, gender, group: g.label, region: "toronto", origin: r.pick(g.origins),
+      first: first[0], known: first[1], middle: null, last, muslim: false, honor,
+      age, degree, uni, masters, expYears, area: area[0], commute: Math.max(5, area[1] + r.int(-10, 15)), skills, certs,
+      big5: b, traits: traitWords(b), style: conflictStyle(b), motives, life,
+      morale: Math.round(R.clamp(r.normal(66, 8), 42, 86)), energy: 100, looks, org: opts.org || "",
+    };
+    p.bio = bio(r, p);
+    return p;
+  }
   function bio(r, p) {
     const he = p.gender === "m" ? "He" : "She", his = p.gender === "m" ? "his" : "her";
     const bits = [];
     if (p.uni) bits.push(`Studied ${p.degree} at ${p.uni}${p.masters ? ` and holds an ${p.masters}` : ""}.`);
     if (["community", "baale", "cda", "foreman"].includes(p.role)) bits.push(p.role === "baale" ? `${he} has led the community for ${Math.max(3, p.expYears - 20)} years and is widely respected.` : p.role === "community" ? `${he} has run the association's rotating savings for ${Math.max(5, p.expYears - 15)} years.` : `${he} has ${p.expYears} years on building sites across Lagos.`);
     else bits.push(`${p.expYears} years of experience.`);
-    bits.push(`From ${p.state} State; lives in ${p.area}${p.commute > 70 ? `, about ${Math.round(p.commute / 5) * 5} minutes each way in peak traffic` : ""}.`);
+    if (p.region === "toronto") bits.push(`Grew up in ${p.origin}; lives in ${p.area}${p.commute > 55 ? `, about ${Math.round(p.commute / 5) * 5} minutes each way at rush hour` : ""}.`);
+    else bits.push(`From ${p.state} State; lives in ${p.area}${p.commute > 70 ? `, about ${Math.round(p.commute / 5) * 5} minutes each way in peak traffic` : ""}.`);
     if (p.certs.length) bits.push(`Holds ${p.certs.join(" and ")}.`);
     if (p.life) bits.push(`${he} is ${p.life.text}.`);
     bits.push(`Motivated by ${p.motives[0]} and ${p.motives[1]}.`);
@@ -225,8 +311,8 @@ const People = (() => {
   const moodWord = m => m >= 80 ? "energised" : m >= 65 ? "steady" : m >= 50 ? "flat" : m >= 35 ? "frustrated" : "close to burnout";
 
   // ---------- avatars ----------
-  const SKIN = ["#3A2219", "#472A1E", "#553324", "#633D2A", "#714631", "#7F5038", "#8E5B40", "#9C684A", "#AA7553"];
-  const HAIR = ["#141010", "#1C1512", "#231A15", "#2B201A"];
+  const SKIN = ["#3A2219", "#472A1E", "#553324", "#633D2A", "#714631", "#7F5038", "#8E5B40", "#9C684A", "#AA7553", "#B98463", "#C99A76", "#D7AC8A", "#E3BD9F", "#EDCBB0", "#F4D8C2"];
+  const HAIR = ["#141010", "#1C1512", "#231A15", "#2B201A", "#4A3220", "#6B4A2B", "#8A6A45", "#B08D57", "#C9A66B", "#7A3B22"];
   const CLOTH = ["#2F5D8A", "#1F6F5C", "#7A3E6B", "#A8572B", "#3D3F78", "#6B7A2E", "#8B2F3A", "#2E6E86", "#5B4B8A", "#B07A1E", "#38424F", "#6E2C5E"];
   const WRAP = ["#C1442E", "#D49A1E", "#2B7A6F", "#7B3C8C", "#1E5AA8", "#B8325E", "#3C8D3A"];
   const BG = ["#DCE6EE", "#E6E0EE", "#E3ECE2", "#F0E6DA", "#E1E7F0", "#EDE2E2", "#E0ECEA"];
@@ -261,6 +347,7 @@ const People = (() => {
     if (!bare) s += `<rect width="64" height="64" fill="${BG[g.bg]}"/>`;
     // back hair / wraps behind head
     if (g.hair === "braids") s += `<path d="M14 26 Q12 54 18 64 L46 64 Q52 54 50 26 Z" fill="${hairC}"/>`;
+    if (g.hair === "long") s += `<path d="M13 28 Q11 52 16 61 L48 61 Q53 52 51 28 Z" fill="${hairC}"/>`;
     if (g.hair === "locs") s += `<path d="M16 24 Q14 46 18 52 L46 52 Q50 46 48 24 Z" fill="${hairC}"/>`;
     if (g.hair === "hijab") s += `<path d="M12 30 Q12 10 32 9 Q52 10 52 30 L56 64 L8 64 Z" fill="${wrap}"/>`;
     // body
@@ -294,6 +381,8 @@ const People = (() => {
       case "bob": s += `<path d="M${32 - faceRx - 3} 38 Q${32 - faceRx - 3} ${top - 3} 32 ${top - 3} Q${32 + faceRx + 3} ${top - 3} ${32 + faceRx + 3} 38 L${32 + faceRx - 1} 38 Q${32 + faceRx - 1} ${top + 5} 32 ${top + 6} Q${32 - faceRx + 1} ${top + 5} ${32 - faceRx + 1} 38 Z" fill="${hairC}"/>`; break;
       case "wrap": case "gele": s += `<path d="M${32 - faceRx - 3} 24 Q${30 - faceRx} ${top - 10} 32 ${top - 9} Q${34 + faceRx} ${top - 10} ${32 + faceRx + 3} 24 Q32 ${top + 4} ${32 - faceRx - 3} 24 Z" fill="${wrap}"/>` + (g.hair === "gele" ? `<path d="M${40} ${top - 8} q8 -4 10 4 q-6 0 -10 -4Z" fill="${wrap}"/><path d="M${32 - faceRx} 22 Q32 ${top} ${32 + faceRx} 22" stroke="#FFF" stroke-width=".8" opacity=".4" fill="none"/>` : ""); break;
       case "hijab": s += `<path d="M${32 - faceRx - 2} 34 Q${32 - faceRx - 3} ${top - 3} 32 ${top - 3} Q${32 + faceRx + 3} ${top - 3} ${32 + faceRx + 2} 34 Q${32 + faceRx} ${top + 5} 32 ${top + 4} Q${32 - faceRx} ${top + 5} ${32 - faceRx - 2} 34 Z" fill="${wrap}"/><path d="M${32 - faceRx - 2} 34 Q${32 - faceRx + 1} 46 ${26} ${46} L38 46 Q${32 + faceRx - 1} 46 ${32 + faceRx + 2} 34 L${32 + faceRx + 4} 50 L${32 - faceRx - 4} 50 Z" fill="${wrap}"/>`; break;
+      case "long": s += `<path d="M${32 - faceRx - 2} 36 Q${32 - faceRx - 3} ${top - 3} 32 ${top - 3} Q${32 + faceRx + 3} ${top - 3} ${32 + faceRx + 2} 36 L${32 + faceRx - 1} 30 Q${32 + faceRx - 3} ${top + 5} 30 ${top + 4} Q${32 - faceRx + 1} ${top + 6} ${32 - faceRx + 1} 34 Z" fill="${hairC}"/>`; break;
+      case "side": s += `<path d="M${32 - faceRx} 27 Q${32 - faceRx - 1} ${top - 3} 33 ${top - 4} Q${32 + faceRx + 1} ${top - 3} ${32 + faceRx} 26 Q${36} ${top + 1} ${30} ${top + 3} Q${32 - faceRx + 2} ${top + 5} ${32 - faceRx} 27 Z" fill="${hairC}"/>`; break;
       case "bald": s += `<ellipse cx="27" cy="${top + 4}" rx="4" ry="2" fill="#FFFFFF" opacity=".12"/>`; break;
     }
     // brows, eyes, nose, mouth

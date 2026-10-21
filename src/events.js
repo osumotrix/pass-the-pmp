@@ -60,7 +60,7 @@ document.addEventListener("click", e => {
   if (d.charterq !== undefined) { const S = G[G.view]; S.charterQ = +d.charterq; save(); render(); return; }
   if (d.sign) {
     const S = G[d.sign]; S.signed = true; save(); render();
-    setTimeout(() => { if (d.sign === "kudi") Agile.startPlanning(S, G.people); else S.phase = "plan"; save(); render(); window.scrollTo({ top: 0 }); toast("Charter signed. The project is authorised."); }, 900);
+    setTimeout(() => { if (d.sign === "kudi") Agile.startPlanning(S, G.people); else S.phase = d.sign === "cold" ? "probe" : "plan"; save(); render(); window.scrollTo({ top: 0 }); toast("Charter signed. The project is authorised."); }, 900);
     return;
   }
 
@@ -84,6 +84,14 @@ document.addEventListener("click", e => {
   // predictive
   if (d.planok !== undefined) { const S = G.clinic; Pred.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
   if (d.cycle !== undefined) return runCycleAnimated();
+  if (d.soon) { const o = OFFICES[d.soon]; toast(`${o.city}: ${o.teaser}. Coming soon.`); return; }
+  if (d.lagos !== undefined) { const el = document.querySelector(".hq"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  // Toronto rescue
+  if (d.cprobego !== undefined) { const S = G.cold; if ((S._probe || []).length !== 3) return; Cold.probe(S, G.people, S._probe); delete S._probe; Sound.sfx("whoosh"); save(); render(); window.scrollTo({ top: 0 }); return; }
+  if (d.coldok !== undefined) { const S = G.cold; Cold.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
+  if (d.cfn !== undefined) return runFortnightAnimated();
+  if (d.caction) { const S = G.cold; if (Cold.ACTIONS[d.caction] && Cold.ACTIONS[d.caction].needs) return coldPicker(); S._actMsg = Cold.doAction(S, G.people, d.caction); save(); render(); return; }
+  if (d.cpick) { closeOverlay(); const S = G.cold; S._actMsg = Cold.doAction(S, G.people, "meetStake", d.cpick); save(); render(); return; }
   // hybrid
   if (d.landok !== undefined) { const S = G.land; Land.setPlan(S, S._plan); delete S._plan; save(); render(); window.scrollTo({ top: 0 }); return; }
   if (d.month !== undefined) return runMonthAnimated();
@@ -154,6 +162,8 @@ document.addEventListener("change", e => {
   const t = e.target, d = t.dataset;
   if (d.pick) { const S = G.kudi; const s = new Set(S._sel || []); t.checked ? s.add(d.pick) : s.delete(d.pick); S._sel = [...s]; save(); render(); return; }
   if (d.plan) { const S = G.clinic; S._plan = Object.assign({}, S._plan, { [d.plan]: t.value }); save(); return; }
+  if (d.cprobe) { const S = G.cold; const set = new Set(S._probe || []); t.checked ? set.add(d.cprobe) : set.delete(d.cprobe); S._probe = [...set].slice(0, 3); save(); render(); return; }
+  if (d.cplan) { const S = G.cold; const [k, v] = d.cplan.split("|"); S._plan = Object.assign({}, S._plan, { [k]: v }); save(); render(); return; }
   if (d.landplan) { const S = G.land; S._plan = Object.assign({}, S._plan, { [d.landplan]: t.value }); save(); render(); return; }
   if (d.xset) {
     const f = G.exam.setup; const k = d.xset;

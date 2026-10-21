@@ -72,7 +72,7 @@ function pumpBrief(key) {
   const len = (it.t || it.coach || "").length;
   const d = briefFast ? 120 : Math.max(700, Math.min(2400, 450 + len * 13));
   // voiced lines: a short typing beat, then the line plays and the next waits for it to finish
-  const vk = it.coach ? Voice.voiceKey(S, "mentor", mentor()) : Voice.voiceKey(S, it.w, castOf(key).p(it.w));
+  const vk = it.coach ? coachVK(key, S) : Voice.voiceKey(S, it.w, castOf(key).p(it.w));
   const sp = it.coach || it.sp || it.t;
   const voiced = !briefFast && Voice.on && Voice.has(vk, sp) && live();
   briefTimer = setTimeout(() => {
@@ -99,12 +99,12 @@ function briefChoose(key, target, label) {
   if (target[0] === "Q") {
     const i = +target.slice(1), ch = CHARTERS[key](castOf(key)), q = ch.q[i];
     S.charterQ = i;
-    B.queue.push({ w: SPONSOR[key], t: q[2], sp: q[3] }, { reveal: "Project manager's authority" }, { w: "sys", t: q[1] }, { coach: key === "land" ? "In hybrid projects, governance is explicit: who decides at each stage gate, against which criteria. Knowing that before you start protects you from carrying decisions that belong to the business." : key === "kudi" ? "The charter formally authorises the project and gives the project manager authority. Knowing the limits of that authority (what you decide, what goes to the sponsor, what belongs to the product owner) comes before anything else." : "Success criteria and acceptance define when the project is finished and who decides. Clarify them before you sign, and track them in every report." }, { go: "ready" });
+    B.queue.push({ w: SPONSOR[key], t: q[2], sp: q[3] }, { reveal: "Project manager's authority" }, { w: "sys", t: q[1] }, { coach: key === "cold" ? "In a recovery, authority matters more than ever: know which reserves are yours, where the tolerances sit, and which decisions go back to the sponsors. Rescues fail when the project manager quietly carries the board's decisions." : key === "land" ? "In hybrid projects, governance is explicit: who decides at each stage gate, against which criteria. Knowing that before you start protects you from carrying decisions that belong to the business." : key === "kudi" ? "The charter formally authorises the project and gives the project manager authority. Knowing the limits of that authority (what you decide, what goes to the sponsor, what belongs to the product owner) comes before anything else." : "Success criteria and acceptance define when the project is finished and who decides. Clarify them before you sign, and track them in every report." }, { go: "ready" });
     save(); pumpBrief(key); return;
   }
   if (target === "SIGN") { signCharter(key); return; }
   if (target === "GO") {
-    if (key === "kudi") Agile.startPlanning(S, G.people); else S.phase = "plan";
+    if (key === "kudi") Agile.startPlanning(S, G.people); else S.phase = key === "cold" ? "probe" : "plan";
     Sound.sfx("whoosh"); save(); render(); window.scrollTo({ top: 0 }); return;
   }
   save(); briefEnter(key, target);
@@ -120,13 +120,13 @@ function signCharter(key) {
 function bubble(m, key, c) {
   if (m.w === "me") return `<div class="msg me fade"><div class="mb">${esc(m.t)}</div></div>`;
   if (m.w === "sys") return `<div class="msg sys fade"><span class="verdict ${m.t}">${verdictLabel(m.t)}</span></div>`;
-  if (m.w === "coach") { const p = mentor(); return `<div class="msg them coach fade">${av(p, 30)}<div class="mb"><b class="tiny">${esc(People.short(p))} · coach</b><br>${esc(m.t)}</div></div>`; }
+  if (m.w === "coach") { const p = coachOf(key); return `<div class="msg them coach fade">${av(p, 30)}<div class="mb"><b class="tiny">${esc(People.short(p))} · coach</b><br>${esc(m.t)}</div></div>`; }
   const p = c.p(m.w); return `<div class="msg them fade">${av(p, 30)}<div class="mb">${esc(m.t)}</div></div>`;
 }
 function briefLogHTML(key, typingWho) {
   const S = G[key], B = briefState(key), c = castOf(key);
   let h = B.log.map(m => bubble(m, key, c)).join("");
-  if (typingWho) { const p = typingWho === "coach" ? mentor() : c.p(typingWho); h += `<div class="msg them">${av(p, 30)}<div class="mb typing" aria-label="typing"><i></i><i></i><i></i></div></div>`; }
+  if (typingWho) { const p = typingWho === "coach" ? coachOf(key) : c.p(typingWho); h += `<div class="msg them">${av(p, 30)}<div class="mb typing" aria-label="typing"><i></i><i></i><i></i></div></div>`; }
   return h;
 }
 function briefChipsHTML(key) {
@@ -155,9 +155,9 @@ function refreshBrief(key, flash, typingWho) {
 function viewCharter(key) {
   const S = G[key], c = castOf(key), ch = CHARTERS[key](c), B = briefState(key);
   const sp = ch.sponsor;
-  const label = key === "kudi" ? "The Head of Digital Banking's office" : key === "land" ? "The Permanent Secretary's office, Alausa" : "The site office in Ikorodu";
+  const label = key === "cold" ? "The site office at the Lakeshore Fresh hub, Mississauga" : key === "kudi" ? "The Head of Digital Banking's office" : key === "land" ? "The Permanent Secretary's office, Alausa" : "The site office in Ikorodu";
   const room = World3D.ok() ? World3D.brief(key, G.people, { sponsor: sp.id, label, player: { name: G.name } }) : Scene.room(G.people, [sp.id], { papers: true, id: key, label, sky: key === "kudi" ? "#8EC5E8" : "#9CCBE6", wall: key === "kudi" ? "#E9E4DA" : key === "land" ? "#EDE6D6" : "#E7DCCB" });
-  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "kudi" ? "P2 · Agile · Kudi Microfinance Bank, Marina" : key === "land" ? "P3 · Hybrid · State Lands Bureau, Alausa" : "P1 · Predictive · Ikorodu"}</p><h2>The charter briefing</h2></div><button class="btn ghost sm" data-go="office">Back to the office</button></div>
+  return `<div class="spread" style="margin-bottom:14px"><div><p class="eyebrow">${key === "cold" ? "P4 · Hybrid · Bluegate Toronto · Mississauga" : key === "kudi" ? "P2 · Agile · Kudi Microfinance Bank, Marina" : key === "land" ? "P3 · Hybrid · State Lands Bureau, Alausa" : "P1 · Predictive · Ikorodu"}</p><h2>The charter briefing</h2></div><button class="btn ghost sm" data-go="office">Back to the office</button></div>
   <div class="briefgrid">
     <div class="stack">
       <div class="stage small-stage">${room}</div>
@@ -189,6 +189,9 @@ const TIPS = {
   lrun: ["Three tracks at once", "Each month, scanning moves forward, the portal team releases, and staff move (or don't) along the change ladder. A district only goes live when its records are in, the core portal works and its people are ready."],
   lchange: ["The change ladder", "Awareness, Desire, Knowledge, Ability, Reinforcement. Training builds knowledge, but if people don't know why or don't want the change, training won't stick. Watch the Change tab."],
   lclose: ["Benefits after you leave", "A project delivers outputs; the organisation realises benefits. Before closing, make sure someone owns the benefits and will keep measuring them."],
+  cprobe: ["Assess before you act", "In a rescue, the first job is finding out what's true. Verified progress, the real money position and the contracts usually matter most. You won't see everything, so choose the checks that would hurt most to get wrong."],
+  cgate: ["Sunk costs", "At a gate, money already spent is gone whatever you decide. Compare the cost to complete with the value still to come. Recommending a stop when the case has gone is good project management, not failure."],
+  cshut: ["Closing early", "A stopped project still closes properly: settle contracts on their terms, protect the asset, release people with care, tell stakeholders, and keep the lessons. It's still a project, and it's still scored."],
   debrief: ["Reading a debrief", "After each decision, look at the exam lens and the task it maps to. The best answer usually assesses first, involves the right people and uses the agreed process before escalating."],
   exam: ["Exam Hall tips", "On the real exam, read the last sentence of the question first. Look for words like FIRST, NEXT and BEST. Strike out answers that skip assessment, ignore people or bypass the process."],
   mock: ["After your mock", "Review every wrong answer and ask which principle you missed. Two mocks in a row at Target or above in every domain is a good signal that you're ready to book."],
@@ -232,6 +235,8 @@ function coachTriggers() {
   if (v === "clinic" && C) { if (C.phase === "plan") coach("cplan"); if (C.phase === "run" && C.cycle >= 2) coach("ccpm"); if (C.phase === "run" && C.cycle >= 3) coach("cevm"); if (C.phase === "run" && Pred.rainLevel(C.week) >= 0.5) coach("crain"); if (C.phase === "closure") coach("cclose"); }
   const L = G.land;
   if (v === "land" && L) { if (L.phase === "plan") coach("lplan"); if (L.phase === "run") coach("lrun"); if (L.phase === "run" && L.month >= 3) coach("lchange"); if (L.phase === "closure") coach("lclose"); }
+  const CC = G.cold;
+  if (v === "cold" && CC) { if (CC.phase === "probe") coach("cprobe"); if (CC.phase === "run" && CC.fn >= 2) coach("cevm"); if (CC.phase === "gate") coach("cgate"); if (CC.phase === "shutdown") coach("cshut"); }
   if (v === "exam") coach("exam");
   if (G.exam.mocks.length) coach("mock");
   if (allSituations().length) coach("debrief");
@@ -239,7 +244,7 @@ function coachTriggers() {
 
 // ---------- badges ----------
 const BADGES = [
-  ["authorised", "Authorised", "Signed your first project charter", g => (g.kudi && g.kudi.signed) || (g.clinic && g.clinic.signed) || (g.land && g.land.signed)],
+  ["authorised", "Authorised", "Signed your first project charter", g => (g.kudi && g.kudi.signed) || (g.clinic && g.clinic.signed) || (g.land && g.land.signed) || (g.cold && g.cold.signed)],
   ["explorer", "Explorer", "Discovered 20 PMP concepts by exploring the worlds", g => Object.keys(g.insights || {}).length >= 20],
   ["increment", "First increment", "Finished your first sprint", g => g.kudi && g.kudi.velocity.length >= 1],
   ["mindset", "Exam mindset", "Handled five situations the exam way", () => allSituations().filter(l => l.grade === "best").length >= 5],
@@ -247,6 +252,7 @@ const BADGES = [
   ["shipped", "Shipped", "Closed the Kudi Savings project", g => g.kudi && g.kudi.phase === "done"],
   ["ribbon", "Ribbon cut", "Handed over Forte Clinic", g => g.clinic && g.clinic.phase === "done"],
   ["registry", "Registry online", "Closed the Land Registry project", g => g.land && g.land.phase === "done"],
+  ["rescued", "Rescuer", "Closed Cold-Chain Rescue, whichever way the gate went", g => g.cold && g.cold.phase === "done"],
   ["fifty", "Fifty answers", "Answered 50 exam questions", g => g.exam.answers.length >= 50],
   ["rehearsal", "Dress rehearsal", "Completed a mock exam", g => g.exam.mocks.length >= 1],
   ["target", "On target", "Target or above in every domain in a mock", g => g.exam.mocks.some(m => DOMAINS.every(d => ["AT", "T"].includes(m.bands[d])))],

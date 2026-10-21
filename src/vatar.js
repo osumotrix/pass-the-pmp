@@ -65,7 +65,7 @@ const VL = (() => {
   }
 
   function bestScore() {
-    const xs = ["kudi", "clinic", "land"].map((k) => G[k] && G[k].result && G[k].result.score).filter((x) => typeof x === "number");
+    const xs = ["kudi", "clinic", "land", "cold"].map((k) => G[k] && G[k].result && G[k].result.score).filter((x) => typeof x === "number");
     return xs.length ? Math.round(Math.max(...xs)) : null;
   }
   function submit(score) {
@@ -85,7 +85,7 @@ const VL = (() => {
     box.innerHTML = (b.top || []).slice(0, 10).map((r) => `<div class="spread small" style="padding:3px 0"><span>${r.rank}. ${esc(r.name)}</span><b>${r.score}</b></div>`).join("") || `<p class="small muted">No scores yet. Yours could be first.</p>`;
     if (b.me) box.insertAdjacentHTML("beforeend", `<p class="small" style="margin-top:8px">Your best: <b>${b.me.score}</b> · rank ${esc(b.me.label)}</p>`);
   }
-  const boardCard = () => (st.on ? `<div class="card" id="vlboard"><p class="eyebrow">Lagos Life leaderboard</p><p class="small muted" style="margin:4px 0 8px">Best project score across Kudi Savings, Forte Clinic and Land Registry.</p><div class="vlb small muted">Loading…</div></div>` : "");
+  const boardCard = () => (st.on ? `<div class="card" id="vlboard"><p class="eyebrow">Lagos Life leaderboard</p><p class="small muted" style="margin:4px 0 8px">Best project score across every Bluegate project.</p><div class="vlb small muted">Loading…</div></div>` : "");
 
   return {
     boot, buy, submit, bestScore, paintBoard, boardCard,

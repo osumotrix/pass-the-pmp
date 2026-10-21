@@ -198,7 +198,7 @@ function startPractice(f) {
 function practiceWeak(key) {
   const S = G[key]; const tasks = new Set();
   for (const l of S.log.filter(l => l.grade && l.grade !== "best")) { tasks.add(ecoKey(l.eco[0], l.eco[1])); if (l.also) tasks.add(ecoKey(l.also[0], l.also[1])); }
-  startPractice({ tasks: [...tasks], n: 10, label: `Tasks you missed in ${key === "kudi" ? "Kudi Savings" : key === "land" ? "Land Registry" : "Forte Clinic"}` });
+  startPractice({ tasks: [...tasks], n: 10, label: `Tasks you missed in ${key === "kudi" ? "Kudi Savings" : key === "land" ? "Land Registry" : key === "cold" ? "Cold-Chain Rescue" : "Forte Clinic"}` });
 }
 
 // ---------- timer ----------

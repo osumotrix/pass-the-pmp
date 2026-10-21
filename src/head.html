@@ -557,5 +557,21 @@ body.w3lock{overflow:hidden}
 .adkar .ak.done{background:#D8D1EF;color:#3A2F66}
 .adkar .ak.now{background:#7A6BB3;color:#fff;box-shadow:0 6px 16px -6px rgba(74,61,125,.6)}
 @media (max-width:640px){.adkar{gap:4px}.adkar .ak{font-size:9.5px;padding:6px 2px;overflow-wrap:anywhere;hyphens:auto}.adkar .ak b{font-size:15px}}
+.omap{margin:18px 0 6px}
+.omapbox{position:relative;margin:12px auto 0;max-width:860px;aspect-ratio:1000/420;background:linear-gradient(180deg,#E6F1F7,#D6E7F0);border-radius:14px;overflow:hidden}
+.omapbox svg{position:absolute;inset:0;width:100%;height:100%}
+.omapbox .land{fill:#F7FAF8;stroke:#C5D6DF;stroke-width:1.5;stroke-linejoin:round}
+.opin{position:absolute;transform:translate(-7px,-7px);background:none;border:0;padding:0;cursor:pointer;display:block;width:14px;height:14px}
+.opin .dot{position:absolute;inset:0;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(14,110,98,.22)}
+.opin.live .dot{animation:pinpulse 2.4s ease-out infinite}
+.opin.soon .dot{background:#fff;border:2px solid #8A97A6;box-shadow:none}
+.opin .olab{position:absolute;left:20px;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--surface);color:var(--ink);padding:4px 9px;border-radius:9px;font-size:12.5px;line-height:1.25;box-shadow:0 1px 5px rgba(19,36,58,.16);text-align:left}
+.opin.l .olab{left:auto;right:20px;text-align:right}
+.opin .olab span{display:block;color:var(--muted);font-size:11px}
+.opin.soon .olab{opacity:.85}
+.opin:hover .olab,.opin:focus-visible .olab{outline:2px solid var(--accent)}
+@keyframes pinpulse{0%{box-shadow:0 0 0 0 rgba(14,110,98,.45)}70%{box-shadow:0 0 0 12px rgba(14,110,98,0)}100%{box-shadow:0 0 0 0 rgba(14,110,98,0)}}
+@media (max-width:640px){.opin .olab span{display:none}.opin .olab{font-size:10.5px;padding:2px 6px}.opin.soon .olab{display:none}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .omapbox{background:linear-gradient(180deg,#14253A,#0F1D2E)}:root:not([data-theme="light"]) .omapbox .land{fill:#22364C;stroke:#2F4862}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

@@ -122,6 +122,8 @@ const World3D = (() => {
       case "afro": case "twists": case "puff": blob(head, L.hair === "puff" ? 0.2 : 0.23, c, 0, y + 0.06, -0.02, 0.85); if (L.hair === "puff") box(head, 0.28, 0.05, 0.27, c, 0, y, 0); break;
       case "braids": case "locs": box(head, 0.29, 0.07, 0.28, c, 0, y, 0); box(head, 0.29, 0.42, 0.08, c, 0, y - 0.4, -0.13); break;
       case "bun": box(head, 0.28, 0.06, 0.27, c, 0, y, 0); blob(head, 0.09, c, 0, y + 0.1, -0.08); break;
+      case "long": box(head, 0.3, 0.07, 0.29, c, 0, y, 0); box(head, 0.3, 0.36, 0.08, c, 0, y - 0.34, -0.13); box(head, 0.06, 0.3, 0.2, c, -0.15, y - 0.28, -0.04); box(head, 0.06, 0.3, 0.2, c, 0.15, y - 0.28, -0.04); break;
+      case "side": box(head, 0.28, 0.06, 0.27, c, 0, y, 0); box(head, 0.2, 0.06, 0.12, c, 0.05, y + 0.03, 0.09); box(head, 0.28, 0.12, 0.06, c, 0, y - 0.1, -0.11); break;
       case "bob": box(head, 0.3, 0.08, 0.29, c, 0, y - 0.02, 0); box(head, 0.06, 0.2, 0.26, c, -0.15, y - 0.2, -0.01); box(head, 0.06, 0.2, 0.26, c, 0.15, y - 0.2, -0.01); break;
       case "kufi": case "fila": cyl(head, 0.13, 0.145, 0.1, L.hair === "fila" ? "#7B3C8C" : "#F1ECE0", 0, y - 0.02, 0, 10); break;
       case "hijab": box(head, 0.32, 0.32, 0.3, L.wrap, 0, 0.06, -0.02); box(head, 0.36, 0.2, 0.3, L.wrap, 0, -0.06, -0.02); break;
@@ -176,7 +178,7 @@ const World3D = (() => {
   }
   function getWorld(key) {
     if (worlds[key]) return worlds[key];
-    const b = key === "kudi" ? buildKudi : key === "clinic" ? buildClinic : key === "land" ? buildLand : key === "pmo" ? buildPMO : key.startsWith("brief") ? buildBrief : buildPMO;
+    const b = key === "kudi" ? buildKudi : key === "clinic" ? buildClinic : key === "land" ? buildLand : key === "cold" ? buildCold : key === "pmo" ? buildPMO : key.startsWith("brief") ? buildBrief : buildPMO;
     return makeWorld(key, b);
   }
   // walls that fold down when they stand between the camera and the room
@@ -1013,12 +1015,144 @@ const World3D = (() => {
     c.fillStyle = "#3FA36B"; c.fillRect(24, 440, 18, 18); txt(c, "Live", 50, 456, 18, "#13243A"); c.fillStyle = "#E7AE4B"; c.fillRect(110, 440, 18, 18); txt(c, "Scanning", 136, 456, 18, "#13243A"); c.fillStyle = "#C9D3DD"; c.fillRect(240, 440, 18, 18); txt(c, "Waiting", 266, 456, 18, "#13243A");
     ct.tex.needsUpdate = true;
   }
+  // ---------- Toronto: the Lakeshore Fresh cold-storage hub ----------
+  const CL = { player: [2.4, 3.4, -2.6], rooms: [-7.6, -3.6, 0.4, 4.4], roomZ: -4.6 };
+  function torontoLook(seed) {
+    const h = H(seed), f = (h >>> 2) % 2 === 0;
+    return { skin: ["#5A3826", "#8E5B40", "#B98463", "#D7AC8A", "#E3BD9F", "#EDCBB0", "#C99A76"][h % 7], cloth: ["#2F5D8A", "#1F6F5C", "#38424F", "#A8572B", "#5B4B8A"][(h >>> 3) % 5], wrap: "#2F5D8A", hairC: ["#141010", "#2B201A", "#6B4A2B", "#B08D57"][(h >>> 5) % 4], hair: f ? ["long", "bun", "bob"][(h >>> 6) % 3] : ["low", "side"][(h >>> 6) % 2], outfit: "shirt", gender: f ? "f" : "m", trouser: TROUSERS[(h >>> 7) % 6], hat: (h >>> 9) % 2 ? null : "#F2C230", vest: true, h };
+  }
+  function pine(par, x, z, s = 1) { cyl(par, 0.12 * s, 0.15 * s, 0.7 * s, "#6B4A2B", x, 0, z, 6); for (let i = 0; i < 3; i++) { const m = new T.Mesh(new T.ConeGeometry((0.95 - i * 0.24) * s, 1.1 * s, 7), mat(i % 2 ? "#2E5E43" : "#2A5A3E")); m.position.set(x, (0.9 + i * 0.62) * s, z); m.castShadow = true; par.add(m); const sn = new T.Mesh(new T.ConeGeometry((0.5 - i * 0.12) * s, 0.35 * s, 7), mat("#F4F8FB")); sn.position.set(x, (1.32 + i * 0.62) * s, z); par.add(sn); } }
+  function truck(par, x, z, ry, col) { const g = grp(par, x, 0, z, ry); box(g, 2.2, 2.2, 5.2, "#EEF2F5", 0, 0.5, -0.6); box(g, 2.2, 1.6, 1.6, col, 0, 0.4, 2.7); box(g, 1.9, 0.6, 0.05, "#9CC9E4", 0, 1.35, 3.51, { cast: false }); for (const [sx, sz] of [[-1, 2.6], [1, 2.6], [-1, -1.6], [1, -1.6], [-1, -2.6], [1, -2.6]]) { const wh = cyl(g, 0.42, 0.42, 0.3, "#1E2733", sx * 1.02, 0.42, sz, 12); wh.rotation.z = Math.PI / 2; } const lg = canvasTex(256, 96); lg.ctx.fillStyle = "#EEF2F5"; lg.ctx.fillRect(0, 0, 256, 96); txt(lg.ctx, "LAKESHORE FRESH", 128, 58, 26, "#0E6E62", 900, "center"); lg.tex.needsUpdate = true; panel(g, 3.6, 1.35, lg, 1.11, 1.6, -0.6, Math.PI / 2); return g; }
+  function forklift(par, x, z) {
+    const g = grp(par, x, 0, z);
+    box(g, 0.9, 0.55, 1.3, "#E7AE4B", 0, 0.2, 0); box(g, 0.8, 0.06, 0.8, "#2D3640", 0, 1.35, -0.1); for (const sx of [-0.38, 0.38]) box(g, 0.05, 0.8, 0.05, "#2D3640", sx, 0.6, -0.45);
+    box(g, 0.08, 1.6, 0.08, "#38424F", -0.3, 0.2, 0.7); box(g, 0.08, 1.6, 0.08, "#38424F", 0.3, 0.2, 0.7);
+    const fork = grp(g, 0, 0.25, 0.75); box(fork, 0.1, 0.04, 0.9, "#7D8995", -0.22, 0, 0.45); box(fork, 0.1, 0.04, 0.9, "#7D8995", 0.22, 0, 0.45);
+    const pal = box(fork, 0.9, 0.12, 0.9, "#B98B55", 0, 0.05, 0.45); const load = box(fork, 0.8, 0.6, 0.8, "#F2F2F2", 0, 0.17, 0.45);
+    for (const [sx, sz] of [[-0.46, -0.4], [0.46, -0.4], [-0.46, 0.45], [0.46, 0.45]]) { const wh = cyl(g, 0.17, 0.17, 0.12, "#1E2733", sx, 0.17, sz, 10); wh.rotation.z = Math.PI / 2; }
+    return { g, fork, load, pal };
+  }
+  function buildCold(w) {
+    const s = w.scene; w.view = { theta: 0.55, phi: 0.98, r: 27, tx: -0.5, ty: 0.6, tz: 0, rMin: 9, rMax: 38 };
+    s.fog = new T.Fog("#E6EEF4", 45, 110); w.hemi.color.set("#F4F8FF");
+    // late-autumn snow around the hub, a car park and the loading yard
+    const snow = new T.Mesh(new T.CircleGeometry(80, 48), mat("#EEF3F7")); snow.rotation.x = -Math.PI / 2; snow.position.y = -0.31; snow.receiveShadow = true; s.add(snow);
+    box(s, 9, 0.02, 18, "#8E979F", 15.6, -0.3, 0, { cast: false });
+    for (let i = 0; i < 9; i++) { const a = Math.PI + 0.3 + i * 0.36; pine(s, Math.cos(a) * 22 - 2, Math.sin(a) * 15, 1.1 + (i % 3) * 0.3); }
+    truck(s, 16.2, -3.2, -Math.PI / 2, "#0E6E62"); truck(s, 16.6, 2.4, -Math.PI / 2, "#2F5D8A");
+    for (let i = 0; i < 4; i++) { const b = box(s, 7, 5 + (i % 2) * 3, 6, ["#C9D3DD", "#B8C2CC", "#D5DCE3"][i % 3], -6 + i * 9, -0.3, -24); }
+    box(s, 23.6, 0.3, 15.6, "#B4BCC4", 0, -0.3, 0);
+    const fl = canvasTex(256, 256), fc = fl.ctx; fc.fillStyle = "#C9CFD4"; fc.fillRect(0, 0, 256, 256); fc.strokeStyle = "rgba(60,70,80,.12)"; fc.lineWidth = 2; for (let i = 0; i <= 8; i++) { fc.beginPath(); fc.moveTo(i * 32, 0); fc.lineTo(i * 32, 256); fc.stroke(); fc.beginPath(); fc.moveTo(0, i * 32); fc.lineTo(256, i * 32); fc.stroke(); } fl.tex.wrapS = fl.tex.wrapT = T.RepeatWrapping; fl.tex.repeat.set(3, 2); fl.tex.needsUpdate = true;
+    const floor = new T.Mesh(new T.PlaneGeometry(23, 15), new T.MeshLambertMaterial({ map: fl.tex })); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.002; floor.receiveShadow = true; s.add(floor);
+    // yellow aisle lines
+    for (const z of [-2.2, 2.4]) box(s, 21, 0.01, 0.1, "#E7AE4B", 0, 0.004, z, { cast: false });
+    const WC = "#E3E9EE";
+    const back = wall(w, s, -11.5, -7.5, 11.5, -7.5, 4.2, WC);
+    const left = wall(w, s, -11.5, 7.5, -11.5, -7.5, 4.2, WC);
+    wall(w, s, 11.5, -7.5, 11.5, 7.5, 4.2, WC, [{ at: 3.2, w: 2.6, y0: 0, y1: 3.0, glass: false }, { at: 7.4, w: 2.6, y0: 0, y1: 3.0, glass: false }, { at: 11.6, w: 2.6, y0: 0, y1: 3.0, glass: false }]);
+    wall(w, s, 11.5, 7.5, -11.5, 7.5, 4.2, WC, [{ at: 6, w: 3 }, { at: 12, w: 3 }, { at: 18, w: 2.4 }]);
+    for (const z of [-4.3, -0.1, 4.1]) { box(s, 0.12, 0.12, 2.6, "#E7AE4B", 11.3, 3.0, z); }
+    // four cold rooms along the back wall; they grow as the build progresses
+    w.dyn.rooms = CL.rooms.map((x, i) => {
+      const g = grp(s, x, 0, CL.roomZ);
+      const shell = grp(g, 0, 0, 0);
+      const pc = ["#F7FAFC", "#F3F6F8"][i % 2];
+      const walls = [box(shell, 3.6, 1, 0.14, pc, 0, 0, -1.5), box(shell, 0.14, 1, 3.0, pc, -1.8, 0, 0), box(shell, 0.14, 1, 3.0, pc, 1.8, 0, 0), box(shell, 1.3, 1, 0.14, pc, -1.15, 0, 1.5), box(shell, 1.3, 1, 0.14, pc, 1.15, 0, 1.5)];
+      const door = box(g, 1.0, 2.2, 0.08, "#BFE3F2", 0, 0, 1.52, { material: mat("#BFE3F2", { transparent: true, opacity: 0.55 }) });
+      const strip = box(g, 1.0, 0.1, 0.1, "#9AA9B8", 0, 2.25, 1.55);
+      const lamp = blob(g, 0.12, "#9AA9B8", 1.0, 2.55, 1.6);
+      const scaffold = grp(g, 0, 0, 0); for (const sx of [-1.9, 1.9]) for (const sz of [-1.6, 1.6]) box(scaffold, 0.06, 2.8, 0.06, "#E7AE4B", sx, 0, sz); for (const y of [1.2, 2.4]) { box(scaffold, 3.8, 0.05, 0.06, "#E7AE4B", 0, y, 1.6); box(scaffold, 3.8, 0.05, 0.06, "#E7AE4B", 0, y, -1.6); }
+      // racks inside, filled with pallets once the room is live
+      const goods = grp(g, 0, 0, -0.6); for (let k = 0; k < 6; k++) box(goods, 0.7, 0.6, 0.7, i === 0 ? "#FFFFFF" : i === 3 ? "#D7E9F7" : ["#7FC59B", "#E7AE4B", "#C2412F"][k % 3], -1.2 + (k % 3) * 1.2, (k < 3 ? 0.1 : 0.9), 0);
+      const sg = canvasTex(256, 64); sg.ctx.fillStyle = "#13243A"; sg.ctx.fillRect(0, 0, 256, 64); txt(sg.ctx, Cold.ROOMS[i][1].toUpperCase(), 128, 30, 19, "#FFFFFF", 800, "center"); txt(sg.ctx, Cold.ROOMS[i][2], 128, 54, 18, "#7CF2C4", 700, "center"); sg.tex.needsUpdate = true;
+      const sp = panel(g, 1.6, 0.4, sg, 0, 2.95, 1.6, 0);
+      if (i === 0) hotspot(w, "vaxroom", sp, "The vaccine room"); else if (i === 3) hotspot(w, "frozen", sp, "The frozen store");
+      return { g, shell, walls, door, strip, lamp, scaffold, goods };
+    });
+    // pallet racking in the middle and a forklift on its round
+    for (const x of [-6.5, -2.5]) { const g = grp(s, x, 0, 0.1); for (const sx of [-1.6, 1.6]) box(g, 0.08, 2.6, 0.9, "#2F5D8A", sx, 0, 0); for (const y of [0.05, 1.25, 2.45]) box(g, 3.3, 0.06, 0.9, "#E86A24", 0, y, 0); }
+    w.dyn.pallets = []; for (const x of [-6.5, -2.5]) for (let lv = 0; lv < 2; lv++) for (let k = 0; k < 3; k++) { const p = box(s, 0.9, 0.7, 0.8, ["#C9A066", "#F2F2F2", "#7FC59B"][(k + lv) % 3], x - 1.05 + k * 1.05, 0.12 + lv * 1.2, 0.1); p.visible = false; w.dyn.pallets.push(p); }
+    hotspot(w, "racking", w.dyn.pallets[0], "Pallet racking");
+    w.dyn.fork = forklift(s, 3, 1.2);
+    // the temperature monitoring wall
+    w.dyn.temps = canvasTex(768, 432);
+    const tv = panel(left.inner, 3.0, 1.7, w.dyn.temps, 4.4, 2.2, 0.12, 0); left.decor.push(tv); box(left.inner, 3.1, 1.8, 0.06, "#1E2733", 4.4, 1.35, 0.07);
+    hotspot(w, "temps", tv, "Temperature monitoring wall");
+    // the recovery board: earned value and the gate
+    w.dyn.board = canvasTex(768, 480);
+    const bp = panel(left.inner, 2.6, 1.6, w.dyn.board, 10.6, 1.8, 0.12, 0); left.decor.push(bp); box(left.inner, 2.7, 1.7, 0.05, "#7D8793", 10.6, 0.95, 0.06);
+    hotspot(w, "board", bp, "The recovery board");
+    // site office: Bluegate's desks and the sponsors' table
+    rug(s, -7.4, 4.6, 6.2, 4.2, "#2F5D8A", "#DCE4EA");
+    deskUnit(s, -9.4, 5.6, Math.PI, "cdesk1"); deskUnit(s, -7.6, 5.6, Math.PI, "cdesk2"); deskUnit(s, -5.8, 5.6, Math.PI, "cdesk3");
+    box(s, 2.6, 0.08, 1.2, "#6A4C30", -7.4, 0.74, 3.4); for (const [sx, sz] of [[-1.2, -0.5], [1.2, -0.5], [-1.2, 0.5], [1.2, 0.5]]) box(s, 0.07, 0.74, 0.07, "#4A3B2C", -7.4 + sx, 0, 3.4 + sz);
+    const tb = canvasTex(256, 64); tb.ctx.fillStyle = "#0E6E62"; tb.ctx.fillRect(0, 0, 256, 64); txt(tb.ctx, "BLUEGATE · SITE OFFICE", 128, 41, 20, "#FFFFFF", 800, "center"); tb.tex.needsUpdate = true;
+    const tp = panel(left.inner, 1.8, 0.45, tb, 13.6, 3.0, 0.12, 0); left.decor.push(tp); hotspot(w, "office", tp, "Bluegate's site office");
+    // the control room, glass on two sides
+    const glassM = GLASS();
+    box(s, 0.06, 2.6, 3.4, "#BFE3F2", 6.6, 0, 5.6, { material: glassM, cast: false }); box(s, 3.4, 2.6, 0.06, "#BFE3F2", 8.3, 0, 3.9, { material: glassM, cast: false });
+    deskUnit(s, 8.4, 6.6, Math.PI, "controls", { top: "#AEB6BF" });
+    const cr = grp(s, 10.2, 0, 6.8); box(cr, 1.4, 1.9, 0.6, "#38424F", 0, 0, 0); w.dyn.leds = []; for (let i = 0; i < 10; i++) w.dyn.leds.push(box(cr, 0.06, 0.06, 0.02, i % 3 ? "#3FD1B5" : "#E7AE4B", -0.5 + (i % 5) * 0.25, 0.6 + Math.floor(i / 5) * 0.7, -0.31, { cast: false, m: { basic: true } }));
+    hotspot(w, "controls", cr, "Refrigeration control panel");
+    // the loading dock
+    for (const z of [-4.3, -0.1, 4.1]) box(s, 1.2, 0.5, 2.4, "#5C6670", 10.8, 0, z);
+    const dk = canvasTex(256, 64); dk.ctx.fillStyle = "#E7AE4B"; dk.ctx.fillRect(0, 0, 256, 64); txt(dk.ctx, "DOCK 1 · DOCK 2 · DOCK 3", 128, 41, 20, "#13243A", 900, "center"); dk.tex.needsUpdate = true;
+    const dp = panel(s, 2.4, 0.6, dk, 11.38, 3.6, 0, -Math.PI / 2); hotspot(w, "dock", dp, "The loading dock");
+    plant(s, -11, 7, 1.1); plant(s, -4.4, 7, 1);
+    w.way = [[-7.4, 2.4, 0], [-1.0, 3.2, Math.PI], [5.4, -1.0, Math.PI], [-4.6, -1.0, Math.PI], [8.6, 1.4, -Math.PI / 2]];
+    w.player = CL.player;
+    w.chat = () => WCONTENT.A["cold:" + (w.desc && w.desc.phase)] || WCONTENT.A["cold:run"];
+    w.update = d => {
+      (d.rooms || []).forEach((r, i) => {
+        const R2 = w.dyn.rooms[i]; if (!R2) return;
+        const h = 0.25 + 2.35 * Math.max(0.05, r.pct);
+        R2.walls.forEach(m => { m.scale.y = h; m.position.y = h / 2; });
+        R2.scaffold.visible = !r.built; R2.door.visible = r.built; R2.strip.visible = r.built;
+        R2.lamp.material = mat(r.live ? "#3FD1B5" : r.mapped ? "#7FB2E6" : r.built ? "#E7AE4B" : "#9AA9B8", { basic: r.built });
+        R2.door.material = mat(r.live ? "#D7EEF9" : "#BFE3F2", { transparent: true, opacity: r.live ? 0.8 : 0.5 });
+        R2.goods.visible = !!r.live;
+      });
+      const nP = Math.round(w.dyn.pallets.length * Math.min(1, (d.live || 0) / 3)); w.dyn.pallets.forEach((p, k) => { p.visible = k < nP; });
+      drawTemps(w.dyn.temps, d.rooms || [], d.excursion); drawBoard(w.dyn.board, d.board || {});
+      const want = d.workers || 0, cur2 = [...w.agents.values()].filter(a => a.anon && a.e.worker);
+      for (let i = cur2.length; i < want; i++) { const r = rnd("cw" + i); const x0 = CL.rooms[i % 4]; const loop = i % 2 ? [[x0 + (r() - 0.5) * 2, -2.6], [9.6, -1.2 + r() * 3]] : null; const a = addAgent(w, { id: "cw" + i, look: torontoLook("cw" + i), spot: [x0 + (r() - 0.5) * 2.4, -2.7 + r() * 0.3, Math.PI], mode: loop ? "stand" : "work", worker: true, loop, carry: loop ? "#C9A066" : null, speed: 1.0 }); a.wt = r() * 4; }
+      for (const a of cur2.slice(want)) removeAgent(w, a.id);
+    };
+    w.tick = (dt, t) => {
+      const F = w.dyn.fork, u = (Math.sin(t * 0.25) + 1) / 2;
+      F.g.position.x = -8 + u * 15; F.g.position.z = 1.55; F.g.rotation.y = Math.cos(t * 0.25) > 0 ? Math.PI / 2 : -Math.PI / 2;
+      F.fork.position.y = 0.25 + Math.max(0, Math.sin(t * 0.9)) * 0.3;
+      w.dyn.leds.forEach((l, i) => { l.visible = Math.sin(t * (2.5 + i * 0.4) + i * 2.1) > -0.3; });
+    };
+  }
+  function drawTemps(ct, rooms, exc) {
+    const c = ct.ctx, W2 = ct.w, H2 = ct.h; c.fillStyle = "#0F1A26"; c.fillRect(0, 0, W2, H2);
+    txt(c, "Cold rooms · live temperatures", 24, 46, 28, "#E6EEF5", 800);
+    rooms.forEach((r, i) => {
+      const y = 76 + i * 84, col = r.live ? "#3FD1B5" : r.mapped ? "#7FB2E6" : r.built ? "#E7AE4B" : "#3A4B5E";
+      c.fillStyle = "#1A2838"; rrect(c, 24, y, W2 - 48, 70, 10); c.fill();
+      txt(c, Cold.ROOMS[i][1], 44, y + 30, 22, "#E6EEF5", 700); txt(c, `Target ${Cold.ROOMS[i][2]}`, 44, y + 56, 17, "#9AA9B8", 600);
+      const reading = r.live || r.built ? (i === 3 ? "−21.6 °C" : i === 0 ? (exc && !r.live ? "11.0 °C" : "4.8 °C") : "2.9 °C") : "—";
+      txt(c, reading, W2 - 210, y + 44, 30, exc && i === 0 && !r.live ? "#FF8A7A" : col, 800, "right");
+      txt(c, r.live ? "LIVE" : r.mapped ? "VALIDATED" : r.built ? "MAPPING" : "BUILDING", W2 - 44, y + 44, 18, col, 800, "right");
+    });
+    ct.tex.needsUpdate = true;
+  }
+  function drawBoard(ct, b) {
+    const c = ct.ctx, W2 = ct.w, H2 = ct.h; c.fillStyle = "#FBFBF7"; c.fillRect(0, 0, W2, H2);
+    c.fillStyle = "#0E6E62"; c.fillRect(0, 0, W2, 12);
+    txt(c, "Recovery board", 28, 60, 34, "#13243A", 800);
+    const rows = [["Verified progress", b.p], ["CPI", b.cpi], ["SPI", b.spi], ["Forecast cost", b.eac], ["Gate", b.gate], ["Opening date", b.date]];
+    rows.forEach(([k, v], i) => { const y = 112 + i * 58; txt(c, k, 28, y, 24, "#58677A", 600); txt(c, String(v == null ? "—" : v), W2 - 28, y, 26, "#13243A", 800, "right"); c.fillStyle = "#E3E8EE"; c.fillRect(28, y + 16, W2 - 56, 2); });
+    ct.tex.needsUpdate = true;
+  }
   // ---------- charter briefing rooms ----------
   function buildBrief(w) {
-    const s = w.scene, isK = w.key === "brief-kudi" || w.key === "brief-land", isL = w.key === "brief-land";
+    const s = w.scene, isC = w.key === "brief-cold", isK = w.key === "brief-kudi" || w.key === "brief-land" || isC, isL = w.key === "brief-land";
     w.view = { theta: 0.5, phi: 1.0, r: 11.5, tx: 0, ty: 1.0, tz: 0, rMin: 6, rMax: 20 };
     s.fog = new T.Fog(isK ? "#CFE7F3" : "#D8ECF6", 30, 80);
-    if (isL) { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#86A26A")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 13, Math.sin(i) * 13, 5, i + 60); }
+    if (isC) { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#EEF3F7")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 9; i++) pine(s, Math.cos(i * 0.7) * 13, Math.sin(i * 0.7) * 13, 1.2 + (i % 3) * 0.3); truck(s, 9, -6, 0.4, "#0E6E62"); }
+    else if (isL) { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#86A26A")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 13, Math.sin(i) * 13, 5, i + 60); }
     else if (isK) { const water = new T.Mesh(new T.CircleGeometry(70, 40), mat("#4B8FB2")); water.rotation.x = -Math.PI / 2; water.position.y = -6; s.add(water); skyline(w, 24, 50, 20, -6, "brief", ["#9FB3C6", "#B8C6D4", "#8EA2B6"]); const tower = new T.Mesh(BOXG, mat("#2B4A5E")); tower.scale.set(9, 6, 7.5); tower.position.set(0, -3.15, 0); s.add(tower); }
     else { const g = new T.Mesh(new T.CircleGeometry(60, 40), mat("#B8693F")); g.rotation.x = -Math.PI / 2; g.position.y = -0.3; s.add(g); for (let i = 0; i < 8; i++) palm(s, Math.cos(i) * 14, Math.sin(i) * 14, 5, i); for (let i = 0; i < 6; i++) house(s, Math.cos(i * 1.1 + 0.5) * 22, Math.sin(i * 1.1 + 0.5) * 22, 3.5, 3, "#D9CBB3", "#8E9AA6", -i); }
     box(s, 8.4, 0.25, 7, isK ? "#AEB6BF" : "#245A6E", 0, -0.25, 0);
@@ -1036,6 +1170,7 @@ const World3D = (() => {
     box(s, 0.3, 0.02, 0.4, "#FBFBF7", -0.7, 0.78, -0.1, { cast: false }); cyl(s, 0.05, 0.04, 0.1, "#E8E2D2", 0.8, 0.78, -0.3, 8);
     for (const [sx, sz, r2] of [[0, -1.5, 0], [-0.75, 1.3, Math.PI], [0.75, 1.3, Math.PI]]) { const g = grp(s, sx, 0, sz, r2); box(g, 0.48, 0.08, 0.46, isK ? "#2D3640" : "#5C6670", 0, 0.46, 0); box(g, 0.48, 0.52, 0.07, isK ? "#2D3640" : "#5C6670", 0, 0.5, -0.22); }
     if (isL) { const lg = canvasTex(256, 160); lg.ctx.fillStyle = "#1F5A3A"; lg.ctx.fillRect(0, 0, 256, 160); txt(lg.ctx, "STATE LANDS", 128, 64, 30, "#F2C230", 900, "center"); txt(lg.ctx, "BUREAU", 128, 104, 30, "#F2C230", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.2, 0.75, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
+    else if (isC) { const lg = canvasTex(256, 160); lg.ctx.fillStyle = "#0E6E62"; lg.ctx.fillRect(0, 0, 256, 160); txt(lg.ctx, "LAKESHORE", 128, 70, 32, "#FFFFFF", 900, "center"); txt(lg.ctx, "FRESH CO-OP", 128, 110, 26, "#BFE3F2", 800, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.3, 0.8, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
     else if (isK) { const lg = canvasTex(256, 128); lg.ctx.fillStyle = "#13243A"; lg.ctx.fillRect(0, 0, 256, 128); txt(lg.ctx, "KUDI", 128, 84, 64, "#3FD1B5", 900, "center"); lg.tex.needsUpdate = true; const lp = panel(left.inner, 1.4, 0.7, lg, 3.3, 1.75, 0.11, 0); left.decor.push(lp); }
     else { const dw = poster(512, 360, "#FBFBF7", "Site layout", ["Clinic block", "Solar and borehole", "Laydown area", "Site office"], "#2B7A6F"); const lp = panel(left.inner, 1.4, 1.0, dw, 3.3, 1.7, 0.11, 0); left.decor.push(lp); }
     plant(s, 3.4, -2.8, 1.1); plant(s, -3.4, 2.8, 1);
@@ -1151,6 +1286,39 @@ const World3D = (() => {
       hotNote: { archive: "Five districts, one shelf each", scanner: "One of three stations", portal: "On the back wall by the project pod", rack: "Hums quietly in the corner", registrarDoor: "Glass office, back corner", counter: "Where the public queues", map: "Updated every month", dpnotice: "By the public entrance", adkar: "Put up by the change champions", committee: "Where the stage gates are decided" },
     });
   }
+  const coldFocus = { probe: ["The health check", "Choose three checks. What you skip will surface later."], plan: ["The recovery plan", "Set a new baseline you can defend."], run: ["Recover the hub", "Watch the rooms, the money and the people. Talk to the team."], gate: ["The gate", "Update the business case and recommend: continue, pause or stop."], shutdown: ["An orderly shutdown", "Close it well: contracts, people, the building and the lessons."], closure: ["Close-out", "Acceptance, contracts, handover and lessons."], done: ["Project closed", "Read your report below. You can still walk the hub."] };
+  function cold(S, people, o = {}) {
+    const c = Cold.cast(S, people), ph = S.phase, f = S.fn || 0, pend = o.pending, react = o.react || {};
+    const list = [];
+    const add = (k, spot, extra = {}) => { const p = c.p(k); if (!p || list.some(e => e.id === p.id)) return; list.push(Object.assign({ id: p.id, p, role: p.role, key: k, spot, pending: pend === p.id, react: react[p.id], mode: "stand" }, extra)); };
+    add("coord", [-7.6, 6.4, Math.PI], { mode: "type", wander: true, front: [-7.6, 4.8] });
+    add("qlead", [-5.8, 6.4, Math.PI], { mode: "type", wander: true, front: [-5.8, 4.8], o: { clip: true } });
+    add("commeng", [-3.6, -2.4, Math.PI], { wander: true, o: { hat: "#F2F2F2", vest: true } });
+    add("refrig", [0.4, -2.4, Math.PI], { wander: true, o: { hat: "#F2C230", vest: true } });
+    add("controls", [8.4, 7.4, Math.PI], { mode: "type" });
+    add("wms", [-9.4, 6.4, Math.PI], { mode: "type" });
+    add("opsmgr", [8.8, -1.6, -Math.PI / 2], { wander: true, o: { vest: true } });
+    const board = ["plan", "gate", "closure", "done", "shutdown"].includes(ph) || [1, 4].includes(f);
+    if (board) { add("chair", [-8.6, 2.6, 0.4]); if (S.stake.healthdir.aware) add("healthdir", [-6.2, 2.6, -0.4]); }
+    if (["probe", "gate", "closure", "done"].includes(ph)) add("director", [-7.4, 2.2, 0]);
+    if (pend && !list.some(e => e.id === pend) && people[pend]) list.push({ id: pend, p: people[pend], role: people[pend].role, spot: [CL.player[0] + 1.3, CL.player[1] - 0.6, -1.2], pending: true, enterFrom: [6, 8.6] });
+    for (const e of list) if (e.pending) { e.spot = faceTo([CL.player[0] + 1.2, CL.player[1] - 0.55], CL.player); e.wander = false; e.mode = "stand"; }
+    const pe = list.find(e => e.pending);
+    list.push(playerEntry(o.player, pe ? faceTo(CL.player, pe.spot) : CL.player, { hat: "#F2F2F2" }));
+    let m = null; try { m = Cold.metrics(S); } catch (e) { }
+    const site = !!S.known.site;
+    const tp = Cold.teamP(S, people), mood = tp.reduce((a, p) => a + p.morale, 0) / Math.max(1, tp.length);
+    const [ft, fd] = coldFocus[ph] || ["", ""];
+    const rooms = S.rooms.map(r => ({ built: r.built, mapped: r.mapped, live: r.live != null, pct: r.built ? 1 : Math.max(0.08, Math.min(0.95, (S.p - 50) / (r.at - 50))) }));
+    const workers = ["run"].includes(ph) && !(S.gate === "pause" && f === 5) ? 6 : ph === "shutdown" ? 2 : 0;
+    return stage("cold", {
+      label: "The Lakeshore Fresh cold-storage hub in Mississauga. Drag to look around; select people and objects to talk and learn.", phase: ph,
+      people: list, rooms, live: m ? m.live : 0, workers, excursion: S.fired.C11 && S.fired.C11 !== "best" && S.rooms[0].live == null,
+      board: { p: site ? Math.round(S.p) + "%" : Cold.REPORTED + "% (reported)", cpi: site && m ? m.CPI.toFixed(2) : "unverified", spi: m && f > 1 ? m.SPI.toFixed(2) : "—", eac: site && m ? Cold.money(m.EAC) : "unverified", gate: { continue: "Continue", conditional: "Continue, with conditions", pause: "Paused", stop: "Stopped" }[S.gate] || "After fortnight 4", date: S.publicDate },
+      hud: { place: "Lakeshore Fresh hub, Mississauga", time: { probe: "Health check", plan: "Recovery plan", gate: "The gate", closure: "Close-out", shutdown: `Shutdown · fortnight ${f}`, done: "Closed" }[ph] || `Fortnight ${f} · ${Cold.dateOf(f)}`, mood, money: `${Cold.money(S.ac)} spent`, focusTitle: ft, focus: fd },
+      hotNote: { vaxroom: "2 to 8 °C, for 300 clinics", frozen: "The last room to finish", racking: "Pallets arrive as rooms go live", temps: "On the wall by the racking", board: "Updated every fortnight", office: "Front left, by the entrance", controls: "Inside the glass control room", dock: "Three dock doors on the east wall" },
+    });
+  }
   function pmo(people, o) {
     const list = [];
     const m = people[o.mentor];
@@ -1160,9 +1328,9 @@ const World3D = (() => {
   }
   function brief(key, people, o) {
     const sp = people[o.sponsor], list = [];
-    if (sp) { const rk = sp.role === "donor" ? "donor" : sp.role === "permsec" ? "permsec" : "sponsor"; list.push({ id: sp.id, p: sp, role: rk, key: rk, spot: [0, -1.05, 0], mode: "stand" }); }
+    if (sp) { const rk = sp.role === "donor" ? "donor" : sp.role === "permsec" ? "permsec" : sp.role === "chair" ? "chair" : "sponsor"; list.push({ id: sp.id, p: sp, role: rk, key: rk, spot: [0, -1.05, 0], mode: "stand" }); }
     list.push(playerEntry(o.player, [0, 1.05, Math.PI]));
-    return stage("brief-" + key, { label: o.label, people: list, hud: { place: key === "kudi" ? "Kudi, Marina" : key === "land" ? "State Lands Bureau, Alausa" : "Site office, Ikorodu", time: "Charter briefing", focusTitle: "Charter briefing", focus: "Ask the sponsor questions, then sign the charter to authorise the project." }, hotNote: { charterdoc: "On the table, waiting for your signature" } }, "small");
+    return stage("brief-" + key, { label: o.label, people: list, hud: { place: key === "kudi" ? "Kudi, Marina" : key === "land" ? "State Lands Bureau, Alausa" : key === "cold" ? "Hub site office, Mississauga" : "Site office, Ikorodu", time: "Charter briefing", focusTitle: "Charter briefing", focus: "Ask the sponsor questions, then sign the charter to authorise the project." }, hotNote: { charterdoc: "On the table, waiting for your signature" } }, "small");
   }
   function faceTo(a, b) { return [a[0], a[1], Math.atan2(b[0] - a[0], b[1] - a[1])]; }
   function playerEntry(pl, spot, o = {}) {
@@ -1179,5 +1347,5 @@ const World3D = (() => {
     for (const [k, h] of Object.entries(W.hot)) { const s = toScreen(h.m, 0); out.push({ kind: "hot", id: k, off: !!h.m.userData.off, x: r.left + s.x, y: r.top + s.y }); }
     return out;
   }
-  return { ok, kudi, clinic, land, pmo, brief, flush, bind, stage, probe };
+  return { ok, kudi, clinic, land, cold, pmo, brief, flush, bind, stage, probe };
 })();

@@ -9,6 +9,8 @@ const Voice = (() => {
     supplier: "the equipment supplier", baale: "the Baale", cda: "the community association chair", matron: "the matron", bidder: "the other bidder", mentor: "your coach", loud: "one engineer", quiet: "another",
     permsec: "the permanent secretary", registrar: "the registrar", dpo: "the data protection officer", ictdir: "the director of ICT", union: "the union branch chair", champion: "our change champion", officer: "the lands officer",
     vendor: "the vendor's delivery manager", agent: "the estate agent", ba: "our business analyst", devlead: "our lead developer", datalead: "our data migration lead",
+    director: "our office director", chair: "the board chair", healthdir: "the agency's programme director", opsmgr: "the hub operations manager", refrig: "the refrigeration contractor",
+    wms: "the software vendor's delivery lead", qlead: "our quality lead", commeng: "our commissioning engineer", controls: "the controls specialist", coord: "our project coordinator",
   };
   const TEAM = ["be1", "be2", "mo1", "mo2", "qa", "ux"];
   const ALIAS = ["clashA", "clashB", "commuter", "leaver"];
@@ -26,6 +28,7 @@ const Voice = (() => {
   }
   function clean(t) {
     return String(t || "").replace(/àjọ/g, "ajo").replace(/Ọ̀rẹ́/g, "Oreh").replace(/\s*÷\s*/g, " divided by ").replace(/\s=\s/g, " equals ")
+      .replace(/C\$\s?([\d.,]+)\s?(?:million|m)\b/g, "$1 million dollars")
       .replace(/₦\s?([\d.,]+)\s?(?:million|m)\b/g, "$1 million naira")
       .replace(/₦\s?([\d.,]+)\s?(?:billion|bn)\b/g, "$1 billion naira")
       .replace(/₦\s?([\d.,]+)/g, "$1 naira")
