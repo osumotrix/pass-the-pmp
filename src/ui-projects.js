@@ -393,6 +393,7 @@ function spokenScene(cur) {
   const S = G[cur.key], sit = cur.prepared.sit;
   let out = [];
   if (!sit.dyn && sit.id !== "A15") { try { out = sit.scene(Voice.spokenCast(cur.prepared.c, S)).map(l => l[1]); } catch (e) { out = []; } }
+  else if (sit.dyn) out = cur.prepared.scene.map(l => l[2] || null); // dynamic scenes voice only their fixed lines
   return (cur._sp = out);
 }
 function skipSituation() { if (!cur) return; clearTimeout(sitTimer); if (cur.result) { const it = resultItems(); if ((cur.rshown || 0) < 3 && it.length >= 3) sayLesson(); cur.rshown = it.length; cur.rbusy = false; drawSituation(); return; } Voice.stop(); cur.shown = cur.prepared.scene.length; cur.busy = false; cur.talking = false; drawSituation(); }
