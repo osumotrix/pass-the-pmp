@@ -64,7 +64,7 @@ const World3D = (() => {
   const TROUSERS = ["#1E2733", "#2B2F3A", "#3A3328", "#22303F", "#4A3B2C", "#1C1C22"];
   function lookOf(p, o = {}) {
     const pal = People.palette(p), g = p.looks, h = H(p.id);
-    return { skin: pal.skin, cloth: pal.cloth, wrap: pal.wrap, hairC: pal.hair, hair: g.hair, outfit: g.outfit, gender: p.gender, trouser: TROUSERS[h % TROUSERS.length], skirt: p.gender === "f" && (h >>> 3) % 3 === 0, long: g.outfit === "agbada" || g.outfit === "kaftan" || (p.gender === "f" && g.outfit === "ankara" && (h >>> 5) % 2 === 0), hat: o.hat, vest: o.vest, uniform: o.uniform, clip: o.clip, age: p.age, beard: p.gender === "m" && (h >>> 12) % 3 === 0, glasses: (h >>> 15) % 4 === 0 || (p.age > 48 && (h >>> 15) % 2 === 0), lips: p.gender === "f" && (h >>> 16) % 2 === 0 ? ["#8E3B46", "#A0525A", "#6E3A3A"][(h >>> 17) % 3] : null, h };
+    return { skin: pal.skin, cloth: pal.cloth, wrap: pal.wrap, hairC: pal.hair, hair: g.hair, outfit: g.outfit, gender: p.gender, trouser: TROUSERS[h % TROUSERS.length], skirt: p.gender === "f" && (h >>> 3) % 3 === 0, long: g.outfit === "agbada" || g.outfit === "kaftan" || (p.gender === "f" && g.outfit === "ankara" && (h >>> 5) % 2 === 0), hat: o.hat, vest: o.vest, uniform: o.uniform, clip: o.clip, age: p.age, beard: p.pic ? !!g.picBeard : p.gender === "m" && (h >>> 12) % 3 === 0, glasses: p.pic ? false : (h >>> 15) % 4 === 0 || (p.age > 48 && (h >>> 15) % 2 === 0), lips: p.gender === "f" && (h >>> 16) % 2 === 0 ? ["#8E3B46", "#A0525A", "#6E3A3A"][(h >>> 17) % 3] : null, h };
   }
   function workerLook(seed) {
     const h = H("w" + seed);

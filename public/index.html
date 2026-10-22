@@ -811,7 +811,7 @@ const People = (() => {
   }
 
   let counter = 0, used = new Set();
-  function newWorld() { used = new Set(); }
+  function newWorld() { used = new Set(); usedPics = new Set(); }
   function reserve(list) { for (const p of list) { used.add(p.known + p.last); used.add(p.last); } }
   function make(r, role, opts = {}) {
     if (opts.region === "toronto") return makeTO(r, role, opts);
@@ -851,7 +851,7 @@ const People = (() => {
     };
     p.commute = Math.max(5, p.commute);
     p.bio = bio(r, p);
-    return p;
+    return dress(p, gk);
   }
   // Toronto people: same personalities and skills, local names, places, schools and looks
   function makeTO(r, role, opts) {
@@ -892,7 +892,7 @@ const People = (() => {
       morale: Math.round(R.clamp(r.normal(66, 8), 42, 86)), energy: 100, looks, org: opts.org || "",
     };
     p.bio = bio(r, p);
-    return p;
+    return dress(p, gk);
   }
   function bio(r, p) {
     const he = p.gender === "m" ? "He" : "She", his = p.gender === "m" ? "his" : "her";
@@ -912,6 +912,47 @@ const People = (() => {
   const short = p => p.honor && /Dr |Chief /.test(p.honor) ? `${p.honor}${p.last}` : p.known;
   const pr = p => p.gender === "m" ? { he: "he", He: "He", him: "him", his: "his", His: "His" } : { he: "she", He: "She", him: "her", his: "her", His: "Her" };
   const moodWord = m => m >= 80 ? "energised" : m >= 65 ? "steady" : m >= 50 ? "flat" : m >= 35 ? "frustrated" : "close to burnout";
+
+  // ---------- portraits ----------
+  // A library of neutral studio portraits. Each entry: file|group|gender|age band (y, m, s)|hair or headwear|skin|hair colour|beard.
+  // Every person is matched to the closest portrait by background, gender and age, and their 3D figure takes the portrait's
+  // headwear, hair and skin so the face in chat and the figure in the office are the same person.
+  const PICS = "000|yoruba|m|y|low|68492d||;001|yoruba|m|y|fila|714b36||;002|yoruba|m|y|low|6e4936||;003|yoruba|m|y|low|9b503b||;004|yoruba|m|m|low|825840||;005|yoruba|m|m|fila|bf7655||;006|yoruba|m|m|low|795348||;007|yoruba|m|m|low|a86133||;008|yoruba|m|s|fila|5e4332||;009|yoruba|m|m|fila|753d1c||;010|yoruba|m|s|bald|644830||;011|yoruba|m|s|low|8a5c3a||;012|yoruba|f|y|braids|b17658||;013|yoruba|f|y|bun|875443||;015|yoruba|f|y|low|8a533f||;016|yoruba|f|m|bun|a55436||;017|yoruba|f|m|bun|7a4d2e||;018|yoruba|f|m|gele|825037||;019|yoruba|f|m|low|9e5e3b||;020|yoruba|f|m|low|8b5531||;021|yoruba|f|s|low|7a442c|8F8B86|;022|yoruba|f|s|gele|6e4124||;023|yoruba|f|s|bun|a7714f||;024|igbo|m|y|low|5d3a27||;025|igbo|m|y|low|36281d||1;026|igbo|m|y|low|805c46||;027|igbo|m|m|low|a86437||;028|igbo|m|m|low|70462d||;029|igbo|m|y|low|5b3c2a||;030|igbo|m|s|fila|74543b||;031|igbo|m|s|low|ad7d59||;032|igbo|m|s|low|79594c||;033|igbo|f|y|braids|9e6552||;034|igbo|f|y|low|b06339||;035|igbo|f|y|afro|754227||;036|igbo|f|m|bun|a96e50||;038|igbo|f|m|bob|9e6947||;039|igbo|f|m|low|896c4c||;040|igbo|f|s|low|674635|8F8B86|;041|igbo|f|s|low|58321b|8F8B86|;042|hausa|m|y|kufi|774e32||;043|hausa|m|y|low|532c1b||;044|hausa|m|m|kufi|834923||;045|hausa|m|y|low|64321b||;046|hausa|m|s|kufi|80441f||;047|hausa|m|s|low|724319|8F8B86|;048|hausa|f|y|hijab|683b26||;049|hausa|f|y|hijab|6a4d45||;050|hausa|f|m|hijab|86583e||;051|hausa|f|m|hijab|6a3724||;052|hausa|f|s|hijab|73432d||;053|hausa|f|s|hijab|7f513a||;054|edo|m|y|low|904736||;055|edo|m|m|low|7b4e39||1;056|edo|m|s|low|6c3e27||;057|edo|f|y|bun|703f2e||;058|edo|f|m|low|835033||;059|edo|f|m|bun|603c30||;060|urhobo|m|y|low|6a3b31||;061|urhobo|m|m|low|864b2d||1;062|urhobo|m|m|low|7b4529||1;063|urhobo|f|y|braids|6e502e||;064|urhobo|f|m|bob|604331||;065|urhobo|f|m|low|5f2e20||;066|ibibio|m|y|low|663820||;067|ibibio|m|m|low|af634c||;068|ibibio|m|s|low|584541|8F8B86|;069|ibibio|f|y|braids|5f3c26||;070|ibibio|f|m|low|aa7450|8F8B86|;071|ibibio|f|m|bun|885f3f||;072|ijaw|m|y|low|6a3629||;073|ijaw|m|m|low|745747||;074|ijaw|m|s|low|9a6249||;075|ijaw|f|y|bob|804025||;076|ijaw|f|m|bun|713f1a||;077|ijaw|f|s|bun|94593b|8F8B86|;078|tiv|m|y|low|7a4124||;079|tiv|m|m|low|876252||;080|tiv|m|s|bald|9f725f||;081|tiv|f|y|long|915437||;082|tiv|f|m|bob|b87855||;083|tiv|f|m|bob|a46c51||;084|euro|m|y|side|b7684a|8A6A45|;085|euro|m|y|side|c47662|4A3220|;086|euro|m|y|side|c48f67|4A3220|;087|euro|m|m|side|d49e84|2B201A|;088|euro|m|m|side|87594a|8A6A45|1;089|euro|m|m|side|915e4d|8A6A45|1;090|euro|m|s|side|c1865a|8F8B86|;091|euro|m|s|bald|a18472||;092|euro|m|m|side|bf8d6a|4A3220|;093|euro|f|y|long|c19980|8A6A45|;094|euro|f|y|long|ae7e67|6B4A2B|;095|euro|f|y|long|b07259|C9A66B|;096|euro|f|m|long|b17c5a|C9A66B|;097|euro|f|m|long|b78e78|B08D57|;098|euro|f|m|bun|a38175|4A3220|;099|euro|f|s|bun|a57453|8F8B86|;100|euro|f|s|long|c18e63|C9A66B|;101|euro|f|m|long|b17960|6B4A2B|;102|southasian|m|y|side|8e5d3c||;103|southasian|m|y|side|986a50||;104|southasian|m|m|side|905847||;105|southasian|m|m|side|ac7860||;106|southasian|m|s|side|b66d4d|8F8B86|;107|southasian|m|m|side|845d40||;108|southasian|f|y|long|ae8360||;109|southasian|f|y|bun|b67a60||;110|southasian|f|y|bun|976447||;111|southasian|f|m|long|b78250||;112|southasian|f|s|bob|a66f51||;113|southasian|f|s|bun|875937||;114|chinese|m|y|side|b88769||;115|chinese|m|y|side|a5684b||;116|chinese|m|m|side|af7d62||;117|chinese|m|m|side|ca8969||;118|chinese|m|s|side|c9885e||;119|chinese|m|s|side|ab7c62|8F8B86|;120|chinese|f|y|long|cd9a7d||;121|chinese|f|y|bun|7f4d32||;122|chinese|f|m|bob|b88266||;123|chinese|f|y|bun|c1956e||;124|chinese|f|s|bob|895639||;125|chinese|f|s|bob|96593c|8F8B86|;126|black|m|y|low|4e332a||;127|black|m|y|bald|7c4429||;128|black|m|m|bald|59322d||;129|black|m|m|bald|5c3f2f||;130|black|m|s|low|a06d40||;131|black|m|s|bald|80503a||;132|black|f|y|braids|774d34||;133|black|f|y|long|9e5535||;134|black|f|m|braids|a76b49||;135|black|f|y|bun|65422f||;136|black|f|s|bun|623c25|8F8B86|;137|black|f|s|locs|8f6241||;138|filipino|m|y|side|af7f68||;139|filipino|m|m|side|e29e71||;140|filipino|m|s|side|d7936c|8F8B86|;141|filipino|f|y|long|b28a66||;142|filipino|f|m|long|ca8f71||;143|filipino|f|m|bob|986550||;144|italport|m|y|side|a06c57||1;145|italport|m|m|side|a27a6e|8F8B86|1;146|italport|m|m|side|b66f51||;147|italport|f|y|long|b07a4c||;148|italport|f|m|long|ae7a64|4A3220|;149|italport|f|s|bob|c29379||;150|westasian|m|y|side|b18060||;151|westasian|m|m|side|a86c48||;152|westasian|m|s|side|a66257||;153|westasian|f|y|long|9f524a|4A3220|;154|westasian|f|m|hijab|b49171||;155|westasian|f|m|long|c29369|4A3220|;156|korean|m|y|side|aa764e||;157|korean|m|m|side|a36c4d||;158|korean|m|s|side|6c432f||;159|korean|f|y|long|4d3b27||;160|korean|f|m|long|9b6330||;161|korean|f|s|bob|9b613c|8F8B86|".split(";").map(e => { const [n, gk, gender, band, hair, skin, hairC, beard] = e.split("|"); return { n, gk, gender, band, hair, skin: "#" + skin, hairC: hairC ? "#" + hairC : "", beard: !!beard }; });
+  const RELIGIOUS = { hijab: 1, kufi: 1 }, HEADWEAR = { hijab: 1, kufi: 1, fila: 1, gele: 1, wrap: 1 };
+  let usedPics = new Set();
+  const bandOf = age => age < 36 ? "y" : age < 50 ? "m" : "s";
+  const GROUP_KEY = {};
+  function pickPic(p, gk) {
+    gk = gk || GROUP_KEY[p.group] || "yoruba";
+    const want = HEADWEAR[p.looks.hair] ? p.looks.hair : "", band = bandOf(p.age), h = R.hash(p.first + p.last + p.role);
+    let best = null, bv = -1e9;
+    for (const c of PICS) {
+      if (c.gender !== p.gender || c.gk !== gk) continue;
+      let v = c.band === band ? 4 : (band === "m" || c.band === "m") ? 1.5 : 0;
+      if (want && c.hair === want) v += 3;
+      if (RELIGIOUS[c.hair] && !p.muslim && want !== c.hair) v -= 8;
+      if (p.muslim && p.gender === "f" && c.hair !== "hijab") v -= 3;
+      if (want === "gele" && c.hair === "gele") v += 1;
+      if (usedPics.has(c.n)) v -= 10;
+      v += ((h ^ R.hash(c.n)) % 997) / 997 * 0.9;
+      if (v > bv) { bv = v; best = c; }
+    }
+    return best;
+  }
+  // give a person their portrait and bring their figure in line with it
+  function dress(p, gk) {
+    const c = pickPic(p, gk);
+    if (!c) { p.pic = ""; return p; }
+    usedPics.add(c.n); p.pic = c.n;
+    const g = p.looks;
+    if (c.hair) g.hair = c.hair;
+    else if (HEADWEAR[g.hair]) g.hair = p.gender === "m" ? "low" : "bun";
+    g.skinHex = c.skin; g.hairHex = c.hairC || null; g.grey = false; g.glasses = false; g.picBeard = c.beard;
+    if (c.hair === "fila" && g.outfit !== "agbada") g.outfit = p.role === "baale" ? "agbada" : g.outfit;
+    if (c.hair === "kufi") g.outfit = "kaftan";
+    return p;
+  }
+  const MOOD_RING = m => m >= 80 ? "#2E9E5B" : m >= 65 ? "#3E8E9E" : m >= 50 ? "#D3A12E" : m >= 35 ? "#E07B2E" : "#C94040";
 
   // ---------- avatars ----------
   const SKIN = ["#3A2219", "#472A1E", "#553324", "#633D2A", "#714631", "#7F5038", "#8E5B40", "#9C684A", "#AA7553", "#B98463", "#C99A76", "#D7AC8A", "#E3BD9F", "#EDCBB0", "#F4D8C2"];
@@ -942,9 +983,15 @@ const People = (() => {
     return g;
   }
   function avatar(p, size = 56, moodOverride, bare) {
-    const g = p.looks, skin = SKIN[g.skin], hairC = g.grey ? "#8F8B86" : HAIR[g.hairC], cloth = CLOTH[g.cloth], wrap = WRAP[g.wrap];
+    const pic = ensurePic(p);
+    const g = p.looks, skin = g.skinHex || SKIN[g.skin], hairC = g.hairHex || (g.grey ? "#8F8B86" : HAIR[g.hairC]), cloth = CLOTH[g.cloth], wrap = WRAP[g.wrap];
     const m = moodOverride ?? p.morale;
     const id = "a" + p.id.replace(/[^a-z0-9]/gi, "");
+    // photographic portrait with mood shown as a coloured ring and badge
+    if (pic && !bare) {
+      const ring = MOOD_RING(m), badge = size >= 36;
+      return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${name(p)}, ${moodWord(m)}" class="av av-photo"><defs><clipPath id="${id}p"><circle cx="32" cy="32" r="29"/></clipPath></defs><circle cx="32" cy="32" r="29" fill="#D9D2C7"/><image href="portraits/${pic}.jpg" x="-15" y="-7" width="94" height="94" clip-path="url(#${id}p)" preserveAspectRatio="xMidYMid slice" decoding="async"/><circle cx="32" cy="32" r="30.4" fill="none" stroke="${ring}" stroke-width="3.2"/>${badge ? `<circle cx="53" cy="53" r="6.2" fill="${ring}" stroke="#FFFFFF" stroke-width="2"/>` : ""}</svg>`;
+    }
     const faceRx = [14, 13, 15][g.face], faceRy = [17, 18, 16.5][g.face];
     let s = bare ? `<g>` : `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${name(p)}" class="av"><defs><clipPath id="${id}c"><circle cx="32" cy="32" r="32"/></clipPath></defs><g clip-path="url(#${id}c)">`;
     if (!bare) s += `<rect width="64" height="64" fill="${BG[g.bg]}"/>`;
@@ -1004,7 +1051,11 @@ const People = (() => {
     s += bare ? `</g>` : `</g></svg>`;
     return s;
   }
-  const palette = p => ({ skin: SKIN[p.looks.skin], cloth: CLOTH[p.looks.cloth], wrap: WRAP[p.looks.wrap], hair: p.looks.grey ? "#8F8B86" : HAIR[p.looks.hairC] });
+  const palette = p => { ensurePic(p); const g = p.looks; return { skin: g.skinHex || SKIN[g.skin], cloth: CLOTH[g.cloth], wrap: WRAP[g.wrap], hair: g.hairHex || (g.grey ? "#8F8B86" : HAIR[g.hairC]) }; };
+  // people saved before portraits existed get one the first time they are drawn
+  function ensurePic(p) { if (p && p.looks && p.pic === undefined && p.first) dress(p); return p && p.pic; }
+  for (const [k, g] of Object.entries(GROUPS)) GROUP_KEY[g.label] = k;
+  for (const [k, g] of Object.entries(TO_GROUPS)) GROUP_KEY[g.label] = k;
 
   // ---------- relationships ----------
   function relate(r, list) {
@@ -1036,7 +1087,7 @@ const People = (() => {
     const g = r.pick(["Adeyemi", "Okafor", "Bello", "Eze", "Balogun", "Nwosu", "Akande", "Ibekwe"]);
     return `${g} ${r.pick(["& Sons Construction", "Builders", "Civil Works", "Engineering", "Construction"])} Ltd`;
   };
-  return { make, newWorld, reserve, avatar, palette, name, full, short, pr, moodWord, relate, key, clashPair, companyName, CONFLICT, GROUPS, ROLES };
+  return { make, newWorld, reserve, avatar, palette, ensurePic, PICS, name, full, short, pr, moodWord, relate, key, clashPair, companyName, CONFLICT, GROUPS, ROLES };
 })();
 
 // ===== Pass The PMP: shared core (ECO, cast helpers, effects) =====
@@ -4478,7 +4529,7 @@ const World3D = (() => {
   const TROUSERS = ["#1E2733", "#2B2F3A", "#3A3328", "#22303F", "#4A3B2C", "#1C1C22"];
   function lookOf(p, o = {}) {
     const pal = People.palette(p), g = p.looks, h = H(p.id);
-    return { skin: pal.skin, cloth: pal.cloth, wrap: pal.wrap, hairC: pal.hair, hair: g.hair, outfit: g.outfit, gender: p.gender, trouser: TROUSERS[h % TROUSERS.length], skirt: p.gender === "f" && (h >>> 3) % 3 === 0, long: g.outfit === "agbada" || g.outfit === "kaftan" || (p.gender === "f" && g.outfit === "ankara" && (h >>> 5) % 2 === 0), hat: o.hat, vest: o.vest, uniform: o.uniform, clip: o.clip, age: p.age, beard: p.gender === "m" && (h >>> 12) % 3 === 0, glasses: (h >>> 15) % 4 === 0 || (p.age > 48 && (h >>> 15) % 2 === 0), lips: p.gender === "f" && (h >>> 16) % 2 === 0 ? ["#8E3B46", "#A0525A", "#6E3A3A"][(h >>> 17) % 3] : null, h };
+    return { skin: pal.skin, cloth: pal.cloth, wrap: pal.wrap, hairC: pal.hair, hair: g.hair, outfit: g.outfit, gender: p.gender, trouser: TROUSERS[h % TROUSERS.length], skirt: p.gender === "f" && (h >>> 3) % 3 === 0, long: g.outfit === "agbada" || g.outfit === "kaftan" || (p.gender === "f" && g.outfit === "ankara" && (h >>> 5) % 2 === 0), hat: o.hat, vest: o.vest, uniform: o.uniform, clip: o.clip, age: p.age, beard: p.pic ? !!g.picBeard : p.gender === "m" && (h >>> 12) % 3 === 0, glasses: p.pic ? false : (h >>> 15) % 4 === 0 || (p.age > 48 && (h >>> 15) % 2 === 0), lips: p.gender === "f" && (h >>> 16) % 2 === 0 ? ["#8E3B46", "#A0525A", "#6E3A3A"][(h >>> 17) % 3] : null, h };
   }
   function workerLook(seed) {
     const h = H("w" + seed);
