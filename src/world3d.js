@@ -64,7 +64,7 @@ const World3D = (() => {
   const TROUSERS = ["#1E2733", "#2B2F3A", "#3A3328", "#22303F", "#4A3B2C", "#1C1C22"];
   function lookOf(p, o = {}) {
     const pal = People.palette(p), g = p.looks, h = H(p.id);
-    return { skin: pal.skin, cloth: pal.cloth, wrap: pal.wrap, hairC: pal.hair, hair: g.hair, outfit: g.outfit, gender: p.gender, trouser: TROUSERS[h % TROUSERS.length], skirt: p.gender === "f" && (h >>> 3) % 3 === 0, long: g.outfit === "agbada" || g.outfit === "kaftan" || (p.gender === "f" && g.outfit === "ankara" && (h >>> 5) % 2 === 0), hat: o.hat, vest: o.vest, uniform: o.uniform, clip: o.clip, h };
+    return { skin: pal.skin, cloth: pal.cloth, wrap: pal.wrap, hairC: pal.hair, hair: g.hair, outfit: g.outfit, gender: p.gender, trouser: TROUSERS[h % TROUSERS.length], skirt: p.gender === "f" && (h >>> 3) % 3 === 0, long: g.outfit === "agbada" || g.outfit === "kaftan" || (p.gender === "f" && g.outfit === "ankara" && (h >>> 5) % 2 === 0), hat: o.hat, vest: o.vest, uniform: o.uniform, clip: o.clip, age: p.age, beard: p.gender === "m" && (h >>> 12) % 3 === 0, glasses: (h >>> 15) % 4 === 0 || (p.age > 48 && (h >>> 15) % 2 === 0), lips: p.gender === "f" && (h >>> 16) % 2 === 0 ? ["#8E3B46", "#A0525A", "#6E3A3A"][(h >>> 17) % 3] : null, h };
   }
   function workerLook(seed) {
     const h = H("w" + seed);
@@ -74,61 +74,148 @@ const World3D = (() => {
     const h = H("s" + seed), f = h % 2 === 0;
     return { skin: ["#472A1E", "#633D2A", "#7F5038", "#9C684A"][h % 4], cloth: ["#2F5D8A", "#1F6F5C", "#7A3E6B", "#38424F", "#5B4B8A"][(h >>> 3) % 5], wrap: "#D49A1E", hairC: "#1C1512", hair: f ? ["braids", "bun", "puff"][(h >>> 6) % 3] : "low", outfit: (h >>> 8) % 3 === 0 ? "blazer" : "shirt", gender: f ? "f" : "m", trouser: TROUSERS[(h >>> 5) % 6], skirt: f && (h >>> 10) % 2 === 0, h };
   }
-  function figure(L) {
-    const g = new T.Group(), parts = {};
-    const torsoC = L.uniform === "nurse" ? "#F4F7FA" : L.outfit === "blazer" ? "#2A3340" : L.outfit === "agbada" ? "#E8E2D2" : L.cloth;
-    // legs
-    const hip = grp(g, 0, 0.82, 0);
-    const legC = L.skirt ? L.skin : L.trouser;
-    for (const s of [-1, 1]) {
-      const leg = grp(hip, s * 0.09, 0, 0);
-      box(leg, 0.13, 0.76, 0.15, legC, 0, -0.76, 0);
-      box(leg, 0.13, 0.07, 0.24, "#17110D", 0, -0.82, 0.04);
-      parts[s < 0 ? "legL" : "legR"] = leg;
-    }
-    if (L.long) cyl(g, 0.2, 0.28, 0.72, L.outfit === "agbada" ? "#E8E2D2" : L.cloth, 0, 0.12, 0, 8);
-    else if (L.skirt) box(g, 0.36, 0.42, 0.24, L.outfit === "blazer" ? "#2A3340" : L.trouser, 0, 0.42, 0);
-    // torso
-    const tw = L.outfit === "agbada" ? 0.62 : 0.42;
-    box(g, tw, 0.52, 0.23, torsoC, 0, 0.82, 0);
-    if (L.outfit === "blazer") box(g, 0.12, 0.3, 0.02, "#F3F4F6", 0, 1.03, 0.115);
-    if (L.outfit === "ankara") for (let i = 0; i < 3; i++) box(g, 0.43, 0.04, 0.235, L.wrap, 0, 0.9 + i * 0.13, 0, { cast: false });
-    if (L.uniform === "nurse") { box(g, 0.12, 0.03, 0.02, "#C2412F", 0.1, 1.2, 0.116, { cast: false }); box(g, 0.03, 0.12, 0.02, "#C2412F", 0.1, 1.155, 0.116, { cast: false }); }
-    if (L.vest) { box(g, 0.44, 0.42, 0.25, "#E9D21E", 0, 0.88, 0); box(g, 0.45, 0.04, 0.255, "#C9CCD1", 0, 1.0, 0, { cast: false }); }
-    // arms
-    for (const s of [-1, 1]) {
-      const arm = grp(g, s * (tw / 2 + 0.06), 1.3, 0);
-      box(arm, 0.11, 0.54, 0.12, L.outfit === "agbada" ? "#E8E2D2" : torsoC, 0, -0.54, 0);
-      box(arm, 0.1, 0.1, 0.1, L.skin, 0, -0.64, 0);
-      parts[s < 0 ? "armL" : "armR"] = arm;
-    }
-    if (L.clip) { const cb = box(parts.armL, 0.2, 0.26, 0.03, "#C89B5A", 0.02, -0.75, 0.1); cb.rotation.x = -0.4; }
-    // head
-    const head = grp(g, 0, 1.36, 0); parts.head = head;
-    box(head, 0.1, 0.06, 0.1, L.skin, 0, 0, 0);
-    box(head, 0.27, 0.29, 0.26, L.skin, 0, 0.05, 0);
-    for (const s of [-1, 1]) box(head, 0.045, 0.045, 0.01, "#1A1310", s * 0.065, 0.19, 0.131, { cast: false });
-    box(head, 0.08, 0.02, 0.01, "#5A2E26", 0, 0.1, 0.131, { cast: false });
-    hair(head, L);
-    if (L.hat) { const hh = new T.Mesh(new T.SphereGeometry(0.17, 12, 6, 0, TAU, 0, Math.PI / 2), mat(L.hat)); hh.position.set(0, 0.33, 0); hh.castShadow = true; head.add(hh); cyl(head, 0.2, 0.2, 0.025, L.hat, 0, 0.32, 0.02, 14); }
-    g.traverse(o => { if (o.isMesh) o.castShadow = true; });
-    return { g, parts };
+  // ---------- people: jointed figures with faces, hands, knees and elbows ----------
+  // Proportions follow a real body (about 7.5 heads tall); every generated person keeps their own
+  // skin, hair style, clothes and build. The rig is animated in tickAgent.
+  const GEO = {};
+  const geo = (k, f) => GEO[k] || (GEO[k] = f());
+  const sph = (seg = 14, rings = 10) => geo("s" + seg + "_" + rings, () => new T.SphereGeometry(1, seg, rings));
+  // a tapered limb hanging from its joint: top at y = 0, bottom at y = -len
+  function limb(par, rTop, rBot, len, c, o = {}) {
+    const m = new T.Mesh(geo(`l${rTop}_${rBot}_${len}_${o.seg || 10}`, () => { const gg = new T.CylinderGeometry(rTop, rBot, len, o.seg || 10); gg.translate(0, -len / 2, 0); return gg; }), o.material || mat(c));
+    if (o.sz) m.scale.z = o.sz;
+    m.castShadow = o.cast !== false; par.add(m); return m;
   }
-  function hair(head, L) {
-    const c = L.hairC, y = 0.34;
+  function ball(par, r, c, x, y, z, sx = 1, sy = 1, sz = 1, o = {}) {
+    const m = new T.Mesh(sph(o.seg || 12, o.rings || 9), o.material || mat(c, o.m)); m.scale.set(r * sx, r * sy, r * sz); m.position.set(x, y, z);
+    m.castShadow = !!o.cast; par.add(m); return m;
+  }
+  function shell(par, r, c, thetaLen, o = {}) { // a cap of a sphere, open at the bottom
+    const k = `sh${r}_${thetaLen}_${o.phiS || 0}_${o.phiL || TAU}`;
+    const m = new T.Mesh(geo(k, () => new T.SphereGeometry(r, 18, 12, o.phiS || 0, o.phiL || TAU, 0, thetaLen)), mat(c, { side: T.DoubleSide }));
+    par.add(m); return m;
+  }
+  const shade = (hex, f) => { const c = new T.Color(hex); c.multiplyScalar(f); return "#" + c.getHexString(); };
+  const grey = (hex, k) => { const c = new T.Color(hex); c.lerp(new T.Color("#B9B6B0"), k); return "#" + c.getHexString(); };
+  const patTex = {};
+  function patternMat(base, accent) { // wax-print style fabric for ankara and dresses
+    const k = base + accent; if (patTex[k]) return patTex[k];
+    const ct = canvasTex(64, 64), c = ct.ctx; c.fillStyle = base; c.fillRect(0, 0, 64, 64);
+    c.fillStyle = accent; for (let y = 0; y < 64; y += 16) for (let x = 0; x < 64; x += 16) { c.beginPath(); c.arc(x + 8, y + 8, 5, 0, TAU); c.fill(); }
+    c.strokeStyle = shade(base, 0.6); c.lineWidth = 2; for (let y = 0; y < 64; y += 16) { c.beginPath(); c.moveTo(0, y); for (let x = 0; x <= 64; x += 8) c.lineTo(x, y + (x % 16 ? 4 : 0)); c.stroke(); }
+    ct.tex.wrapS = ct.tex.wrapT = T.RepeatWrapping; ct.tex.repeat.set(3, 2); ct.tex.needsUpdate = true;
+    return (patTex[k] = new T.MeshLambertMaterial({ map: ct.tex }));
+  }
+  function figure(L) {
+    const g = new T.Group(), P = {};
+    const h = L.h || 0, f = L.gender === "f";
+    const build = [0.92, 1, 1.1][(h >>> 11) % 3], tall = (f ? 0.95 : 1) + (((h >>> 14) % 9) - 4) * 0.012;
+    const hairC = L.age > 52 && (h >>> 4) % 3 ? grey(L.hairC, Math.min(0.85, (L.age - 50) / 18)) : L.hairC;
+    const agb = L.outfit === "agbada", kaf = L.outfit === "kaftan", blazer = L.outfit === "blazer", ank = L.outfit === "ankara";
+    const torsoC = L.uniform === "nurse" ? "#F4F7FA" : blazer ? "#2A3340" : agb ? "#E8E2D2" : L.cloth;
+    const torsoM = ank ? patternMat(L.cloth, L.wrap) : mat(torsoC);
+    const sleeveM = agb ? mat("#E8E2D2") : torsoM;
+    const shortSleeve = !blazer && !agb && !kaf && L.uniform !== "nurse" && (h >>> 7) % 3 === 0;
+    const legC = L.trouser, shoe = ["#17110D", "#2B1D14", "#3A2A1E", "#1C1C22"][(h >>> 9) % 4];
+    const skin = L.skin, skinD = shade(skin, 0.86);
+    // pelvis and legs
+    const pelvis = grp(g, 0, 0.93, 0); P.pelvis = pelvis;
+    ball(pelvis, 0.16 * build * (f ? 1.06 : 1), legC, 0, -0.02, 0, 1, 0.62, 0.66, { cast: true });
+    if (!agb && !kaf && !L.long && !L.skirt) limb(pelvis, 0.15 * build, 0.15 * build, 0.035, "#1E1A16", { sz: 0.66, cast: false }).position.y = 0.06; // belt
+    for (const s of [-1, 1]) {
+      const hip = grp(pelvis, s * 0.085 * build, -0.02, 0);
+      limb(hip, 0.072 * build, 0.056 * build, 0.42, L.skirt || L.long ? skin : legC);
+      const knee = grp(hip, 0, -0.42, 0);
+      limb(knee, 0.054 * build, 0.042, 0.41, L.long || (L.skirt && false) ? skin : L.skirt ? skin : legC);
+      const ank = grp(knee, 0, -0.41, 0);
+      ball(ank, 0.06, shoe, 0, -0.035, 0.035, 0.85, 0.62, 1.75, { cast: true });
+      P[s < 0 ? "hipL" : "hipR"] = hip; P[s < 0 ? "kneeL" : "kneeR"] = knee;
+    }
+    // skirts, dresses and robes hang from the waist
+    if (L.skirt) limb(pelvis, 0.15 * build, 0.22 * build, 0.5, blazer ? "#2A3340" : L.trouser, { seg: 14, sz: 0.8 }).position.y = 0.06;
+    if (L.long && !agb) { const m = limb(pelvis, 0.15 * build, 0.27 * build, 0.86, null, { seg: 16, sz: 0.85, material: ank || f ? patternMat(L.cloth, L.wrap) : mat(L.cloth) }); m.position.y = 0.06; }
+    // spine, chest and neck
+    const spine = grp(g, 0, 0.95, 0); P.spine = spine;
+    const rTop = (f ? 0.15 : 0.172) * build, rBot = (f ? 0.13 : 0.145) * build;
+    limb(spine, rTop, rBot, 0.44, null, { seg: 14, sz: 0.62, material: torsoM }).position.y = 0.44;
+    for (const s of [-1, 1]) ball(spine, 0.05 * build, null, s * (rTop - 0.025), 0.405, 0, 1.15, 0.8, 0.95, { material: sleeveM });
+    if (blazer) { // open jacket over a shirt, with lapels
+      const v = box(spine, 0.06, 0.15, 0.01, "#F3F4F6", 0, 0.29, rTop * 0.62 + 0.004, { cast: false });
+      for (const s of [-1, 1]) { const lp = box(spine, 0.035, 0.18, 0.012, shade("#2A3340", 0.8), s * 0.04, 0.28, rTop * 0.62 + 0.008, { cast: false }); lp.rotation.z = s * 0.35; }
+      box(spine, 0.022, 0.13, 0.01, ["#8B2F3A", "#2F5D8A", "#1F6F5C"][(h >>> 5) % 3], 0, 0.3, rTop * 0.62 + 0.011, { cast: false }).visible = !f; // tie
+    } else if (!agb) limb(spine, 0.06, 0.07, 0.03, shade(torsoC, 0.85), { cast: false }).position.y = 0.46; // collar
+    if (L.uniform === "nurse") { box(spine, 0.08, 0.02, 0.01, "#C2412F", 0.07, 0.32, rTop * 0.62 + 0.004, { cast: false }); box(spine, 0.02, 0.08, 0.01, "#C2412F", 0.07, 0.29, rTop * 0.62 + 0.004, { cast: false }); }
+    if (L.vest) { limb(spine, rTop * 1.06, rBot * 1.06, 0.36, "#E9D21E", { seg: 14, sz: 0.66 }).position.y = 0.42; for (const y of [0.16, 0.3]) limb(spine, rTop * 1.08, rTop * 1.08, 0.025, "#D7DBE0", { seg: 14, sz: 0.66, cast: false }).position.y = y; }
+    if (agb) { // the agbada's wide robe from the shoulders to the shins
+      const robe = limb(spine, rTop * 0.98, 0.36, 1.1, "#E8E2D2", { seg: 18, sz: 0.66 }); robe.position.y = 0.43;
+      box(spine, 0.12, 0.22, 0.01, L.wrap, 0, 0.26, rTop * 0.8, { cast: false });
+    } else if (kaf) limb(spine, rTop * 1.02, 0.24 * build, 0.82, L.cloth, { seg: 16, sz: 0.7 }).position.y = 0.43;
+    limb(spine, 0.044, 0.048, 0.09, skin, { cast: false }).position.y = 0.52;
+    // head and face
+    const head = grp(spine, 0, 0.49, 0); head.scale.setScalar(1.14); P.head = head;
+    ball(head, 0.112, skin, 0, 0.115, 0, 0.92, 1.1, 1.0, { cast: true, seg: 18, rings: 14 });
+    ball(head, 0.07, skin, 0, 0.055, 0.035, 0.95, 0.75, 1, { seg: 12 }); // jaw
+    for (const s of [-1, 1]) ball(head, 0.026, skinD, s * 0.104, 0.11, -0.005, 0.45, 1, 0.8, { seg: 8, rings: 6 }); // ears
+    P.eyes = [];
+    for (const s of [-1, 1]) {
+      const eg = grp(head, s * 0.038, 0.128, 0.101);
+      ball(eg, 0.0145, "#F2EEE6", 0, 0, 0, 1.15, 0.75, 0.55, { seg: 10, rings: 8 });
+      ball(eg, 0.011, ["#2B1A12", "#3B2A1E", "#4A6B8A", "#4F6B3A"][L.skin && new T.Color(L.skin).getHSL({}).l > 0.6 ? (h >>> 3) % 4 : (h >>> 3) % 2], 0, 0, 0.0075, 0.95, 0.95, 0.4, { seg: 8, rings: 6 });
+      P.eyes.push(eg);
+      const br = box(head, 0.042, 0.009, 0.01, hairC, s * 0.04, 0.158, 0.106, { cast: false }); br.rotation.z = -s * 0.1; br.position.y -= 0.0045;
+    }
+    ball(head, 0.017, skinD, 0, 0.1, 0.11, 0.9, 1.1, 1.2, { seg: 8, rings: 6 }); // nose
+    const mouth = new T.Group(); mouth.position.set(0, 0.06, 0.104); head.add(mouth); P.mouth = mouth;
+    box(mouth, 0.046, 0.012, 0.012, shade(skin, 0.55), 0, -0.006, 0, { cast: false });
+    if (L.lips) box(mouth, 0.05, 0.006, 0.013, L.lips, 0, 0.004, 0.001, { cast: false });
+    if (!f && L.beard) { ball(head, 0.078, hairC, 0, 0.05, 0.03, 1.02, 0.7, 1, { seg: 12 }); box(mouth, 0.05, 0.011, 0.01, hairC, 0, 0.01, 0.006, { cast: false }); }
+    if (L.glasses) for (const s of [-1, 1]) { const r = new T.Mesh(geo("glass", () => new T.TorusGeometry(0.024, 0.0035, 6, 16)), mat("#1E1E22")); r.position.set(s * 0.038, 0.128, 0.118); head.add(r); }
+    hair(head, L, hairC);
+    if (L.hat) { const hh = new T.Mesh(geo("hat", () => new T.SphereGeometry(0.135, 16, 8, 0, TAU, 0, Math.PI / 2)), mat(L.hat)); hh.position.set(0, 0.195, -0.005); hh.scale.set(1.04, 0.95, 1.08); hh.castShadow = true; head.add(hh); const b = limb(head, 0.16, 0.16, 0.012, L.hat); b.position.set(0, 0.2, 0.02); }
+    // arms: shoulder, elbow, hand
+    for (const s of [-1, 1]) {
+      const sh = grp(spine, s * (rTop + 0.012), 0.405, 0); sh.rotation.z = s * 0.07;
+      const wide = agb ? 1.7 : 1;
+      limb(sh, 0.05 * build * wide, 0.044 * build * wide, 0.29, null, { material: sleeveM });
+      const el = grp(sh, 0, -0.29, 0);
+      limb(el, 0.043 * build * (agb ? 1.8 : 1), 0.035, 0.24, null, { material: shortSleeve ? mat(skin) : agb ? mat("#E8E2D2") : sleeveM });
+      if (shortSleeve) { const cu = limb(sh, 0.054 * build, 0.054 * build, 0.03, null, { material: torsoM, cast: false }); cu.position.y = -0.2; }
+      const hand = grp(el, 0, -0.25, 0.005);
+      ball(hand, 0.042, skin, 0, -0.03, 0.006, 0.72, 1.15, 0.5, { seg: 10, rings: 8 });
+      ball(hand, 0.016, skin, s * -0.022, -0.012, 0.02, 0.8, 1.4, 0.8, { seg: 6, rings: 5 }); // thumb
+      P[s < 0 ? "armL" : "armR"] = sh; P[s < 0 ? "elbowL" : "elbowR"] = el; P[s < 0 ? "handL" : "handR"] = hand;
+    }
+    if (L.clip) { const cb = box(P.handL, 0.16, 0.22, 0.012, "#C89B5A", 0.02, -0.15, 0.05); cb.rotation.x = -0.2; box(P.handL, 0.13, 0.16, 0.003, "#FBFBF7", 0.02, -0.13, 0.058, { cast: false }).rotation.x = -0.2; }
+    g.scale.setScalar(tall);
+    return { g, parts: P };
+  }
+  function hair(head, L, c) {
+    const top = 0.115, back = (len, w = 1, wide = 1) => { // hair that falls behind and beside the head
+      const m = new T.Mesh(geo(`hb${len}_${wide}`, () => { const gg = new T.CylinderGeometry(0.118 * wide, 0.125 * wide, len, 16, 1, true, Math.PI * 0.35, Math.PI * 1.3); gg.translate(0, -len / 2, 0); return gg; }), mat(c, { side: T.DoubleSide }));
+      m.position.set(0, 0.17, -0.005); m.scale.set(w, 1, 0.98); head.add(m); return m;
+    };
+    const cap = (r = 0.121, th = 1.4, tilt = -0.45) => { const m = shell(head, r, c, th); m.position.set(0, top, -0.004); m.rotation.x = tilt; m.scale.set(0.95, 1.1, 1.02); return m; };
     switch (L.hair) {
       case "bald": break;
-      case "low": case "fade": case "cornrows": box(head, 0.28, 0.05, 0.27, c, 0, y, 0); box(head, 0.28, 0.12, 0.06, c, 0, y - 0.1, -0.11); break;
-      case "afro": case "twists": case "puff": blob(head, L.hair === "puff" ? 0.2 : 0.23, c, 0, y + 0.06, -0.02, 0.85); if (L.hair === "puff") box(head, 0.28, 0.05, 0.27, c, 0, y, 0); break;
-      case "braids": case "locs": box(head, 0.29, 0.07, 0.28, c, 0, y, 0); box(head, 0.29, 0.42, 0.08, c, 0, y - 0.4, -0.13); break;
-      case "bun": box(head, 0.28, 0.06, 0.27, c, 0, y, 0); blob(head, 0.09, c, 0, y + 0.1, -0.08); break;
-      case "long": box(head, 0.3, 0.07, 0.29, c, 0, y, 0); box(head, 0.3, 0.36, 0.08, c, 0, y - 0.34, -0.13); box(head, 0.06, 0.3, 0.2, c, -0.15, y - 0.28, -0.04); box(head, 0.06, 0.3, 0.2, c, 0.15, y - 0.28, -0.04); break;
-      case "side": box(head, 0.28, 0.06, 0.27, c, 0, y, 0); box(head, 0.2, 0.06, 0.12, c, 0.05, y + 0.03, 0.09); box(head, 0.28, 0.12, 0.06, c, 0, y - 0.1, -0.11); break;
-      case "bob": box(head, 0.3, 0.08, 0.29, c, 0, y - 0.02, 0); box(head, 0.06, 0.2, 0.26, c, -0.15, y - 0.2, -0.01); box(head, 0.06, 0.2, 0.26, c, 0.15, y - 0.2, -0.01); break;
-      case "kufi": case "fila": cyl(head, 0.13, 0.145, 0.1, L.hair === "fila" ? "#7B3C8C" : "#F1ECE0", 0, y - 0.02, 0, 10); break;
-      case "hijab": box(head, 0.32, 0.32, 0.3, L.wrap, 0, 0.06, -0.02); box(head, 0.36, 0.2, 0.3, L.wrap, 0, -0.06, -0.02); break;
-      case "gele": case "wrap": { const gl = box(head, 0.36, 0.16, 0.32, L.wrap, 0, y - 0.04, -0.01); if (L.hair === "gele") { const f = box(head, 0.42, 0.12, 0.16, L.wrap, 0, y + 0.07, -0.08); f.rotation.x = -0.4; } break; }
-      default: box(head, 0.28, 0.05, 0.27, c, 0, y, 0);
+      case "low": case "fade": case "cornrows": cap(0.117, 1.18); break;
+      case "side": cap(0.12, 1.25); { const sw = ball(head, 0.06, c, 0.03, 0.225, 0.04, 1.4, 0.45, 1.1); sw.rotation.z = -0.3; } break;
+      case "afro": case "twists": ball(head, 0.15, c, 0, 0.2, -0.045, 1, 0.9, 1, { seg: 16, rings: 12, cast: true }); break;
+      case "puff": cap(0.12, 1.45); ball(head, 0.085, c, 0, 0.27, -0.05, 1, 0.9, 1, { seg: 14, cast: true }); break;
+      case "bun": cap(0.121, 1.5); ball(head, 0.055, c, 0, 0.21, -0.11, 1, 0.9, 1, { seg: 12 }); break;
+      case "braids": case "locs": cap(0.122, 1.55); for (let i = 0; i < 9; i++) { const a = Math.PI * (1.22 + i * 0.07); const st = limb(head, 0.012, 0.01, 0.26 + (i % 3) * 0.04, c, { seg: 5, cast: false }); st.position.set(Math.cos(a) * 0.105, 0.16, Math.sin(a) * 0.1 - 0.02); } break;
+      case "long": cap(0.124, 1.55); back(0.3, 1.02, 1.04); break;
+      case "bob": cap(0.124, 1.55); back(0.15, 1.05, 1.08); break;
+      case "kufi": case "fila": { cap(0.117, 1.3); const k = limb(head, 0.118, 0.122, 0.085, L.hair === "fila" ? "#7B3C8C" : "#F1ECE0", { seg: 16 }); k.position.y = 0.275; if (L.hair === "fila") k.rotation.z = 0.18; break; }
+      case "hijab": { const m = new T.Mesh(geo("hij", () => new T.SphereGeometry(0.135, 18, 12, Math.PI * 0.5 + 0.75, TAU - 1.5, 0, Math.PI * 0.78)), mat(L.wrap, { side: T.DoubleSide })); m.position.set(0, 0.115, -0.005); m.scale.set(0.95, 1.12, 1.02); head.add(m); const dr = limb(head, 0.1, 0.17, 0.16, L.wrap, { seg: 16, sz: 0.75 }); dr.position.y = 0.03; break; }
+      case "gele": case "wrap": {
+        const base = shell(head, 0.134, L.wrap, 1.75); base.position.set(0, 0.12, -0.01); base.scale.set(0.98, 1.05, 1.02);
+        if (L.hair === "gele") { // folded, flared headtie
+          for (let i = 0; i < 3; i++) { const t = new T.Mesh(geo("gt", () => new T.TorusGeometry(0.11, 0.035, 8, 18, Math.PI * 1.3)), mat(L.wrap)); t.position.set(0, 0.24 + i * 0.03, -0.03 - i * 0.015); t.rotation.set(Math.PI / 2 + 0.3, 0, 0.6 + i * 0.9); t.scale.setScalar(1 - i * 0.15); t.castShadow = true; head.add(t); }
+          const fl = ball(head, 0.09, L.wrap, 0.09, 0.3, -0.06, 1.2, 0.35, 0.9, { seg: 12 }); fl.rotation.z = -0.5;
+        } else ball(head, 0.045, L.wrap, 0, 0.2, -0.13, 1, 0.9, 1, { seg: 10 });
+        break;
+      }
+      default: cap(0.117, 1.18);
     }
   }
   // a floating "!" marker
@@ -251,34 +338,59 @@ const World3D = (() => {
     for (const id of [...w.agents.keys()]) if (!seen.has(id) && !w.agents.get(id).anon) removeAgent(w, id);
   }
   function tickAgent(w, a, dt, t) {
-    const P = a.parts;
+    const P = a.parts, ph = (a.L.h % 1000) / 160;
+    const mor = a.e.p && a.e.p.morale != null ? a.e.p.morale : 66, slump = clamp((58 - mor) / 40, 0, 1) * (a.anon ? 0 : 1);
+    const ease = k => Math.min(1, dt * k);
+    const set = (o, ax, v, k = 10) => { o.rotation[ax] = lerp(o.rotation[ax], v, ease(k)); };
+    // blinking and the mouth: lips move while someone speaks
+    a.blink = (a.blink ?? 2 + (ph % 3)) - dt; const bl = a.blink < 0 ? 0.12 : 1; if (a.blink < -0.12) a.blink = 2.5 + Math.random() * 3.5;
+    for (const e of P.eyes) e.scale.y = bl;
+    const speaking = a.talking > t;
+    P.mouth.scale.y = speaking ? 1 + Math.abs(Math.sin(t * 17 + ph)) * 2.6 * (0.6 + 0.4 * Math.sin(t * 5.3)) : lerp(P.mouth.scale.y, 1, ease(12));
     if (a.path.length) {
       const tg = a.path[0], dx = tg.x - a.g.position.x, dz = tg.z - a.g.position.z, d = Math.hypot(dx, dz);
       if (d < 0.06) { a.path.shift(); if (!a.path.length && a.onArrive) { const f = a.onArrive; a.onArrive = null; f(); } }
       else { const st = Math.min(d, a.speed * dt); a.g.position.x += dx / d * st; a.g.position.z += dz / d * st; a.g.rotation.y = angLerp(a.g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 10)); }
-      a.walk += dt * 9;
-      const s = Math.sin(a.walk);
-      P.legL.rotation.x = s * 0.55; P.legR.rotation.x = -s * 0.55;
-      P.armL.rotation.x = -s * 0.45; P.armR.rotation.x = s * 0.45; P.armL.rotation.z = 0; P.armR.rotation.z = 0;
-      a.g.position.y = Math.abs(Math.cos(a.walk)) * 0.035;
-      if (a.carry) { a.carry.visible = a.carrying; if (a.carrying) { P.armL.rotation.x = P.armR.rotation.x = -1.1; } }
+      a.walk += dt * 8.2;
+      const s = Math.sin(a.walk), c = Math.cos(a.walk), carry = a.carry && a.carrying;
+      P.hipL.rotation.x = -s * 0.48; P.hipR.rotation.x = s * 0.48;
+      P.kneeL.rotation.x = 0.08 + Math.max(0, c) * 0.85; P.kneeR.rotation.x = 0.08 + Math.max(0, -c) * 0.85;
+      if (carry) { P.armL.rotation.x = P.armR.rotation.x = -0.7; P.elbowL.rotation.x = P.elbowR.rotation.x = -0.9; }
+      else { P.armL.rotation.x = s * 0.42; P.armR.rotation.x = -s * 0.42; P.elbowL.rotation.x = -0.25 - Math.max(0, -s) * 0.35; P.elbowR.rotation.x = -0.25 - Math.max(0, s) * 0.35; }
+      P.armL.rotation.z = -0.07; P.armR.rotation.z = 0.07;
+      P.spine.rotation.y = s * 0.07; P.pelvis.rotation.y = -s * 0.08; P.spine.rotation.x = 0.04 + slump * 0.08; P.head.rotation.x = slump * 0.12; P.head.rotation.y = -s * 0.04;
+      a.g.position.y = Math.abs(c) * 0.028;
+      if (a.carry) a.carry.visible = carry;
       return;
     }
-    a.g.position.y = 0;
-    P.legL.rotation.x = lerp(P.legL.rotation.x, 0, 0.2); P.legR.rotation.x = lerp(P.legR.rotation.x, 0, 0.2);
+    a.g.position.y = lerp(a.g.position.y, 0, ease(10));
+    for (const k of ["hipL", "hipR"]) set(P[k], "x", 0, 8);
+    set(P.kneeL, "x", 0.03, 8); set(P.kneeR, "x", 0.03, 8); set(P.pelvis, "y", 0, 6); set(P.spine, "y", 0, 6);
     const look = a.lookAt ? Math.atan2(a.lookAt[0] - a.g.position.x, a.lookAt[1] - a.g.position.z) : a.face;
     a.g.rotation.y = angLerp(a.g.rotation.y, look, Math.min(1, dt * 5));
-    const ph = (a.L.h % 1000) / 160;
-    if (a.e.pending || a.talking > t) { // gesture while speaking
-      P.armR.rotation.x = -0.9 + Math.sin(t * 5 + ph) * 0.35; P.armR.rotation.z = -0.2; P.armL.rotation.x = lerp(P.armL.rotation.x, 0, 0.2);
+    // breathing and a slow shift of weight
+    P.spine.scale.y = 1 + Math.sin(t * 2.1 + ph) * 0.007;
+    P.pelvis.rotation.z = Math.sin(t * 0.45 + ph) * 0.025; P.spine.rotation.z = -P.pelvis.rotation.z * 0.8;
+    let hx = slump * 0.2, sx = slump * 0.1, hy = Math.sin(t * 0.4 + ph) * 0.22;
+    if (a.e.pending || speaking) { // gesture while speaking, with small nods
+      set(P.armR, "x", -0.45 + Math.sin(t * 2.6 + ph) * 0.25, 6); set(P.elbowR, "x", -1.05 + Math.sin(t * 3.4 + ph) * 0.3, 6); set(P.armR, "z", 0.18, 6);
+      set(P.armL, "x", -0.2 + Math.sin(t * 2.1 + ph + 1) * 0.15, 6); set(P.elbowL, "x", -0.7 + Math.cos(t * 2.7 + ph) * 0.25, 6); set(P.armL, "z", -0.12, 6);
+      hx += Math.sin(t * 3 + ph) * 0.06; hy *= 0.4;
     } else if (a.mode === "type") {
-      P.armL.rotation.x = -0.95 + Math.sin(t * 14 + ph) * 0.06; P.armR.rotation.x = -0.95 + Math.cos(t * 13 + ph) * 0.06; P.armL.rotation.z = P.armR.rotation.z = 0;
-    } else if (a.mode === "work") { // hammering / laying blocks
-      P.armR.rotation.x = -0.6 - Math.abs(Math.sin(t * 4 + ph)) * 1.2; P.armL.rotation.x = -0.5; P.head.rotation.x = 0.25;
+      set(P.armL, "x", -0.42, 8); set(P.armR, "x", -0.42, 8); set(P.armL, "z", -0.05, 8); set(P.armR, "z", 0.05, 8);
+      set(P.elbowL, "x", -1.05 + Math.sin(t * 13 + ph) * 0.05, 12); set(P.elbowR, "x", -1.05 + Math.cos(t * 12 + ph) * 0.05, 12);
+      hx += 0.22; sx += 0.06; hy *= 0.3;
+    } else if (a.mode === "work") { // hammering or laying blocks
+      const sw = Math.abs(Math.sin(t * 4 + ph));
+      set(P.armR, "x", -0.9 - sw * 0.9, 14); set(P.elbowR, "x", -0.9 + sw * 0.7, 14); set(P.armL, "x", -0.7, 8); set(P.elbowL, "x", -0.8, 8);
+      set(P.armL, "z", -0.07, 8); set(P.armR, "z", 0.07, 8); hx += 0.35; sx += 0.3; set(P.kneeL, "x", 0.25, 8); set(P.kneeR, "x", 0.25, 8); set(P.hipL, "x", -0.2, 8); set(P.hipR, "x", -0.2, 8);
     } else if (a.mode === "point") {
-      P.armR.rotation.x = -1.5; P.armR.rotation.z = 0.1; P.armL.rotation.x = lerp(P.armL.rotation.x, 0, 0.2);
-    } else { P.armL.rotation.x = lerp(P.armL.rotation.x, Math.sin(t * 1.3 + ph) * 0.04, 0.15); P.armR.rotation.x = lerp(P.armR.rotation.x, -Math.sin(t * 1.3 + ph) * 0.04, 0.15); P.armL.rotation.z = P.armR.rotation.z = 0; P.head.rotation.x = 0; }
-    P.head.rotation.y = Math.sin(t * 0.4 + ph) * 0.25;
+      set(P.armR, "x", -1.45, 8); set(P.elbowR, "x", -0.05, 8); set(P.armR, "z", 0.1, 8); set(P.armL, "x", 0.05, 8); set(P.elbowL, "x", -0.15, 8);
+    } else { // standing: arms relaxed, a little sway
+      set(P.armL, "x", Math.sin(t * 1.3 + ph) * 0.04, 5); set(P.armR, "x", -Math.sin(t * 1.3 + ph) * 0.04, 5);
+      set(P.elbowL, "x", -0.12, 5); set(P.elbowR, "x", -0.12, 5); set(P.armL, "z", -0.07 + slump * 0.04, 5); set(P.armR, "z", 0.07 - slump * 0.04, 5);
+    }
+    set(P.spine, "x", sx, 6); set(P.head, "x", hx, 6); P.head.rotation.y = lerp(P.head.rotation.y, hy, ease(4));
     if (a.carry) a.carry.visible = false;
     // wandering
     if (a.e.wander && !a.e.pending && w.way.length) {
@@ -1347,5 +1459,5 @@ const World3D = (() => {
     for (const [k, h] of Object.entries(W.hot)) { const s = toScreen(h.m, 0); out.push({ kind: "hot", id: k, off: !!h.m.userData.off, x: r.left + s.x, y: r.top + s.y }); }
     return out;
   }
-  return { ok, kudi, clinic, land, cold, pmo, brief, flush, bind, stage, probe };
+  return { ok, kudi, clinic, land, cold, pmo, brief, flush, bind, stage, probe, _world: () => W }; // _world: test hook for close-up captures
 })();
