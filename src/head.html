@@ -402,6 +402,31 @@ textarea{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;backg
 .reply[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
 .reply .k{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;border:1.5px solid var(--line)}
 .reply[aria-pressed="true"] .k{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.reply.reason{grid-template-columns:18px minmax(0,1fr);font-size:14px;padding:8px 12px}
+.reply.reason .k{width:18px;height:18px}
+.whyhead{gap:8px;align-items:center}.whyhead .small{min-width:0;color:var(--muted)}
+.confrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.confchip{font:inherit;font-size:13.5px;padding:8px 6px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+.confchip:hover{border-color:var(--accent)}
+.confchip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.dggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px;margin-top:12px}
+.dggrid h4{margin:0 0 4px;font-size:15px}
+.dgtasks{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:12px}
+.dgtask .nm{min-width:0}
+.dgrange{position:relative;height:10px;border-radius:5px;background:var(--line);margin:6px 0 3px}
+.dgrange .span{position:absolute;top:0;bottom:0;border-radius:5px;background:var(--accent-soft);border:1px solid var(--accent)}
+.dgrange .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.35}
+.dgrange .dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:var(--accent);border:2px solid var(--surface)}
+.dgrange .dot.AT{background:var(--good)}.dgrange .dot.BT{background:var(--amber)}.dgrange .dot.NI{background:var(--bad)}
+.dgrqs{display:grid;gap:8px;margin-top:10px}
+.dgrq{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start;font-size:14px}
+.dgrq .num{font-family:var(--f-display);font-size:26px;line-height:1}
+.dgrq .good{color:var(--good)}.dgrq .warn{color:var(--amber)}.dgrq .bad{color:var(--bad)}
+.dgpat{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;display:grid;gap:4px}
+.dgpat p{margin:0}
+.diagnote{display:grid;gap:10px;text-align:left;font-style:normal;max-width:520px}
+.fbrow{display:grid;gap:4px;font-size:14px;line-height:1.4}
+.fbrow .pill{justify-self:start}
 .traybar{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:36px}
 .sendbtn{border-radius:999px;padding-inline:18px}
 .backbtn{width:100%;justify-content:center}

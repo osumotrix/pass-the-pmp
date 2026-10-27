@@ -102,6 +102,10 @@ document.addEventListener("click", e => {
 
   // situations
   if (d.choose !== undefined && cur && !cur.result) { cur.choice = +d.choose; drawSituation(); return; }
+  if (d.whystep !== undefined && cur && !cur.result && cur.choice != null) { cur.step = "why"; drawSituation(); const t = document.querySelector(".sittray"); if (t) t.scrollTop = 0; return; }
+  if (d.whyback !== undefined && cur && !cur.result) { cur.step = null; drawSituation(); return; }
+  if (d.why !== undefined && cur && !cur.result) { cur.why = +d.why; drawSituation(); return; }
+  if (d.conf !== undefined && cur && !cur.result) { cur.conf = +d.conf; drawSituation(); return; }
   if (d.confirm !== undefined && cur && cur.choice != null) return confirmSituation();
   if (d.sitdone !== undefined && cur) return finishSituation();
 

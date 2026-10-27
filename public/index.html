@@ -418,6 +418,31 @@ textarea{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;backg
 .reply[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
 .reply .k{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;border:1.5px solid var(--line)}
 .reply[aria-pressed="true"] .k{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.reply.reason{grid-template-columns:18px minmax(0,1fr);font-size:14px;padding:8px 12px}
+.reply.reason .k{width:18px;height:18px}
+.whyhead{gap:8px;align-items:center}.whyhead .small{min-width:0;color:var(--muted)}
+.confrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.confchip{font:inherit;font-size:13.5px;padding:8px 6px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+.confchip:hover{border-color:var(--accent)}
+.confchip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.dggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px;margin-top:12px}
+.dggrid h4{margin:0 0 4px;font-size:15px}
+.dgtasks{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:12px}
+.dgtask .nm{min-width:0}
+.dgrange{position:relative;height:10px;border-radius:5px;background:var(--line);margin:6px 0 3px}
+.dgrange .span{position:absolute;top:0;bottom:0;border-radius:5px;background:var(--accent-soft);border:1px solid var(--accent)}
+.dgrange .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.35}
+.dgrange .dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:var(--accent);border:2px solid var(--surface)}
+.dgrange .dot.AT{background:var(--good)}.dgrange .dot.BT{background:var(--amber)}.dgrange .dot.NI{background:var(--bad)}
+.dgrqs{display:grid;gap:8px;margin-top:10px}
+.dgrq{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start;font-size:14px}
+.dgrq .num{font-family:var(--f-display);font-size:26px;line-height:1}
+.dgrq .good{color:var(--good)}.dgrq .warn{color:var(--amber)}.dgrq .bad{color:var(--bad)}
+.dgpat{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;display:grid;gap:4px}
+.dgpat p{margin:0}
+.diagnote{display:grid;gap:10px;text-align:left;font-style:normal;max-width:520px}
+.fbrow{display:grid;gap:4px;font-size:14px;line-height:1.4}
+.fbrow .pill{justify-self:start}
 .traybar{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:36px}
 .sendbtn{border-radius:999px;padding-inline:18px}
 .backbtn{width:100%;justify-content:center}
@@ -1592,14 +1617,14 @@ const Agile = (() => {
       : [["sponsor", `The launch campaign is booked. We go live on Monday.`], ["narr", `Your release checklist shows ${facts.join("; ")}.`]];
     const opts = ready ? [
       { grade: "best", text: c => `Confirm readiness with the release checklist, get formal sign-off from ${c.s("po")}, ${c.s("compliance")} and ${c.s("security")}, and go live with a support plan agreed with ${c.s("ops")}.`, fx: {}, out: c => `The feature launches on Monday with support teams ready.`, launch: "full" },
-      { grade: "ok", text: c => `Launch on Monday; everyone has seen the reviews.`, fx: {}, out: c => `Launch goes ahead, but ${c.s("ops")}'s team is caught off guard by the first wave of calls.`, launch: "full", opsPenalty: true },
+      { grade: "ok", text: c => `Launch on Monday; everyone has seen the reviews.`, fx: {}, out: c => `Launch goes ahead, but ${c.s("ops")}'s team is caught off guard by the first wave of calls.`, launch: "full", opsPenalty: true, tag: "corners" },
       { grade: "poor", text: c => `Delay the launch two weeks to add more features first.`, fx: { support: { sponsor: -10 } }, out: c => `${c.s("sponsor")} cancels the campaign at a cost and questions your judgement.`, launch: "late" },
-      { grade: "poor", text: c => `Ask ${c.s("sponsor")} to decide without the checklist; it's ${c.his("sponsor")} product.`, fx: {}, out: c => `${c.s("sponsor")} launches, unaware that the support plan isn't ready.`, launch: "full", opsPenalty: true },
+      { grade: "poor", text: c => `Ask ${c.s("sponsor")} to decide without the checklist; it's ${c.his("sponsor")} product.`, fx: {}, out: c => `${c.s("sponsor")} launches, unaware that the support plan isn't ready.`, launch: "full", opsPenalty: true, tag: "passon" },
     ] : [
-      { grade: "poor", text: c => `Launch on Monday as planned and fix the gaps in the first update.`, fx: { support: { compliance: -25, security: -15 } }, out: c => (kycMissing || vulnOpen) ? `Two weeks after launch, ${c.s("compliance")} reports the breach to the Central Bank as required. The feature is suspended.` : `The feature launches with gaps that customers notice immediately.`, launch: kycMissing || vulnOpen ? "suspended" : "partial" },
+      { grade: "poor", text: c => `Launch on Monday as planned and fix the gaps in the first update.`, fx: { support: { compliance: -25, security: -15 } }, out: c => (kycMissing || vulnOpen) ? `Two weeks after launch, ${c.s("compliance")} reports the breach to the Central Bank as required. The feature is suspended.` : `The feature launches with gaps that customers notice immediately.`, launch: kycMissing || vulnOpen ? "suspended" : "partial", tag: "corners" },
       { grade: "best", text: c => `Present the facts to ${c.s("sponsor")}, ${c.s("po")} and ${c.s("compliance")}, and recommend a phased release: launch only what is compliant and secure now, and schedule the rest.`, fx: { support: { compliance: 10, sponsor: 2 } }, out: c => `The governance meeting approves a phased release. ${kycMissing ? "Group payouts open in a fortnight, once the KYC limits are live." : "The remaining stories follow in a fortnight."}`, launch: "phased" },
-      { grade: "poor", text: c => `Quietly turn off the incomplete features and launch without mentioning them.`, fx: { support: { sponsor: -12, compliance: -10 } }, out: c => `The gaps surface at launch. ${c.s("sponsor")} asks why ${c.he("sponsor")} wasn't told.`, launch: "partial" },
-      { grade: "ok", text: c => `Postpone the whole launch until everything is finished.`, fx: { support: { sponsor: -8 } }, out: c => `The campaign is rebooked at extra cost. Customers wait three more weeks.`, launch: "late" },
+      { grade: "poor", text: c => `Quietly turn off the incomplete features and launch without mentioning them.`, fx: { support: { sponsor: -12, compliance: -10 } }, out: c => `The gaps surface at launch. ${c.s("sponsor")} asks why ${c.he("sponsor")} wasn't told.`, launch: "partial", tag: "conceal" },
+      { grade: "ok", text: c => `Postpone the whole launch until everything is finished.`, fx: { support: { sponsor: -8 } }, out: c => `The campaign is rebooked at extra cost. Customers wait three more weeks.`, launch: "late", tag: "avoid" },
     ];
     return { scene, opts, ready, facts };
   }
@@ -3220,6 +3245,185 @@ const Cold = (() => {
 
   return { create, probe, setPlan, runFortnight, doAction, metrics, nextSituation, prepare, choose, finish, level, cast, teamP, getF, dateOf, money, shownP, coreLive, morale,
     PLAN, PROBES, ACTIONS, SHUT, SIT, FN, BAC0, AC0, REPORTED, ROOMS, CUR, BOOK_CONT };
+})();
+
+// ===== Pass The PMP: diagnostics =====
+// Every decision is evidence. Each reply a player can choose is tagged with the behaviour it reveals,
+// each situation asks why the player chose and how sure they were, and the profile turns that
+// evidence into estimates per exam task with an honest margin of error.
+const Diag = (() => {
+  // Behaviour patterns that wrong or weaker replies reveal. Each comes with what to do instead.
+  const BEHAVIOURS = {
+    pressure: { label: "Gives in to pressure", what: "You agree to what a senior or loud voice wants, even when the evidence says otherwise.", fix: "Answer pressure with data: capacity, velocity, risk. Then offer options that protect the goal." },
+    passon: { label: "Passes the problem on", what: "You hand a decision to someone else (a sponsor, a manager, HR) before working it through yourself.", fix: "Escalate only after you have worked the problem with the people involved and it is beyond your authority." },
+    control: { label: "Takes control", what: "You make decisions or run activities that belong to the team.", fix: "Facilitate: help the team see the problem and decide. The exam favours the servant leader." },
+    avoid: { label: "Avoids the issue", what: "You leave a problem alone, defer it or end the conversation early.", fix: "Deal with problems early and directly. The exam rarely rewards waiting or ignoring." },
+    rigid: { label: "Applies rules rigidly", what: "You refuse or quote a rule without exploring what the person needs.", fix: "Understand the need first, then find the option that respects the principle and the person." },
+    corners: { label: "Cuts corners", what: "You trade quality, security or compliance for speed.", fix: "Quality, safety and compliance are not negotiable. Change scope or timing instead." },
+    conceal: { label: "Keeps things quiet", what: "You hide bad news or fix problems without telling the people affected.", fix: "Be transparent. Stakeholders can only decide well with the facts." },
+    blame: { label: "Puts people on the spot", what: "You correct people in public or route a personal issue to HR first.", fix: "Start with a private conversation to understand the cause." },
+    halfway: { label: "Settles for half measures", what: "You split the difference or do the minimum, so the real problem stays.", fix: "Look for the reply that solves the cause, not one that keeps everyone quiet for now." },
+    resource: { label: "Throws time or money at it", what: "You reach for overtime, bonuses or extra people before fixing how the work flows.", fix: "Fix the process first: priorities, work in progress, knowledge sharing. Add resources last." },
+    rush: { label: "Acts before understanding", what: "You start building or make promises before analysing the request.", fix: "Assess first: understand the need, its value and its impact, then plan." },
+  };
+  const CONF = ["Guessing", "Fairly sure", "Certain"];
+
+  // Kudi: tags for each option by its position in the engine (null = the best answer),
+  // and the reasons a player can give: [text, true for the principle, or the behaviour it reveals].
+  const K = {
+    A1: { tags: ["pressure", null, "halfway", "passon"], why: [
+      ["The developers own the commitment. My job is to make capacity visible and focus the sprint on value.", true],
+      ["Showing ambition early builds the sponsor's confidence.", "pressure"],
+      ["A middle number keeps both the team and the product owner on side.", "halfway"],
+      ["Scope disputes should be settled by the most senior person.", "passon"]] },
+    A2: { tags: ["control", null, "avoid", "control"], why: [
+      ["The stand-up belongs to the team. It is for coordinating towards the sprint goal.", true],
+      ["I need clear status from each person to track the work.", "control"],
+      ["A meeting that drifts is better dropped than fixed.", "avoid"],
+      ["A shorter meeting is enough, whatever it is for.", "halfway"]] },
+    A8: { tags: ["passon", null, "halfway", "avoid"], why: [
+      ["Engage a stakeholder by understanding their interests first, then involve them in the work.", true],
+      ["Someone with authority over them should make them attend.", "passon"],
+      ["Keeping them informed is enough engagement.", "halfway"],
+      ["Only the delivery team needs to be involved during development.", "avoid"]] },
+    A5: { tags: ["corners", null, "rush", "corners"], why: [
+      ["Compliance is not negotiable: understand the rule, prioritise it, and update the plan and risks.", true],
+      ["Protecting the launch date comes first; the requirement can follow.", "corners"],
+      ["Starting work straight away on a new requirement shows responsiveness.", "rush"],
+      ["Pilots are usually exempt from full regulation.", "corners"]] },
+    A3: { tags: ["control", null, "passon", "passon"], why: [
+      ["Help the people in conflict agree how to decide, so the team owns the decision.", true],
+      ["The quickest way through a deadlock is for the leader to decide.", "control"],
+      ["Technical disputes are for someone with more authority to settle.", "passon"],
+      ["Disagreements between engineers usually resolve themselves.", "avoid"]] },
+    A14: { tags: ["avoid", null, "blame", "control"], why: [
+      ["Make it safe to speak by focusing on the process, not on individuals.", true],
+      ["Naming the cause openly gets to the truth faster.", "blame"],
+      ["If the team won't speak, the leader should set the improvements.", "control"],
+      ["A quiet retrospective means there is little to improve.", "avoid"]] },
+    A9: { tags: ["pressure", null, "halfway", "rigid"], why: [
+      ["Forecast from the team's real velocity and agree with the product owner what fits the date.", true],
+      ["Senior stakeholders need the date they asked for.", "pressure"],
+      ["A generous buffer protects everyone.", "halfway"],
+      ["Agile teams don't commit to dates.", "rigid"]] },
+    A6: { tags: ["corners", null, "resource", "corners"], why: [
+      ["Fix the flow: finish work before starting new work, and limit work in progress.", true],
+      ["A bottleneck is solved by adding people at that step.", "resource"],
+      ["Testing can catch up later when the deadline is close.", "corners"],
+      ["The tester needs to work faster.", "blame"]] },
+    A10: { tags: ["conceal", null, "resource", "resource"], why: [
+      ["Treat it as a risk: transfer knowledge, update the plan and keep people informed.", true],
+      ["Bad news unsettles a team, so it is best kept quiet for now.", "conceal"],
+      ["Losing a person is solved by replacing them quickly.", "resource"],
+      ["Keeping key people at almost any cost protects delivery.", "resource"]] },
+    A4: { tags: ["pressure", null, "resource", "rigid"], why: [
+      ["The product owner weighs changes against the sprint goal, and the team decides what it can swap.", true],
+      ["A request from the top outranks the plan.", "pressure"],
+      ["Extra hours let us take on urgent work without changing the plan.", "resource"],
+      ["Nothing may change once a sprint has started.", "rigid"]] },
+    A12: { tags: ["rush", null, "rigid", "rush"], why: [
+      ["Capture new needs in the backlog and let the product owner prioritise them by value.", true],
+      ["Responding quickly to customers builds trust.", "rush"],
+      ["Anything outside the original scope should be declined.", "rigid"],
+      ["As project manager I decide what the product does next.", "control"]] },
+    A11: { tags: [null, "corners", "passon", "conceal"], why: [
+      ["A security flaw is a risk to the product: assess it openly and prioritise the fix.", true],
+      ["Launch dates matter more than flaws users haven't found yet.", "corners"],
+      ["Security decisions belong to the sponsor.", "passon"],
+      ["Fixing it quietly avoids alarming people.", "conceal"]] },
+    A13: { tags: ["pressure", null, "resource", "rigid"], why: [
+      ["Protect a sustainable pace, and use data to agree what scope fits the date.", true],
+      ["Launch week justifies whatever hours it takes.", "pressure"],
+      ["Willing volunteers make the extra hours fair.", "resource"],
+      ["Protecting the team means saying no outright.", "rigid"]] },
+    A17: { tags: ["corners", null, "passon", "corners"], why: [
+      ["Done means meeting the definition of done. Quality is built in, not negotiated.", true],
+      ["If it works, the tests are a formality this close to launch.", "corners"],
+      ["Whether work is done is the product owner's call alone.", "passon"],
+      ["The launch date should decide what counts as finished.", "pressure"]] },
+    A7: { tags: ["blame", null, "halfway", "blame"], why: [
+      ["Start with a private conversation to understand the cause, then look for options.", true],
+      ["Public accountability is the fairest way to correct behaviour.", "blame"],
+      ["Attendance problems are for HR to handle.", "passon"],
+      ["Changing the meeting for everyone avoids singling anyone out.", "halfway"]] },
+    A15: { tags: null, why: [
+      ["A release is a governance decision: confirm readiness and give the decision-makers the facts.", true],
+      ["Gaps can be fixed after launch; momentum matters more.", "corners"],
+      ["The sponsor owns the product, so the sponsor decides alone.", "passon"],
+      ["When in doubt, wait until everything is perfect.", "avoid"]] },
+    A16: { tags: [null, "avoid", "halfway", "avoid"], why: [
+      ["Close formally: acceptance, knowledge transfer and lessons learned, then release the team.", true],
+      ["Once the product is live, the project is effectively over.", "avoid"],
+      ["Handing over the code and a report is a complete handover.", "halfway"],
+      ["Lessons are better captured once things have settled.", "avoid"]] },
+  };
+  const BY = { kudi: K };
+
+  const has = (key, id) => !!(BY[key] && BY[key][id]);
+  // the reasons in a stable shuffled order for this save
+  function reasons(key, id, seed) {
+    const d = BY[key] && BY[key][id]; if (!d) return null;
+    const r = R.rng((seed || 1) + R.hash("why" + id));
+    return r.shuffle(d.why.map((w, i) => ({ i, text: w[0], ok: w[1] === true, tag: w[1] === true ? null : w[1] })));
+  }
+  function tagOf(key, id, opt) {
+    if (opt && opt.tag) return opt.tag;
+    const d = BY[key] && BY[key][id];
+    return d && d.tags && opt ? d.tags[opt.idx] || null : null;
+  }
+
+  const credit = g => g === "best" ? 1 : g === "ok" ? 0.5 : 0;
+  // A decision is worth one piece of evidence for its main task and half for the second.
+  // When the reason is known it counts for a quarter of the score: the right call for the wrong
+  // reason is weaker evidence of competence. A practice question counts as half a decision.
+  function scoreOf(l) { const c = credit(l.grade); return l.why == null ? c : 0.75 * c + 0.25 * (l.why ? 1 : 0); }
+
+  // Beta estimate with a flat prior: few observations stay close to the middle on purpose.
+  function estimate(ev) {
+    let a = 1, b = 1, n = 0, dec = 0, qs = 0;
+    for (const [w, s, k] of ev) { a += w * s; b += w * (1 - s); n += w; if (k === "q") qs++; else dec++; }
+    const m = a / (a + b), sd = Math.sqrt(m * (1 - m) / (a + b + 1));
+    return { m, lo: Math.max(0, m - 1.28 * sd), hi: Math.min(1, m + 1.28 * sd), n, sure: dec + qs / 2 >= 5 ? "solid" : dec + qs / 2 >= 2 ? "emerging" : "early", dec, qs };
+  }
+  const BAND = m => m >= 0.8 ? "above" : m >= 0.68 ? "target" : m >= 0.55 ? "below" : "needs";
+
+  // logs: decision log entries; answers: practice question records {d, t, ok}
+  function profile(logs, answers) {
+    const ev = {}, add = (d, t, w, s, k) => (ev[d + "|" + t] = ev[d + "|" + t] || []).push([w, s, k]);
+    for (const l of logs) { const s = scoreOf(l); add(l.eco[0], l.eco[1], 1, s); if (l.also) add(l.also[0], l.also[1], 0.5, s); }
+    for (const a of answers || []) add(a.d, a.t, 0.5, a.ok ? 1 : 0, "q");
+    const tasks = Object.entries(ev).map(([k, e]) => { const [d, t] = k.split("|"); return Object.assign({ d, t: +t }, estimate(e)); });
+    // reasoning: only decisions where the reason was asked
+    const asked = logs.filter(l => l.why != null);
+    const rq = { both: 0, lucky: 0, knows: 0, neither: 0 };
+    for (const l of asked) { const b = l.grade === "best"; rq[b && l.why ? "both" : b ? "lucky" : l.why ? "knows" : "neither"]++; }
+    // calibration: how often each confidence level was right
+    const cal = CONF.map((label, i) => { const xs = logs.filter(l => l.conf === i); return { label, n: xs.length, right: xs.filter(l => l.grade === "best").length }; });
+    const over = logs.filter(l => l.conf === 2 && l.grade !== "best").length;
+    // tendencies: behaviour shown by the reply chosen (full weight) or the reason given (half)
+    const tc = {};
+    for (const l of logs) {
+      const T = k => (tc[k] = tc[k] || { n: 0, replies: 0, reasons: 0, sits: [] });
+      if (l.tag) { const t = T(l.tag); t.n += 1; t.replies++; t.sits.push(l.title); }
+      if (l.whyTag && l.whyTag !== l.tag) { const t = T(l.whyTag); t.n += 0.5; t.reasons++; }
+    }
+    const tendencies = Object.entries(tc).filter(([k]) => BEHAVIOURS[k]).map(([k, v]) => Object.assign({ key: k, n: v.n, replies: v.replies, reasons: v.reasons, sits: [...new Set(v.sits)] }, BEHAVIOURS[k])).sort((a, b) => b.n - a.n);
+    return { tasks, asked: asked.length, rq, cal, over, tendencies, decisions: logs.length };
+  }
+  // what to say right after a decision
+  function feedback(entry, logs) {
+    const out = {};
+    const best = entry.grade === "best";
+    if (entry.why != null) out.reason = best && entry.why ? "both" : best ? "lucky" : entry.why ? "knows" : "neither";
+    if (entry.conf === 2 && !best) out.cal = "over";
+    else if (entry.conf === 0 && best) out.cal = "under";
+    if (entry.tag && BEHAVIOURS[entry.tag]) {
+      const n = logs.filter(l => l.tag === entry.tag).length;
+      out.pattern = Object.assign({ key: entry.tag, n }, BEHAVIOURS[entry.tag]);
+    }
+    return out;
+  }
+  return { BEHAVIOURS, CONF, has, reasons, tagOf, profile, feedback, estimate, scoreOf, BAND };
 })();
 
 // ===== Pass The PMP: original exam-style question bank (aligned to the July 2026 PMP ECO) =====
@@ -6620,10 +6824,33 @@ function resultItems() {
   const items = [];
   items.push({ who: "me", html: f => `<div class="msg me${f}"><div class="mcol"><div class="mb">${esc(chosen.text || "")}</div><div class="verdict react ${Rz.grade}${f ? " pop" : ""}" title="${esc(verdictLabel(Rz.grade))}"><span aria-hidden="true">${VICON[Rz.grade]}</span> ${VSHORT[Rz.grade]}</div></div></div>` });
   items.push({ who: "sys", html: f => `<div class="msg sys${f}"><div class="sysnote outcome"><span class="eyebrow">What happened</span><span>${esc(Rz.outcome)}</span>${Rz.deltas.length ? `<span class="deltas">${Rz.deltas.map(([k, v, inv]) => { const good = inv === "n" ? null : inv ? v < 0 : v > 0; return `<span class="pill ${good == null ? "" : good ? "good" : "bad"}">${esc(k)} ${inv === "n" ? "+" + v : sgn(v)}</span>`; }).join("")}</span>` : ""}</div></div>` });
+  const fbh = fbHTML(cur.fb, sit);
+  if (fbh) items.push({ who: "sys", html: f => `<div class="msg sys${f}">${fbh}</div>` });
   items.push({ who: m, voice: true, html: f => `<div class="msg them coach${f}"><span class="avslot">${av(m, 32)}</span><div class="mcol"><div class="cname">${esc(People.short(m))} <span>· your coach</span></div><div class="mb">${esc(Rz.lesson)}</div></div></div>` });
   if (Rz.grade !== "best") items.push({ who: m, html: f => `<div class="msg them coach cont${f}"><span class="avslot"></span><div class="mcol"><div class="mb"><b>The best answer:</b> ${esc(Rz.best)}</div></div></div>` });
   items.push({ who: "sys", html: f => `<div class="msg sys${f}"><div class="examcard"><details><summary><b>On the exam</b><span class="tiny muted">${esc(ecoLabel(sit.eco[0], sit.eco[1]))}</span></summary><p>${esc(Rz.lens)}</p><p class="tiny muted">${sit.also ? `Also ${esc(ecoLabel(sit.also[0], sit.also[1]))} · ` : ""}Principle: ${esc(PRINCIPLES[sit.principle])}</p></details><details><summary><b>All four answers</b><span class="tiny muted">How each option is graded</span></summary><ol class="allopts">${Rz.options.map((o, i) => `<li class="g-${o.grade}${o.chosen ? " chosen" : ""}"><span class="k">${letters[i]}</span><span>${esc(o.text)}<span class="tiny"> · ${o.grade === "best" ? "best answer" : o.grade === "ok" ? "reasonable" : "poor"}${o.chosen ? " · your reply" : ""}</span></span></li>`).join("")}</ol></details></div></div>` });
   return (cur._ri = items);
+}
+// what the player's reason, confidence and pattern say about this decision
+function fbHTML(fb, sit) {
+  if (!fb || (!fb.reason && !fb.cal && !fb.pattern)) return "";
+  const RS = {
+    both: ["good", "Right call, right reason", "You chose the best reply for the reason the exam rewards."],
+    lucky: ["warn", "Right call, shaky reason", "Your reply was best, but the reason you gave isn't why. On the exam, a different version of this situation could catch you out."],
+    knows: ["warn", "Right principle, wrong reply", "You named the principle, but the reply you chose doesn't apply it. Look at how the best reply puts it into action."],
+    neither: ["bad", "Reply and reason both missed", ""],
+  };
+  const rows = [];
+  if (fb.reason) {
+    const [k, h, t] = RS[fb.reason];
+    const trap = fb.reason !== "both" && fb.reason !== "knows" && fb.trap ? ` Your reason reflects a common trap: <b>${esc(fb.trap.toLowerCase())}</b>.` : "";
+    const pr = fb.reason !== "both" && fb.principle ? `<span class="tiny"><b>The principle:</b> ${esc(fb.principle)}</span>` : "";
+    rows.push(`<div class="fbrow"><span class="pill ${k}">${h}</span><span>${t}${trap}</span>${pr}</div>`);
+  }
+  if (fb.cal === "over") rows.push(`<div class="fbrow"><span class="pill bad">Certain, but missed</span><span>Being sure and wrong is the costliest pattern on exam day. When an answer feels obvious, check it against the principle first.</span></div>`);
+  else if (fb.cal === "under") rows.push(`<div class="fbrow"><span class="pill acc">Better than you thought</span><span>You guessed, and got it right. Trust the principle: it's the same one behind many exam questions.</span></div>`);
+  if (fb.pattern) rows.push(`<div class="fbrow"><span class="pill ${fb.pattern.n >= 2 ? "bad" : "warn"}">${esc(fb.pattern.label)}${fb.pattern.n >= 2 ? ` · ${fb.pattern.n} times` : ""}</span><span>${esc(fb.pattern.n >= 2 ? "This is becoming a pattern. " : "")}${esc(fb.pattern.fix)}</span></div>`);
+  return `<div class="sysnote diagnote"><span class="eyebrow">Your reasoning</span>${rows.join("")}</div>`;
 }
 let sitTimer = null;
 function drawSituation() {
@@ -6657,8 +6884,19 @@ function drawSituation() {
   } else {
     log += `<div class="msg sys${!Rz && !cur._askShown ? " fadein" : ""}"><div class="askq">${esc(P.q || sit.q)}</div></div>`; cur._askShown = true;
     if (!Rz) {
+      const asks = Diag.has(cur.key, sit.id);
+      if (asks && cur.step === "why" && cur.choice != null) {
+        const rs = Diag.reasons(cur.key, sit.id, G[cur.key].seed), li = P.options.findIndex(o => o.idx === cur.choice);
+        const ready = cur.why != null && cur.conf != null;
+        tray = `<div class="spread whyhead"><span class="small"><b>Your reply:</b> ${letters[li]}. ${esc(P.options[li].text(c).length > 72 ? P.options[li].text(c).slice(0, 70).trimEnd() + "…" : P.options[li].text(c))}</span><button class="btn sm ghost" data-whyback>Change</button></div>
+          <p class="trayhint"><b>Why this reply?</b> Pick the reason closest to yours.</p>
+          <div class="replies" role="radiogroup" aria-label="Why this reply">${rs.map(r => `<button class="reply reason" role="radio" aria-checked="${cur.why === r.i}" aria-pressed="${cur.why === r.i}" data-why="${r.i}"><span class="k" aria-hidden="true"></span><span>${esc(r.text)}</span></button>`).join("")}</div>
+          <p class="trayhint"><b>How sure are you?</b></p>
+          <div class="confrow" role="radiogroup" aria-label="How sure are you">${Diag.CONF.map((t, i) => `<button class="confchip" role="radio" aria-checked="${cur.conf === i}" aria-pressed="${cur.conf === i}" data-conf="${i}">${t}</button>`).join("")}</div>
+          <div class="traybar"><span class="tiny muted">${ready ? "Ready to send" : "Your reason and confidence help diagnose your strengths"}</span><button class="btn sendbtn" data-confirm ${ready ? "" : "disabled"}>Send <span aria-hidden="true">➤</span></button></div>`;
+      } else
       tray = `<p class="trayhint">Choose your reply. There's no going back.</p><div class="replies" role="radiogroup" aria-label="Your reply">${P.options.map((o, i) => `<button class="reply" role="radio" aria-checked="${cur.choice === o.idx}" aria-pressed="${cur.choice === o.idx}" data-choose="${o.idx}"><span class="k">${letters[i]}</span><span>${esc(o.text(c))}</span></button>`).join("")}</div>
-        <div class="traybar"><span class="tiny muted">${cur.choice == null ? "Tap a reply to select it" : "Ready to send"}</span><button class="btn sendbtn" data-confirm ${cur.choice == null ? "disabled" : ""}>Send <span aria-hidden="true">➤</span></button></div>`;
+        <div class="traybar"><span class="tiny muted">${cur.choice == null ? "Tap a reply to select it" : asks ? "Next, tell us why" : "Ready to send"}</span>${asks ? `<button class="btn sendbtn" data-whystep ${cur.choice == null ? "disabled" : ""}>Next <span aria-hidden="true">➤</span></button>` : `<button class="btn sendbtn" data-confirm ${cur.choice == null ? "disabled" : ""}>Send <span aria-hidden="true">➤</span></button>`}</div>`;
     } else {
       const items = resultItems(), n = Math.min(cur.rshown || 0, items.length);
       for (let i = 0; i < n; i++) log += items[i].html(i === n - 1 && cur._rFresh !== i ? (cur._rFresh = i, " fadein") : "");
@@ -6708,7 +6946,20 @@ function confirmSituation() {
   const S = G[cur.key];
   const before = {}; for (const [id, p] of Object.entries(G.people)) before[id] = p.morale;
   cur.result = engine(cur.key).choose(S, G.people, cur.prepared, cur.choice);
-  try { Track.ev("decision", cur.key, cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0, cur.prepared.sit.id); } catch (e) { }
+  const sid = cur.prepared.sit.id, entry = S.log[S.log.length - 1];
+  if (entry && entry.id === sid) {
+    const opt = cur.prepared.options.find(x => x.idx === cur.choice);
+    entry.tag = Diag.tagOf(cur.key, sid, opt);
+    if (Diag.has(cur.key, sid) && cur.why != null) {
+      const r = (Diag.reasons(cur.key, sid, S.seed) || []).find(x => x.i === cur.why);
+      if (r) { entry.why = r.ok; entry.whyTag = r.tag; }
+      entry.conf = cur.conf;
+    }
+    cur.fb = Diag.feedback(entry, S.log);
+    if (entry.why != null) { const rs = Diag.reasons(cur.key, sid, S.seed) || []; cur.fb.principle = (rs.find(x => x.ok) || {}).text; cur.fb.trap = entry.whyTag && Diag.BEHAVIOURS[entry.whyTag] ? Diag.BEHAVIOURS[entry.whyTag].label : null; }
+  }
+  const g = cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0;
+  try { Track.ev("decision", cur.key, g, entry && entry.why != null ? [sid, entry.tag || "-", entry.why ? 1 : 0, entry.conf].join("|") : sid); } catch (e) { }
   const map = {}; for (const [id, p] of Object.entries(G.people)) { const d = p.morale - (before[id] ?? p.morale); if (Math.abs(d) >= 1) map[id] = d; }
   reactions = { key: cur.key, map, until: Date.now() + 6000 };
   cur.rshown = 0; cur.rbusy = false; cur._ri = null;
@@ -6782,7 +7033,8 @@ function viewResults(key) {
     <p class="small">You handled <b>${best} of ${L.length}</b> situations the way the exam expects (${pct(r.mindset)}).</p>
     <div class="stack" style="margin-top:12px">${head.map(([k, v]) => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div></div>
     <div class="card"><h3>Decisions and exam tasks</h3><div class="stack" style="margin-top:10px">${L.map(l => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span><b>${esc(l.title)}</b><br><span class="tiny muted">${esc(ecoLabel(l.eco[0], l.eco[1]))}</span></span><span class="pill ${l.grade === "best" ? "good" : l.grade === "ok" ? "warn" : "bad"}">${l.grade === "best" ? "Exam way" : l.grade === "ok" ? "Partly" : "Missed"}</span></div>`).join("")}</div>
-    ${L.some(l => l.grade !== "best") ? `<button class="btn ghost sm" style="margin-top:12px" data-practiceweak="${key}">Practise the tasks you missed in the Exam Hall</button>` : ""}</div></div>`;
+    ${L.some(l => l.grade !== "best") ? `<button class="btn ghost sm" style="margin-top:12px" data-practiceweak="${key}">Practise the tasks you missed in the Exam Hall</button>` : ""}</div></div>
+  <div style="margin-top:16px">${diagReportHTML(L, null, { link: true })}</div>`;
 }
 
 // ===== UI: guided charter chats, coach messages, badges =====
@@ -7790,6 +8042,32 @@ function moveTo(j) {
 }
 
 // ---------- progress ----------
+// the diagnostic: what the player's decisions, reasons and confidence show, with honest uncertainty
+function diagReportHTML(logs, answers, o = {}) {
+  const P = Diag.profile(logs, answers);
+  const CODE = { People: "PE", Process: "PR", "Business Environment": "BE" };
+  const BK = { above: "AT", target: "T", below: "BT", needs: "NI" };
+  const SURE = { solid: "solid evidence", emerging: "some evidence", early: "too early to say" };
+  if (P.decisions < 3) return `<div class="card dgcard"><p class="eyebrow">Diagnostic</p><h3>What your decisions show</h3><p class="small muted" style="margin-top:6px">Make at least three decisions in a project to see your first diagnosis. Kudi Savings asks why you chose each reply and how sure you were, which makes the diagnosis sharper.</p></div>`;
+  const ts = P.tasks.filter(t => t.n >= 1).sort((a, b) => a.m - b.m);
+  const show = ts.length > 7 ? ts.slice(0, 4).concat(ts.slice(-3)) : ts;
+  const tick = 68;
+  const taskRow = t => { const b = BK[Diag.BAND(t.m)];
+    return `<li class="dgtask"><div class="spread small"><span class="nm"><b>${CODE[t.d]} ${t.t}</b> ${esc(ECO[t.d][t.t - 1])}</span>${t.sure === "early" ? `<span class="tiny muted">Too early</span>` : `<span class="band ${b}">${BANDS[b]}</span>`}</div>
+      <div class="dgrange" role="img" aria-label="Estimated ${pct(t.m)}, likely between ${pct(t.lo)} and ${pct(t.hi)}"><i class="span" style="left:${(t.lo * 100).toFixed(1)}%;width:${((t.hi - t.lo) * 100).toFixed(1)}%"></i><i class="tick" style="left:${tick}%"></i><i class="dot ${b}" style="left:${(t.m * 100).toFixed(1)}%"></i></div>
+      <span class="tiny muted">Likely ${pct(t.lo)}–${pct(t.hi)} · ${SURE[t.sure]} · ${[t.dec ? `${t.dec} decision${t.dec === 1 ? "" : "s"}` : "", t.qs ? `${t.qs} question${t.qs === 1 ? "" : "s"}` : ""].filter(Boolean).join(", ")}</span></li>`; };
+  const rq = P.rq, asked = P.asked;
+  const rqRow = (n, label, cls, note) => `<div class="dgrq"><b class="num ${cls}">${n}</b><span><b>${label}</b><br><span class="tiny muted">${note}</span></span></div>`;
+  const certain = P.cal[2];
+  const tend = P.tendencies.filter(t => t.n >= 1).slice(0, 3);
+  return `<div class="card dgcard"><div class="spread" style="flex-wrap:wrap;gap:8px"><div><p class="eyebrow">Diagnostic</p><h3>What your decisions show</h3></div><span class="tiny muted">${P.decisions} decision${P.decisions === 1 ? "" : "s"}${asked ? `, ${asked} with your reasons` : ""}${answers && answers.length ? ` and ${answers.length} practice question${answers.length === 1 ? "" : "s"}` : ""}</span></div>
+    <div class="dggrid">
+      <section><h4>Where you stand, by exam task</h4><p class="tiny muted">Weakest first. The bar is the likely range; it narrows as you make more decisions. The line marks Target.</p><ul class="dgtasks">${show.map(taskRow).join("")}</ul></section>
+      <section><h4>How you reason</h4>${asked ? `<div class="dgrqs">${rqRow(rq.both, "Right call, right reason", "good", "Competence you can rely on")}${rqRow(rq.lucky, "Right call, shaky reason", "warn", "Could fail on a reworded question")}${rqRow(rq.knows, "Right principle, wrong reply", "warn", "You know it but didn't apply it")}${rqRow(rq.neither, "Both missed", "bad", "Revisit the principle")}</div>
+        <p class="small" style="margin-top:10px">${certain.n ? `When you were <b>certain</b>, you were right <b>${certain.right} of ${certain.n}</b> times.${P.over ? ` ${P.over} confident miss${P.over === 1 ? "" : "es"}: slow down when an answer feels obvious.` : " Your confidence is well placed."}` : "You haven't marked any reply as certain yet."}</p>` : `<p class="small muted">Play Kudi Savings to see this. It asks why you chose each reply and how sure you were.</p>`}</section>
+      <section><h4>Patterns to work on</h4>${tend.length ? tend.map(t => `<div class="dgpat"><div class="spread small"><b>${esc(t.label)}</b><span class="tiny muted" style="text-align:right">${[t.replies ? `${t.replies} repl${t.replies === 1 ? "y" : "ies"}` : "", t.reasons ? `${t.reasons} reason${t.reasons === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · ")}</span></div><p class="tiny muted">${esc(t.what)}</p><p class="small"><b>Instead:</b> ${esc(t.fix)}</p>${t.sits.length ? `<p class="tiny muted">Seen in: ${t.sits.slice(0, 3).map(esc).join("; ")}</p>` : ""}</div>`).join("") : `<p class="small muted">No pattern yet. Your weaker choices haven't repeated a behaviour.</p>`}</section>
+    </div>${o.link ? `<button class="btn ghost sm" style="margin-top:12px" data-go="progress">See your full diagnostic</button>` : ""}</div>`;
+}
 function viewProgress() {
   const st = taskStats();
   const sits = allSituations();
@@ -7812,6 +8090,7 @@ function viewProgress() {
   for (const l of sits) { const p = pr[l.principle] || (pr[l.principle] = { n: 0, v: 0 }); p.n++; p.v += l.grade === "best" ? 1 : l.grade === "ok" ? 0.5 : 0; }
   const found = Object.keys(G.insights || {}).length;
   return `<div class="spread" style="margin-bottom:18px;flex-wrap:wrap;gap:12px"><div><p class="eyebrow">PMP readiness</p><h2>Your progress</h2></div><button class="btn ghost sm" data-go="exam">Exam Hall</button></div>
+  <div style="margin-bottom:16px">${diagReportHTML(sits, latestByQ())}</div>
   <div class="card prog-total"><div class="spread"><b>Exam tasks practised</b><span class="num"><b>${done}</b><span class="muted"> / ${total}</span></span></div><div class="meter lg"><i style="width:${(done / total * 100).toFixed(0)}%"></i></div><div class="row tiny muted proglegend" aria-label="Colour key"><span><i class="l4"></i>80%+</span><span><i class="l3"></i>68–79%</span><span><i class="l2"></i>50–67%</span><span><i class="l1"></i>Under 50%</span></div></div>
   <div class="grid3" style="margin:16px 0">${doms.map(({ d, ks }) => {
     const n = ks.filter(k => k.v != null).length;
@@ -8178,6 +8457,10 @@ document.addEventListener("click", e => {
 
   // situations
   if (d.choose !== undefined && cur && !cur.result) { cur.choice = +d.choose; drawSituation(); return; }
+  if (d.whystep !== undefined && cur && !cur.result && cur.choice != null) { cur.step = "why"; drawSituation(); const t = document.querySelector(".sittray"); if (t) t.scrollTop = 0; return; }
+  if (d.whyback !== undefined && cur && !cur.result) { cur.step = null; drawSituation(); return; }
+  if (d.why !== undefined && cur && !cur.result) { cur.why = +d.why; drawSituation(); return; }
+  if (d.conf !== undefined && cur && !cur.result) { cur.conf = +d.conf; drawSituation(); return; }
   if (d.confirm !== undefined && cur && cur.choice != null) return confirmSituation();
   if (d.sitdone !== undefined && cur) return finishSituation();
 

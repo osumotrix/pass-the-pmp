@@ -431,6 +431,32 @@ function moveTo(j) {
 }
 
 // ---------- progress ----------
+// the diagnostic: what the player's decisions, reasons and confidence show, with honest uncertainty
+function diagReportHTML(logs, answers, o = {}) {
+  const P = Diag.profile(logs, answers);
+  const CODE = { People: "PE", Process: "PR", "Business Environment": "BE" };
+  const BK = { above: "AT", target: "T", below: "BT", needs: "NI" };
+  const SURE = { solid: "solid evidence", emerging: "some evidence", early: "too early to say" };
+  if (P.decisions < 3) return `<div class="card dgcard"><p class="eyebrow">Diagnostic</p><h3>What your decisions show</h3><p class="small muted" style="margin-top:6px">Make at least three decisions in a project to see your first diagnosis. Kudi Savings asks why you chose each reply and how sure you were, which makes the diagnosis sharper.</p></div>`;
+  const ts = P.tasks.filter(t => t.n >= 1).sort((a, b) => a.m - b.m);
+  const show = ts.length > 7 ? ts.slice(0, 4).concat(ts.slice(-3)) : ts;
+  const tick = 68;
+  const taskRow = t => { const b = BK[Diag.BAND(t.m)];
+    return `<li class="dgtask"><div class="spread small"><span class="nm"><b>${CODE[t.d]} ${t.t}</b> ${esc(ECO[t.d][t.t - 1])}</span>${t.sure === "early" ? `<span class="tiny muted">Too early</span>` : `<span class="band ${b}">${BANDS[b]}</span>`}</div>
+      <div class="dgrange" role="img" aria-label="Estimated ${pct(t.m)}, likely between ${pct(t.lo)} and ${pct(t.hi)}"><i class="span" style="left:${(t.lo * 100).toFixed(1)}%;width:${((t.hi - t.lo) * 100).toFixed(1)}%"></i><i class="tick" style="left:${tick}%"></i><i class="dot ${b}" style="left:${(t.m * 100).toFixed(1)}%"></i></div>
+      <span class="tiny muted">Likely ${pct(t.lo)}–${pct(t.hi)} · ${SURE[t.sure]} · ${[t.dec ? `${t.dec} decision${t.dec === 1 ? "" : "s"}` : "", t.qs ? `${t.qs} question${t.qs === 1 ? "" : "s"}` : ""].filter(Boolean).join(", ")}</span></li>`; };
+  const rq = P.rq, asked = P.asked;
+  const rqRow = (n, label, cls, note) => `<div class="dgrq"><b class="num ${cls}">${n}</b><span><b>${label}</b><br><span class="tiny muted">${note}</span></span></div>`;
+  const certain = P.cal[2];
+  const tend = P.tendencies.filter(t => t.n >= 1).slice(0, 3);
+  return `<div class="card dgcard"><div class="spread" style="flex-wrap:wrap;gap:8px"><div><p class="eyebrow">Diagnostic</p><h3>What your decisions show</h3></div><span class="tiny muted">${P.decisions} decision${P.decisions === 1 ? "" : "s"}${asked ? `, ${asked} with your reasons` : ""}${answers && answers.length ? ` and ${answers.length} practice question${answers.length === 1 ? "" : "s"}` : ""}</span></div>
+    <div class="dggrid">
+      <section><h4>Where you stand, by exam task</h4><p class="tiny muted">Weakest first. The bar is the likely range; it narrows as you make more decisions. The line marks Target.</p><ul class="dgtasks">${show.map(taskRow).join("")}</ul></section>
+      <section><h4>How you reason</h4>${asked ? `<div class="dgrqs">${rqRow(rq.both, "Right call, right reason", "good", "Competence you can rely on")}${rqRow(rq.lucky, "Right call, shaky reason", "warn", "Could fail on a reworded question")}${rqRow(rq.knows, "Right principle, wrong reply", "warn", "You know it but didn't apply it")}${rqRow(rq.neither, "Both missed", "bad", "Revisit the principle")}</div>
+        <p class="small" style="margin-top:10px">${certain.n ? `When you were <b>certain</b>, you were right <b>${certain.right} of ${certain.n}</b> times.${P.over ? ` ${P.over} confident miss${P.over === 1 ? "" : "es"}: slow down when an answer feels obvious.` : " Your confidence is well placed."}` : "You haven't marked any reply as certain yet."}</p>` : `<p class="small muted">Play Kudi Savings to see this. It asks why you chose each reply and how sure you were.</p>`}</section>
+      <section><h4>Patterns to work on</h4>${tend.length ? tend.map(t => `<div class="dgpat"><div class="spread small"><b>${esc(t.label)}</b><span class="tiny muted" style="text-align:right">${[t.replies ? `${t.replies} repl${t.replies === 1 ? "y" : "ies"}` : "", t.reasons ? `${t.reasons} reason${t.reasons === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · ")}</span></div><p class="tiny muted">${esc(t.what)}</p><p class="small"><b>Instead:</b> ${esc(t.fix)}</p>${t.sits.length ? `<p class="tiny muted">Seen in: ${t.sits.slice(0, 3).map(esc).join("; ")}</p>` : ""}</div>`).join("") : `<p class="small muted">No pattern yet. Your weaker choices haven't repeated a behaviour.</p>`}</section>
+    </div>${o.link ? `<button class="btn ghost sm" style="margin-top:12px" data-go="progress">See your full diagnostic</button>` : ""}</div>`;
+}
 function viewProgress() {
   const st = taskStats();
   const sits = allSituations();
@@ -453,6 +479,7 @@ function viewProgress() {
   for (const l of sits) { const p = pr[l.principle] || (pr[l.principle] = { n: 0, v: 0 }); p.n++; p.v += l.grade === "best" ? 1 : l.grade === "ok" ? 0.5 : 0; }
   const found = Object.keys(G.insights || {}).length;
   return `<div class="spread" style="margin-bottom:18px;flex-wrap:wrap;gap:12px"><div><p class="eyebrow">PMP readiness</p><h2>Your progress</h2></div><button class="btn ghost sm" data-go="exam">Exam Hall</button></div>
+  <div style="margin-bottom:16px">${diagReportHTML(sits, latestByQ())}</div>
   <div class="card prog-total"><div class="spread"><b>Exam tasks practised</b><span class="num"><b>${done}</b><span class="muted"> / ${total}</span></span></div><div class="meter lg"><i style="width:${(done / total * 100).toFixed(0)}%"></i></div><div class="row tiny muted proglegend" aria-label="Colour key"><span><i class="l4"></i>80%+</span><span><i class="l3"></i>68–79%</span><span><i class="l2"></i>50–67%</span><span><i class="l1"></i>Under 50%</span></div></div>
   <div class="grid3" style="margin:16px 0">${doms.map(({ d, ks }) => {
     const n = ks.filter(k => k.v != null).length;

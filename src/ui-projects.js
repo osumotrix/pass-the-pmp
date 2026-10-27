@@ -313,10 +313,33 @@ function resultItems() {
   const items = [];
   items.push({ who: "me", html: f => `<div class="msg me${f}"><div class="mcol"><div class="mb">${esc(chosen.text || "")}</div><div class="verdict react ${Rz.grade}${f ? " pop" : ""}" title="${esc(verdictLabel(Rz.grade))}"><span aria-hidden="true">${VICON[Rz.grade]}</span> ${VSHORT[Rz.grade]}</div></div></div>` });
   items.push({ who: "sys", html: f => `<div class="msg sys${f}"><div class="sysnote outcome"><span class="eyebrow">What happened</span><span>${esc(Rz.outcome)}</span>${Rz.deltas.length ? `<span class="deltas">${Rz.deltas.map(([k, v, inv]) => { const good = inv === "n" ? null : inv ? v < 0 : v > 0; return `<span class="pill ${good == null ? "" : good ? "good" : "bad"}">${esc(k)} ${inv === "n" ? "+" + v : sgn(v)}</span>`; }).join("")}</span>` : ""}</div></div>` });
+  const fbh = fbHTML(cur.fb, sit);
+  if (fbh) items.push({ who: "sys", html: f => `<div class="msg sys${f}">${fbh}</div>` });
   items.push({ who: m, voice: true, html: f => `<div class="msg them coach${f}"><span class="avslot">${av(m, 32)}</span><div class="mcol"><div class="cname">${esc(People.short(m))} <span>· your coach</span></div><div class="mb">${esc(Rz.lesson)}</div></div></div>` });
   if (Rz.grade !== "best") items.push({ who: m, html: f => `<div class="msg them coach cont${f}"><span class="avslot"></span><div class="mcol"><div class="mb"><b>The best answer:</b> ${esc(Rz.best)}</div></div></div>` });
   items.push({ who: "sys", html: f => `<div class="msg sys${f}"><div class="examcard"><details><summary><b>On the exam</b><span class="tiny muted">${esc(ecoLabel(sit.eco[0], sit.eco[1]))}</span></summary><p>${esc(Rz.lens)}</p><p class="tiny muted">${sit.also ? `Also ${esc(ecoLabel(sit.also[0], sit.also[1]))} · ` : ""}Principle: ${esc(PRINCIPLES[sit.principle])}</p></details><details><summary><b>All four answers</b><span class="tiny muted">How each option is graded</span></summary><ol class="allopts">${Rz.options.map((o, i) => `<li class="g-${o.grade}${o.chosen ? " chosen" : ""}"><span class="k">${letters[i]}</span><span>${esc(o.text)}<span class="tiny"> · ${o.grade === "best" ? "best answer" : o.grade === "ok" ? "reasonable" : "poor"}${o.chosen ? " · your reply" : ""}</span></span></li>`).join("")}</ol></details></div></div>` });
   return (cur._ri = items);
+}
+// what the player's reason, confidence and pattern say about this decision
+function fbHTML(fb, sit) {
+  if (!fb || (!fb.reason && !fb.cal && !fb.pattern)) return "";
+  const RS = {
+    both: ["good", "Right call, right reason", "You chose the best reply for the reason the exam rewards."],
+    lucky: ["warn", "Right call, shaky reason", "Your reply was best, but the reason you gave isn't why. On the exam, a different version of this situation could catch you out."],
+    knows: ["warn", "Right principle, wrong reply", "You named the principle, but the reply you chose doesn't apply it. Look at how the best reply puts it into action."],
+    neither: ["bad", "Reply and reason both missed", ""],
+  };
+  const rows = [];
+  if (fb.reason) {
+    const [k, h, t] = RS[fb.reason];
+    const trap = fb.reason !== "both" && fb.reason !== "knows" && fb.trap ? ` Your reason reflects a common trap: <b>${esc(fb.trap.toLowerCase())}</b>.` : "";
+    const pr = fb.reason !== "both" && fb.principle ? `<span class="tiny"><b>The principle:</b> ${esc(fb.principle)}</span>` : "";
+    rows.push(`<div class="fbrow"><span class="pill ${k}">${h}</span><span>${t}${trap}</span>${pr}</div>`);
+  }
+  if (fb.cal === "over") rows.push(`<div class="fbrow"><span class="pill bad">Certain, but missed</span><span>Being sure and wrong is the costliest pattern on exam day. When an answer feels obvious, check it against the principle first.</span></div>`);
+  else if (fb.cal === "under") rows.push(`<div class="fbrow"><span class="pill acc">Better than you thought</span><span>You guessed, and got it right. Trust the principle: it's the same one behind many exam questions.</span></div>`);
+  if (fb.pattern) rows.push(`<div class="fbrow"><span class="pill ${fb.pattern.n >= 2 ? "bad" : "warn"}">${esc(fb.pattern.label)}${fb.pattern.n >= 2 ? ` · ${fb.pattern.n} times` : ""}</span><span>${esc(fb.pattern.n >= 2 ? "This is becoming a pattern. " : "")}${esc(fb.pattern.fix)}</span></div>`);
+  return `<div class="sysnote diagnote"><span class="eyebrow">Your reasoning</span>${rows.join("")}</div>`;
 }
 let sitTimer = null;
 function drawSituation() {
@@ -350,8 +373,19 @@ function drawSituation() {
   } else {
     log += `<div class="msg sys${!Rz && !cur._askShown ? " fadein" : ""}"><div class="askq">${esc(P.q || sit.q)}</div></div>`; cur._askShown = true;
     if (!Rz) {
+      const asks = Diag.has(cur.key, sit.id);
+      if (asks && cur.step === "why" && cur.choice != null) {
+        const rs = Diag.reasons(cur.key, sit.id, G[cur.key].seed), li = P.options.findIndex(o => o.idx === cur.choice);
+        const ready = cur.why != null && cur.conf != null;
+        tray = `<div class="spread whyhead"><span class="small"><b>Your reply:</b> ${letters[li]}. ${esc(P.options[li].text(c).length > 72 ? P.options[li].text(c).slice(0, 70).trimEnd() + "…" : P.options[li].text(c))}</span><button class="btn sm ghost" data-whyback>Change</button></div>
+          <p class="trayhint"><b>Why this reply?</b> Pick the reason closest to yours.</p>
+          <div class="replies" role="radiogroup" aria-label="Why this reply">${rs.map(r => `<button class="reply reason" role="radio" aria-checked="${cur.why === r.i}" aria-pressed="${cur.why === r.i}" data-why="${r.i}"><span class="k" aria-hidden="true"></span><span>${esc(r.text)}</span></button>`).join("")}</div>
+          <p class="trayhint"><b>How sure are you?</b></p>
+          <div class="confrow" role="radiogroup" aria-label="How sure are you">${Diag.CONF.map((t, i) => `<button class="confchip" role="radio" aria-checked="${cur.conf === i}" aria-pressed="${cur.conf === i}" data-conf="${i}">${t}</button>`).join("")}</div>
+          <div class="traybar"><span class="tiny muted">${ready ? "Ready to send" : "Your reason and confidence help diagnose your strengths"}</span><button class="btn sendbtn" data-confirm ${ready ? "" : "disabled"}>Send <span aria-hidden="true">➤</span></button></div>`;
+      } else
       tray = `<p class="trayhint">Choose your reply. There's no going back.</p><div class="replies" role="radiogroup" aria-label="Your reply">${P.options.map((o, i) => `<button class="reply" role="radio" aria-checked="${cur.choice === o.idx}" aria-pressed="${cur.choice === o.idx}" data-choose="${o.idx}"><span class="k">${letters[i]}</span><span>${esc(o.text(c))}</span></button>`).join("")}</div>
-        <div class="traybar"><span class="tiny muted">${cur.choice == null ? "Tap a reply to select it" : "Ready to send"}</span><button class="btn sendbtn" data-confirm ${cur.choice == null ? "disabled" : ""}>Send <span aria-hidden="true">➤</span></button></div>`;
+        <div class="traybar"><span class="tiny muted">${cur.choice == null ? "Tap a reply to select it" : asks ? "Next, tell us why" : "Ready to send"}</span>${asks ? `<button class="btn sendbtn" data-whystep ${cur.choice == null ? "disabled" : ""}>Next <span aria-hidden="true">➤</span></button>` : `<button class="btn sendbtn" data-confirm ${cur.choice == null ? "disabled" : ""}>Send <span aria-hidden="true">➤</span></button>`}</div>`;
     } else {
       const items = resultItems(), n = Math.min(cur.rshown || 0, items.length);
       for (let i = 0; i < n; i++) log += items[i].html(i === n - 1 && cur._rFresh !== i ? (cur._rFresh = i, " fadein") : "");
@@ -401,7 +435,20 @@ function confirmSituation() {
   const S = G[cur.key];
   const before = {}; for (const [id, p] of Object.entries(G.people)) before[id] = p.morale;
   cur.result = engine(cur.key).choose(S, G.people, cur.prepared, cur.choice);
-  try { Track.ev("decision", cur.key, cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0, cur.prepared.sit.id); } catch (e) { }
+  const sid = cur.prepared.sit.id, entry = S.log[S.log.length - 1];
+  if (entry && entry.id === sid) {
+    const opt = cur.prepared.options.find(x => x.idx === cur.choice);
+    entry.tag = Diag.tagOf(cur.key, sid, opt);
+    if (Diag.has(cur.key, sid) && cur.why != null) {
+      const r = (Diag.reasons(cur.key, sid, S.seed) || []).find(x => x.i === cur.why);
+      if (r) { entry.why = r.ok; entry.whyTag = r.tag; }
+      entry.conf = cur.conf;
+    }
+    cur.fb = Diag.feedback(entry, S.log);
+    if (entry.why != null) { const rs = Diag.reasons(cur.key, sid, S.seed) || []; cur.fb.principle = (rs.find(x => x.ok) || {}).text; cur.fb.trap = entry.whyTag && Diag.BEHAVIOURS[entry.whyTag] ? Diag.BEHAVIOURS[entry.whyTag].label : null; }
+  }
+  const g = cur.result.grade === "best" ? 2 : cur.result.grade === "ok" ? 1 : 0;
+  try { Track.ev("decision", cur.key, g, entry && entry.why != null ? [sid, entry.tag || "-", entry.why ? 1 : 0, entry.conf].join("|") : sid); } catch (e) { }
   const map = {}; for (const [id, p] of Object.entries(G.people)) { const d = p.morale - (before[id] ?? p.morale); if (Math.abs(d) >= 1) map[id] = d; }
   reactions = { key: cur.key, map, until: Date.now() + 6000 };
   cur.rshown = 0; cur.rbusy = false; cur._ri = null;
@@ -475,5 +522,6 @@ function viewResults(key) {
     <p class="small">You handled <b>${best} of ${L.length}</b> situations the way the exam expects (${pct(r.mindset)}).</p>
     <div class="stack" style="margin-top:12px">${head.map(([k, v]) => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div></div>
     <div class="card"><h3>Decisions and exam tasks</h3><div class="stack" style="margin-top:10px">${L.map(l => `<div class="spread small" style="border-bottom:1px dashed var(--line);padding-bottom:6px"><span><b>${esc(l.title)}</b><br><span class="tiny muted">${esc(ecoLabel(l.eco[0], l.eco[1]))}</span></span><span class="pill ${l.grade === "best" ? "good" : l.grade === "ok" ? "warn" : "bad"}">${l.grade === "best" ? "Exam way" : l.grade === "ok" ? "Partly" : "Missed"}</span></div>`).join("")}</div>
-    ${L.some(l => l.grade !== "best") ? `<button class="btn ghost sm" style="margin-top:12px" data-practiceweak="${key}">Practise the tasks you missed in the Exam Hall</button>` : ""}</div></div>`;
+    ${L.some(l => l.grade !== "best") ? `<button class="btn ghost sm" style="margin-top:12px" data-practiceweak="${key}">Practise the tasks you missed in the Exam Hall</button>` : ""}</div></div>
+  <div style="margin-top:16px">${diagReportHTML(L, null, { link: true })}</div>`;
 }
