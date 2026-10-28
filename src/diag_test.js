@@ -1,7 +1,7 @@
 // Checks the diagnostic content against the Kudi engine and the evidence model's behaviour.
 const fs = require('fs');
-const src = ['people.js', 'core.js', 'agile.js', 'diag.js'].map(f => fs.readFileSync(f, 'utf8').replace(/if \(typeof module[^\n]*\n/g, '')).join('\n');
-eval(src + ';global.Agile=Agile;global.Diag=Diag;global.R=R;global.People=People;');
+const src = ['people.js', 'core.js', 'agile.js', 'predictive.js', 'land.js', 'cold.js', 'diag.js'].map(f => fs.readFileSync(f, 'utf8').replace(/if \(typeof module[^\n]*\n/g, '')).join('\n');
+eval(src + ';global.Agile=Agile;global.Pred=Pred;global.Land=Land;global.Cold=Cold;global.Diag=Diag;global.R=R;global.People=People;');
 let bad = 0; const fail = m => { bad++; console.log('FAIL', m); };
 for (const s of Agile.SIT) {
   if (!Diag.has('kudi', s.id)) { fail('no diagnostic content for ' + s.id); continue; }
@@ -15,6 +15,24 @@ for (const s of Agile.SIT) {
     if (t && !Diag.BEHAVIOURS[t]) fail(`${s.id} unknown tag ${t}`);
   });
 }
+// the other projects: every situation has content, and every weaker reply a player can see carries a known behaviour
+const ENG = { clinic: Pred, land: Land, cold: Cold }; let checked = 0;
+for (const [key, E] of Object.entries(ENG)) {
+  for (let seed = 1; seed <= 6; seed++) {
+    People.newWorld(); const people = {}; const S = E.create(seed * 17, people);
+    if (key === 'cold' && seed % 2) S.stopped = true;
+    for (const s of E.SIT) {
+      if (!Diag.has(key, s.id)) { fail('no diagnostic content for ' + key + ' ' + s.id); continue; }
+      const rs = Diag.reasons(key, s.id, seed);
+      if (rs.length !== 4 || rs.filter(r => r.ok).length !== 1) fail(key + ' ' + s.id + ' needs four reasons with one principle');
+      for (const r of rs) if (!r.ok && !Diag.BEHAVIOURS[r.tag]) fail(key + ' ' + s.id + ' reason tag ' + r.tag);
+      let P; try { P = E.prepare(S, people, s); } catch (e) { continue; }
+      for (const o of P.options) { const t = Diag.tagOf(key, s.id, o); if (o.grade === 'best' ? t !== null : !Diag.BEHAVIOURS[t]) fail(`${key} ${s.id} option ${o.idx} (${o.grade}) tag ${t}`); }
+      checked++;
+    }
+  }
+}
+console.log('other projects: ' + checked + ' prepared situations checked');
 // evidence model
 const e1 = Diag.estimate([[1, 1]]), e6 = Diag.estimate(Array(6).fill([1, 1]));
 if (!(e1.m < e6.m && e1.hi - e1.lo > e6.hi - e6.lo)) fail('more evidence should raise the estimate and narrow the range');

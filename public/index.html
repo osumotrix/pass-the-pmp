@@ -2072,9 +2072,9 @@ const Pred = (() => {
       const usd = S.choices.equip === "usd";
       if (usd) return { scene: [["supplier", `The naira has fallen sharply against the dollar. Under our dollar-priced contract, the equipment will now cost about ₦23 million more.`], ["narr", `Your contingency reserve has ₦${Math.max(0, S.contingency - S.reserveUsed).toFixed(0)}m left. The exchange-rate risk was in the risk register.`]], q: "What should you do first?", options: [
         { grade: "best", text: c => `Assess the impact, apply the planned risk response and contingency reserve, and if that is not enough, raise a change request for management reserve with options such as a lower-cost specification.`, fx: { fx: "reserve" }, out: c => `The contingency covers most of the increase. The sponsor approves a small draw on management reserve after reviewing two cheaper ultrasound models.` },
-        { grade: "poor", text: c => `Cancel the equipment order and look for a cheaper supplier.`, fx: { fx: "cancel", support: { supplier: -20 } }, out: c => `Cancellation fees apply, and a new tender delays the equipment by three months.` },
-        { grade: "ok", text: c => `Ask ${c.s("donor")} for more money straight away.`, fx: { fx: "reserve", support: { donor: -5 } }, out: c => `${c.s("donor")} asks why you haven't used the contingency set aside for this risk.` },
-        { grade: "poor", text: c => `Quietly cut the specification to stay within budget.`, fx: { fx: "cut", defects: 1, support: { matron: -12 } }, out: c => `The matron discovers the change at commissioning. The clinic gets equipment it didn't agree to.` },
+        { grade: "poor", text: c => `Cancel the equipment order and look for a cheaper supplier.`, fx: { fx: "cancel", support: { supplier: -20 } }, out: c => `Cancellation fees apply, and a new tender delays the equipment by three months.`, tag: "rush" },
+        { grade: "ok", text: c => `Ask ${c.s("donor")} for more money straight away.`, fx: { fx: "reserve", support: { donor: -5 } }, out: c => `${c.s("donor")} asks why you haven't used the contingency set aside for this risk.`, tag: "resource" },
+        { grade: "poor", text: c => `Quietly cut the specification to stay within budget.`, fx: { fx: "cut", defects: 1, support: { matron: -12 } }, out: c => `The matron discovers the change at commissioning. The clinic gets equipment it didn't agree to.`, tag: "corners" },
       ] };
       return { scene: [["supplier", `With the naira falling, our fixed-price contract is now loss-making for us. We need a 20% increase, or we may struggle to deliver.`], ["narr", `Your contract is fixed price in naira, so the exchange-rate risk sits with the supplier.`]], q: "What should you do first?", options: [
         { grade: "best", text: c => `Review the contract terms with ${c.s("qs")}, acknowledge the supplier's situation, and explore options within the contract (for example, a revised delivery schedule) while holding them to the agreed price.`, fx: { fx: "hold", support: { supplier: -2 } }, out: c => `${c.s("supplier")} accepts staged deliveries that ease their cash flow. The price holds.` },
@@ -3135,9 +3135,9 @@ const Cold = (() => {
     if (sit.id === "C14") {
       if (S.stopped) return { scene: [V("refrig", `If the job's stopping, I want my final account settled this month, retention and all, and I want the stand-down costs.`), V("wms", `Our licence is paid to the end of the year. We'd like to discuss that.`), V("chair", `Close it properly. I don't want this coming back to the board in two years.`)], options: [
         { grade: "best", text: c => `Close each contract on its own terms: verify what was delivered, settle termination and stand-down costs as the contracts allow, release retention as they specify, archive the records and run a lessons-learned session for the co-op and the agency.`, fx: { support: { chair: 6, refrig: 6 }, shut: "settle" }, out: c => `It takes a month and a great deal of paper. Nothing comes back to the board, and the lessons register becomes the start of the next attempt.` },
-        { grade: "poor", text: c => `Pay everyone what they ask so the project can close quickly.`, fx: { budget: 0.8 }, out: c => `Quick, and expensive. Nobody checked what the money was for.` },
-        { grade: "ok", text: c => `Close the contracts, and leave lessons learned for the co-op to do later.`, fx: { support: { chair: 2 }, shut: "settle" }, out: c => `The contracts close properly. The lessons are never written.` },
-        { grade: "poor", text: c => `Hold back all payments until the co-op decides what to do with the building.`, fx: { support: { refrig: -14 } }, out: c => `The contractor files a lien on the building, which makes selling it much harder.` },
+        { grade: "poor", text: c => `Pay everyone what they ask so the project can close quickly.`, fx: { budget: 0.8 }, out: c => `Quick, and expensive. Nobody checked what the money was for.`, tag: "pressure" },
+        { grade: "ok", text: c => `Close the contracts, and leave lessons learned for the co-op to do later.`, fx: { support: { chair: 2 }, shut: "settle" }, out: c => `The contracts close properly. The lessons are never written.`, tag: "halfway" },
+        { grade: "poor", text: c => `Hold back all payments until the co-op decides what to do with the building.`, fx: { support: { refrig: -14 } }, out: c => `The contractor files a lien on the building, which makes selling it much harder.`, tag: "rigid" },
       ] };
       const live = m.live;
       return { scene: [["refrig", `${live} of four rooms are live. I want my retention released and the contract closed this week.`], ["qlead", `${live < 4 ? "The rooms that aren't live still have open snags, and " : ""}two validation reports are waiting for the agency's signature.`], V("chair", `Close it properly. I don't want this coming back to the board in two years.`)], options: [
@@ -3264,6 +3264,7 @@ const Diag = (() => {
     blame: { label: "Puts people on the spot", what: "You correct people in public or route a personal issue to HR first.", fix: "Start with a private conversation to understand the cause." },
     halfway: { label: "Settles for half measures", what: "You split the difference or do the minimum, so the real problem stays.", fix: "Look for the reply that solves the cause, not one that keeps everyone quiet for now." },
     resource: { label: "Throws time or money at it", what: "You reach for overtime, bonuses or extra people before fixing how the work flows.", fix: "Fix the process first: priorities, work in progress, knowledge sharing. Add resources last." },
+    scope: { label: "Lets changes in without control", what: "You accept or start new work without assessing its impact or getting it approved.", fix: "Route every change through change control: assess the impact on scope, time, cost and risk, then let the right people decide." },
     rush: { label: "Acts before understanding", what: "You start building or make promises before analysing the request.", fix: "Assess first: understand the need, its value and its impact, then plan." },
   };
   const CONF = ["Guessing", "Fairly sure", "Certain"];
@@ -3357,7 +3358,221 @@ const Diag = (() => {
       ["Handing over the code and a report is a complete handover.", "halfway"],
       ["Lessons are better captured once things have settled.", "avoid"]] },
   };
-  const BY = { kudi: K };
+  // Forte Clinic (predictive)
+  const CL = {
+    C1: { tags: ["corners", null, "rigid", "passon"], why: [
+      ["Engage the community respectfully and openly, while refusing any improper payment.", true],
+      ["Paying a small sum quietly is the fastest way to avoid delay.", "corners"],
+      ["Security comes first: protect the site from interference.", "rigid"],
+      ["Community relations are the contractor's job.", "passon"]] },
+    C2: { tags: ["halfway", null, "corners", "control"], why: [
+      ["Act with integrity: record and report the offer, and keep the evaluation fair.", true],
+      ["A small gift won't influence a professional's judgement.", "corners"],
+      ["Declining is enough; reporting it makes too much of it.", "halfway"],
+      ["I can decide the bidder's fate myself.", "control"]] },
+    C3: { tags: ["scope", null, "scope", "passon"], why: [
+      ["Changes to the approved scope go through change control, however good they are.", true],
+      ["Better quality is always worth having.", "scope"],
+      ["The contractor should carry the cost of the change.", "passon"],
+      ["A small change isn't worth the paperwork.", "halfway"]] },
+    C4: { tags: [null, "resource", "avoid", "blame"], why: [
+      ["Analyse the impact on the critical path and recommend options under the risk response plan.", true],
+      ["Extra working hours are the quickest way to recover lost time.", "resource"],
+      ["Delays often recover on their own.", "avoid"],
+      ["Weather delays are the contractor's problem to solve.", "blame"]] },
+    C5: { tags: ["corners", null, "halfway", "corners"], why: [
+      ["Follow the quality management plan: stop, investigate and correct before continuing.", true],
+      ["Test results are often wrong; the schedule matters more.", "corners"],
+      ["Another test settles it without stopping anything.", "halfway"],
+      ["A discount makes up for lower quality.", "corners"]] },
+    C6: { tags: [null, "pressure", "rigid", "avoid"], why: [
+      ["Manage it through the contract and the planned risk response, and treat the supplier fairly.", true],
+      ["Keeping the supplier happy matters more than the price.", "pressure"],
+      ["A contract is a contract: there is nothing to discuss.", "rigid"],
+      ["Currency swings settle down, so it's best not to react.", "avoid"]] },
+    C7: { tags: [null, "conceal", "halfway", "conceal"], why: [
+      ["Report earned value honestly, with the causes, forecasts and options.", true],
+      ["Variances usually even out, so there's no need to worry the sponsor.", "conceal"],
+      ["Cost is someone else's job; I report the schedule.", "halfway"],
+      ["It's better to report when the figures look better.", "avoid"]] },
+    C8: { tags: ["scope", null, "halfway", "rigid"], why: [
+      ["Analyse the impact, then let the change control board decide.", true],
+      ["If a senior stakeholder needs it, start it now.", "scope"],
+      ["The scope baseline can never change.", "rigid"],
+      ["A written request is all change control needs.", "halfway"]] },
+    C9: { tags: [null, "avoid", "halfway", "passon"], why: [
+      ["Safety comes first: stop unsafe work at once, then deal with the cause.", true],
+      ["It can wait for the next site meeting.", "avoid"],
+      ["A formal letter puts the responsibility on record.", "halfway"],
+      ["The contractor is responsible for its own workers.", "passon"]] },
+    C10: { tags: [null, "rush", "avoid", "blame"], why: [
+      ["When an issue is outside my authority, escalate it through the right channel with a clear request.", true],
+      ["It's the ministry's responsibility, so it isn't mine to chase.", "avoid"],
+      ["Public pressure makes slow organisations act.", "blame"],
+      ["I should fix it myself, whatever the hiring rules say.", "rush"]] },
+    C11: { tags: ["avoid", null, "halfway", "blame"], why: [
+      ["Use the communication plan: agree accurate messages and share them through trusted channels.", true],
+      ["Rumours die down if you leave them alone.", "avoid"],
+      ["One notice is enough to set the record straight.", "halfway"],
+      ["Whoever spread the rumour should correct it.", "blame"]] },
+    C12: { tags: ["corners", null, "rigid", "control"], why: [
+      ["Formal acceptance follows the agreed criteria; a ceremony can be separate.", true],
+      ["Snags can be fixed after the handover.", "corners"],
+      ["Nothing can happen until every snag is finished.", "rigid"],
+      ["I can sign off on the client's behalf.", "control"]] },
+    C13: { tags: [null, "pressure", "avoid", "rigid"], why: [
+      ["Settle claims against the contract and the records, then close the contract formally.", true],
+      ["Paying in full is the quickest way to close.", "pressure"],
+      ["Claims can be dealt with after the project closes.", "avoid"],
+      ["Every claim should be rejected; the price was agreed.", "rigid"]] },
+  };
+  // State Lands Bureau (hybrid)
+  const LA = {
+    L1: { tags: [null, "passon", "halfway", "avoid"], why: [
+      ["Understand a resistant stakeholder's concerns and give them ownership of what worries them.", true],
+      ["A senior sponsor should instruct her to cooperate.", "passon"],
+      ["Sharing the plan is enough engagement.", "halfway"],
+      ["We can deliver without her involvement.", "avoid"]] },
+    L2: { tags: ["corners", null, "rigid", "halfway"], why: [
+      ["Meet data protection law before processing personal data, with safeguards and contract terms.", true],
+      ["The assessment can catch up; the schedule can't.", "corners"],
+      ["Nothing can happen until every approval is complete.", "rigid"],
+      ["A vendor's assurance is enough evidence of compliance.", "halfway"]] },
+    L3: { tags: [null, "control", "halfway", "avoid"], why: [
+      ["Go-live is decided through the agreed governance: at the stage gate, against criteria.", true],
+      ["If the sponsor trusts me, I can make the call.", "control"],
+      ["An email to the sponsor is good enough governance.", "halfway"],
+      ["It's safer to wait until the sponsor is back.", "avoid"]] },
+    L4: { tags: ["pressure", "halfway", "conceal", "avoid"], why: [
+      ["Decide go-live on evidence against the agreed criteria, with every gap owned and dated.", true],
+      ["Momentum matters, and the plan said go live now.", "pressure"],
+      ["Showing the good measures keeps the committee confident.", "conceal"],
+      ["It's safest to wait until everything is ready everywhere.", "avoid"]] },
+    L5: { tags: ["avoid", null, "halfway", "rush"], why: [
+      ["Address fears honestly and involve people in designing the change.", true],
+      ["Staffing isn't part of the project's scope.", "avoid"],
+      ["A formal statement is enough to calm people.", "halfway"],
+      ["Reassuring people quickly matters more than accuracy.", "rush"]] },
+    L6: { tags: ["halfway", null, "avoid", "blame"], why: [
+      ["Report suspected fraud through the proper channel and protect the evidence.", true],
+      ["Getting the record fixed is what matters; there's no need to report it.", "halfway"],
+      ["Records are the registry's business, not the project's.", "avoid"],
+      ["Confronting it openly deters others.", "blame"]] },
+    L7: { tags: ["pressure", null, "passon", "conceal"], why: [
+      ["Assess the impact and take options to the steering committee through change control.", true],
+      ["A new date from the top must be met, whatever it takes.", "pressure"],
+      ["The sponsor should get the date changed back.", "passon"],
+      ["Small scope cuts don't need anyone's approval.", "conceal"]] },
+    L8: { tags: [null, "avoid", "rigid", "resource"], why: [
+      ["Manage the vendor against the contract: find the root cause and agree corrective action.", true],
+      ["Some errors are unavoidable with old files.", "avoid"],
+      ["Withholding payment is the strongest lever, so use it first.", "rigid"],
+      ["More capacity fixes quality problems.", "resource"]] },
+    L9: { tags: [null, "rush", "avoid", "scope"], why: [
+      ["Capture the need and let the product owner or change control prioritise it by value.", true],
+      ["Promising quickly keeps users on side.", "rush"],
+      ["New requests are best left until after the project.", "avoid"],
+      ["A small feature can go in without anyone deciding.", "scope"]] },
+    L10: { tags: ["rigid", null, "avoid", "blame"], why: [
+      ["Understand the resistance, agree cut-over criteria, then retire the old way and recognise the change.", true],
+      ["Removing the old option forces people to adopt the new one.", "rigid"],
+      ["Running both systems does no harm.", "avoid"],
+      ["People who won't adopt should be reported.", "blame"]] },
+    L11: { tags: ["conceal", null, "halfway", "rush"], why: [
+      ["Treat it as a data breach: follow the incident plan and meet the legal reporting deadline.", true],
+      ["If it was password-protected, there's nothing to report.", "conceal"],
+      ["A full report later is enough.", "halfway"],
+      ["Strong action against the vendor shows we take it seriously.", "rush"]] },
+    L12: { tags: ["halfway", null, "avoid", "rigid"], why: [
+      ["Capture lessons as you go and spread them actively to the teams that need them.", true],
+      ["Sharing the notes by email is enough.", "halfway"],
+      ["Lessons are best collected at the end.", "avoid"],
+      ["What worked in one district will work everywhere.", "rigid"]] },
+    L13: { tags: [null, "passon", "halfway", "resource"], why: [
+      ["Close formally and give the benefits a named owner who will measure them.", true],
+      ["The vendor knows the system best, so it should own it.", "passon"],
+      ["A thorough closure report completes the project.", "halfway"],
+      ["The project team should stay until every benefit arrives.", "resource"]] },
+  };
+  // Cold-Chain Rescue (Toronto)
+  const CO = {
+    C1: { tags: [null, "pressure", "passon", "halfway"], why: [
+      ["Report progress from verified evidence, and say how it was measured.", true],
+      ["The contractor knows its own work best.", "pressure"],
+      ["The board should decide which figure to believe.", "passon"],
+      ["A figure between the two is fair to both sides.", "halfway"]] },
+    C2: { tags: [null, "pressure", "halfway", "passon"], why: [
+      ["Connect the team to the purpose and agree a shared vision together.", true],
+      ["Focusing the team on the deadline gets results.", "pressure"],
+      ["Sharing the business case explains the why.", "halfway"],
+      ["Motivation is the sponsor's job.", "passon"]] },
+    C3: { tags: [null, "passon", "halfway", "rush"], why: [
+      ["Build one integrated plan with every party: shared milestones, the critical path and owned interfaces.", true],
+      ["Each supplier knows its own work, so each should plan it.", "passon"],
+      ["The biggest workstream's plan can stand in for the whole.", "halfway"],
+      ["Building matters more than planning at this stage.", "rush"]] },
+    C4: { tags: [null, "rigid", "pressure", "passon"], why: [
+      ["Assess claims against the contract and the records, using change control and the dispute process.", true],
+      ["A fixed price means no claims.", "rigid"],
+      ["Paying keeps the crews on site.", "pressure"],
+      ["Commercial disputes are for the sponsor to settle.", "passon"]] },
+    C5: { tags: [null, "corners", "passon", "avoid"], why: [
+      ["Contingency covers known risks; management reserve needs the sponsor's approval for unknown ones.", true],
+      ["Contingency is there for whatever comes up.", "corners"],
+      ["Any extra money should come from the board.", "passon"],
+      ["Spending can wait until next year.", "avoid"]] },
+    C6: { tags: [null, "passon", "halfway", "resource"], why: [
+      ["Negotiate with the functional manager to meet both needs, and re-plan around the agreement.", true],
+      ["The sponsor should block the move.", "passon"],
+      ["Operations comes first, so the project should simply wait.", "halfway"],
+      ["New people can be hired and trained instead.", "resource"]] },
+    C7: { tags: [null, "pressure", "pressure", "control"], why: [
+      ["Help the sponsors agree prioritisation criteria first, then apply them.", true],
+      ["The bigger funder's priorities should win.", "pressure"],
+      ["Public health always comes first, whatever the business case says.", "rigid"],
+      ["I should decide the order myself.", "control"]] },
+    C8: { tags: [null, "conceal", "halfway", "resource"], why: [
+      ["Correct the public date now, with a planned and honest message to everyone affected.", true],
+      ["The team might recover, so there's no need to announce a slip yet.", "conceal"],
+      ["Telling the sponsors privately is enough.", "halfway"],
+      ["Extra hours can protect a date that's already public.", "resource"]] },
+    C9: { tags: ["halfway", "conceal", "conceal", "corners"], why: [
+      ["A forecast outside tolerance goes to the decision-makers at once, with options.", true],
+      ["Fix it first, then report it once it's resolved.", "conceal"],
+      ["Spending contingency quietly is quicker than asking.", "corners"],
+      ["A routine report is the right place for bad news.", "halfway"]] },
+    C10: { tags: ["avoid", "halfway", "avoid", "rush"], why: [
+      ["Recommend what the evidence against the business case supports, even if that means stopping.", true],
+      ["The money already spent means we should finish.", "pressure"],
+      ["When unsure, delay the decision.", "avoid"],
+      ["Conditions are always a safe middle ground.", "halfway"]] },
+    C11: { tags: [null, "conceal", "halfway", "avoid"], why: [
+      ["Follow the validation protocol: stop, quarantine, find the cause and report it.", true],
+      ["Nothing real was stored, so it doesn't need reporting.", "conceal"],
+      ["Fixing the cause is enough without reporting it.", "halfway"],
+      ["The contractor should explain before we act.", "avoid"]] },
+    C12: { tags: [null, "resource", "halfway", "avoid"], why: [
+      ["Treat a single point of knowledge as a risk now, with hands-on knowledge transfer.", true],
+      ["Paying them to stay solves it.", "resource"],
+      ["A handover document captures what's needed.", "halfway"],
+      ["The contractor will send someone, so it can wait.", "avoid"]] },
+    C13: { tags: [null, "rigid", "resource", "avoid"], why: [
+      ["Understand why people resist, involve them in the fix and support them through it.", true],
+      ["An instruction ends the workaround.", "rigid"],
+      ["More training fixes adoption.", "resource"],
+      ["A workaround that works is fine for now.", "avoid"]] },
+    C14: { tags: [null, "corners", "rigid", "avoid"], why: [
+      ["Close each contract on its terms: verify, accept, settle, hand over and capture lessons.", true],
+      ["Releasing money quickly gets the project closed.", "corners"],
+      ["Holding money back protects the client.", "rigid"],
+      ["Operations can sort out whatever is left.", "avoid"]] },
+    C15: { tags: [null, "passon", "rush", "conceal"], why: [
+      ["Tell the team in person, honestly, and plan each person's release with care.", true],
+      ["HR handles releases.", "passon"],
+      ["Reassure them now and work out the details later.", "rush"],
+      ["Telling them early puts the shutdown work at risk.", "conceal"]] },
+  };
+  const BY = { kudi: K, clinic: CL, land: LA, cold: CO };
 
   const has = (key, id) => !!(BY[key] && BY[key][id]);
   // the reasons in a stable shuffled order for this save
@@ -3367,7 +3582,8 @@ const Diag = (() => {
     return r.shuffle(d.why.map((w, i) => ({ i, text: w[0], ok: w[1] === true, tag: w[1] === true ? null : w[1] })));
   }
   function tagOf(key, id, opt) {
-    if (opt && opt.tag) return opt.tag;
+    if (!opt || opt.grade === "best") return null;
+    if (opt.tag) return opt.tag;
     const d = BY[key] && BY[key][id];
     return d && d.tags && opt ? d.tags[opt.idx] || null : null;
   }
